@@ -1,13 +1,5 @@
 package org.shadowsocks.netty.client.proxy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import org.shadowsocks.netty.client.config.PacLoader;
-import org.shadowsocks.netty.client.config.RemoteServer;
-import org.shadowsocks.netty.client.encryption.CryptFactory;
-import org.shadowsocks.netty.client.encryption.ICrypt;
-import org.shadowsocks.netty.client.manager.RemoteServerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +9,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -30,45 +21,55 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 
-@ChannelHandler.Sharable
-public final class SocksServerConnectHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
+import java.util.NoSuchElementException;
 
-	private static Logger logger = LoggerFactory.getLogger(SocksServerConnectHandler.class);
+/**
+ * 本地浏览器请求远程连接处理handler
+ */
+public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
+	private static Logger logger = LoggerFactory.getLogger(ServerConnectToRemoteHandler.class);
 	private final Bootstrap b = new Bootstrap();
-	private ICrypt _crypt;
-	private RemoteServer remoteServer;
-	private boolean isProxy = true;
 
-	public SocksServerConnectHandler() {
-		this.remoteServer = RemoteServerManager.getRemoteServer();
-		this._crypt = CryptFactory.get(remoteServer.get_method(), remoteServer.get_password());
-	}
-
+	/**
+	 * read
+	 * @param ctx
+	 * @param request
+	 * @throws Exception
+	 */
 	@Override
 	public void channelRead0(final ChannelHandlerContext ctx, final SocksCmdRequest request) throws Exception {
+		String targetHost = request.host();
+		int targetPort = request.port();
+
 		Promise<Channel> promise = ctx.executor().newPromise();
 		promise.addListener(new GenericFutureListener<Future<Channel>>() {
 			@Override
 			public void operationComplete(final Future<Channel> future) throws Exception {
 				final Channel outboundChannel = future.getNow();
 				if (future.isSuccess()) {
-					final InRelayHandler inRelay = new InRelayHandler(ctx.channel(), SocksServerConnectHandler.this);
-					final OutRelayHandler outRelay = new OutRelayHandler(outboundChannel,
-							SocksServerConnectHandler.this);
-
+					/**
+					 *           ctx.channel()               future.getNow()
+ 					 *  Broswer ---------------> ThisServer -----------------> TargetServer
+					 *               IN                           OUT
+					 */
+					RemoteDataRelayHandler inRelay = new RemoteDataRelayHandler(ctx.channel(), ServerConnectToRemoteHandler.this);
+					LocalDataRelayHandler outRelay = new LocalDataRelayHandler(outboundChannel, ServerConnectToRemoteHandler.this);
+					/**
+					 * set socks5 success signal and remove this handler,
+					 * then the local app will send bytes , which will handle by LocalDataRelayHandler.
+					 * Add handler for out pipeline.
+					 */
 					ctx.channel().writeAndFlush(getSuccessResponse(request)).addListener(new ChannelFutureListener() {
 						@Override
 						public void operationComplete(ChannelFuture channelFuture) {
 							try {
-								if (isProxy) {
-									sendConnectRemoteMessage(request, outboundChannel);
-								}
-
-								ctx.pipeline().remove(SocksServerConnectHandler.this);
 								outboundChannel.pipeline().addLast(inRelay);
 								ctx.pipeline().addLast(outRelay);
-							} catch (Exception e) {
+								ctx.pipeline().remove(ServerConnectToRemoteHandler.this);
+							} catch (NoSuchElementException e) {
+								//ignore	?? why
+							} catch (Exception e){
 								logger.error("", e);
 							}
 						}
@@ -76,25 +77,31 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 				} else {
 					ctx.channel().writeAndFlush(getFailureResponse(request));
 					SocksServerUtils.closeOnFlush(ctx.channel());
+					logger.warn("@@@Failed to connect to host {} port {} proxy {}, close channel." , request.host() , request.port() );
 				}
 			}
 		});
 
+
 		final Channel inboundChannel = ctx.channel();
-		b.group(inboundChannel.eventLoop()).channel(NioSocketChannel.class)
-				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000).option(ChannelOption.SO_KEEPALIVE, true)
-				.handler(new DirectClientHandler(promise));
-
-		setProxy(request.host());
-
-		logger.info("connect to host {} port {} proxy {}" , request.host() , request.port() , isProxy);
-
-		b.connect(getIpAddr(request), getPort(request)).addListener(new ChannelFutureListener() {
+		b.group(inboundChannel.eventLoop())
+				.channel(NioSocketChannel.class)
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+				.option(ChannelOption.SO_KEEPALIVE, true)
+				.handler(new RemoteConnectedHandler(promise));
+		b.connect(targetHost, targetPort)
+				.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				if (!future.isSuccess()) {
 					ctx.channel().writeAndFlush(getFailureResponse(request));
 					SocksServerUtils.closeOnFlush(ctx.channel());
+					logger.warn("Failed to connect to host {} port {}  , close channel." , request.host() , request.port() );
+				}else{
+					//only connect success
+					//the success response to local socks5 connection is send by
+					//promise above
+					logger.info("Success Connect to host {} port {}  " , request.host() , request.port() );
 				}
 			}
 		});
@@ -105,37 +112,11 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 		SocksServerUtils.closeOnFlush(ctx.channel());
 	}
 
-	public void setProxy(String host) {
-		isProxy = false;
-	}
 
-	/**
-	 * 获取远程ip地址
-	 * 
-	 * @param request
-	 * @return
-	 */
-	private String getIpAddr(SocksCmdRequest request) {
-		if (isProxy) {
-			return remoteServer.get_ipAddr();
-		} else {
-			return request.host();
-		}
-	}
 
-	/**
-	 * 获取远程端口
-	 * 
-	 * @param request
-	 * @return
-	 */
-	private int getPort(SocksCmdRequest request) {
-		if (isProxy) {
-			return remoteServer.get_port();
-		} else {
-			return request.port();
-		}
-	}
+
+
+
 
 	private SocksCmdResponse getSuccessResponse(SocksCmdRequest request) {
 		return new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4);
@@ -192,25 +173,8 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 	 * @param channel
 	 */
 	public void sendRemote(byte[] data, int length, Channel channel) {
-		ByteArrayOutputStream _remoteOutStream = null;
-		try {
-			_remoteOutStream = new ByteArrayOutputStream();
-			if (isProxy) {
-				_crypt.encrypt(data, length, _remoteOutStream);
-				data = _remoteOutStream.toByteArray();
-			}
-			channel.writeAndFlush(Unpooled.wrappedBuffer(data));
-		} catch (Exception e) {
-			logger.error("sendRemote error", e);
-		} finally {
-			if (_remoteOutStream != null) {
-				try {
-					_remoteOutStream.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-		logger.debug("sendRemote message:isProxy = " + isProxy + ",length = " + length + ",channel = " + channel);
+		channel.writeAndFlush(Unpooled.wrappedBuffer(data));
+		logger.debug("sendRemote message:isProxy = " + false + ",length = " + length + ",channel = " + channel);
 	}
 
 	/**
@@ -221,25 +185,8 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 	 * @param channel
 	 */
 	public void sendLocal(byte[] data, int length, Channel channel) {
-		ByteArrayOutputStream _localOutStream = null;
-		try {
-			_localOutStream = new ByteArrayOutputStream();
-			if (isProxy) {
-				_crypt.decrypt(data, length, _localOutStream);
-				data = _localOutStream.toByteArray();
-			}
-			channel.writeAndFlush(Unpooled.wrappedBuffer(data));
-		} catch (Exception e) {
-			logger.error("sendLocal error", e);
-		} finally {
-			if (_localOutStream != null) {
-				try {
-					_localOutStream.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-		logger.debug("sendLocal message:isProxy = " + isProxy + ",length = " + length + ",channel = " + channel);
+		channel.writeAndFlush(Unpooled.wrappedBuffer(data));
+		logger.debug("sendLocal message:isProxy = " + false + ",length = " + length + ",channel = " + channel);
 	}
 
 }

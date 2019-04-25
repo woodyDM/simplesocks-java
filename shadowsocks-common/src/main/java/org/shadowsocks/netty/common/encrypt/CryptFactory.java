@@ -1,13 +1,13 @@
-package org.shadowsocks.netty.client.encryption;
+package org.shadowsocks.netty.common.encrypt;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.shadowsocks.netty.client.encryption.impl.AesCrypt;
-import org.shadowsocks.netty.client.encryption.impl.BlowFishCrypt;
-import org.shadowsocks.netty.client.encryption.impl.CamelliaCrypt;
-import org.shadowsocks.netty.client.encryption.impl.SeedCrypt;
+import org.shadowsocks.netty.common.encrypt.impl.AesCrypt;
+import org.shadowsocks.netty.common.encrypt.impl.BlowFishCrypt;
+import org.shadowsocks.netty.common.encrypt.impl.CamelliaCrypt;
+import org.shadowsocks.netty.common.encrypt.impl.SeedCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

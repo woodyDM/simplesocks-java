@@ -11,19 +11,17 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * 接受remoteserver的数据，发送给客户端
- * 
- * @author zhaohui
+ * receive data from local app and send to remote server.
  * 
  */
-public final class InRelayHandler extends ChannelInboundHandlerAdapter {
+public final class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 
-	private static Logger logger = LoggerFactory.getLogger(InRelayHandler.class);
+	private static Logger logger = LoggerFactory.getLogger(LocalDataRelayHandler.class);
 
 	private final Channel relayChannel;
-	private SocksServerConnectHandler connectHandler;
+	private ServerConnectToRemoteHandler connectHandler;
 
-	public InRelayHandler(Channel relayChannel, SocksServerConnectHandler connectHandler) {
+	public LocalDataRelayHandler(Channel relayChannel, ServerConnectToRemoteHandler connectHandler) {
 		this.relayChannel = relayChannel;
 		this.connectHandler = connectHandler;
 	}
@@ -37,17 +35,16 @@ public final class InRelayHandler extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		try {
 			if (relayChannel.isActive()) {
-				logger.debug("get remote message" + relayChannel);
 				ByteBuf bytebuff = (ByteBuf) msg;
 				if (!bytebuff.hasArray()) {
 					int len = bytebuff.readableBytes();
 					byte[] arr = new byte[len];
 					bytebuff.getBytes(0, arr);
-					connectHandler.sendLocal(arr, arr.length, relayChannel);
+					connectHandler.sendRemote(arr, arr.length, relayChannel);
 				}
 			}
 		} catch (Exception e) {
-			logger.error("receive remoteServer data error", e);
+			logger.error("send data to remoteServer error", e);
 		} finally {
 			ReferenceCountUtil.release(msg);
 		}
@@ -57,12 +54,12 @@ public final class InRelayHandler extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) {
 		SocksServerUtils.closeOnFlush(relayChannel);
 		SocksServerUtils.closeOnFlush(ctx.channel());
-		logger.info("inRelay channelInactive close");
+		logger.info("outRelay channelInactive close");
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		cause.printStackTrace();
 		ctx.close();
 	}
+
 }

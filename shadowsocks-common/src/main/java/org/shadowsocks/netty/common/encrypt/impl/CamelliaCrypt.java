@@ -1,9 +1,9 @@
-package org.shadowsocks.netty.client.encryption.impl;
+package org.shadowsocks.netty.common.encrypt.impl;
 
 import org.bouncycastle.crypto.StreamBlockCipher;
 import org.bouncycastle.crypto.engines.CamelliaEngine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
-import org.shadowsocks.netty.client.encryption.CryptBase;
+import org.shadowsocks.netty.common.encrypt.CryptBase;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;

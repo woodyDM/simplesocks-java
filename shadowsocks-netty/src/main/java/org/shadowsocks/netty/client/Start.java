@@ -9,6 +9,6 @@ package org.shadowsocks.netty.client;
 public class Start {
 
 	public static void main(String[] args) {
-		SocksServer.getInstance().start();
+		SocksServer.getInstance().run();
 	}
 }

@@ -1,9 +1,9 @@
-package org.shadowsocks.netty.client.encryption.impl;
+package org.shadowsocks.netty.common.encrypt.impl;
 
 import org.bouncycastle.crypto.StreamBlockCipher;
-import org.bouncycastle.crypto.engines.BlowfishEngine;
+import org.bouncycastle.crypto.engines.SEEDEngine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
-import org.shadowsocks.netty.client.encryption.CryptBase;
+import org.shadowsocks.netty.common.encrypt.CryptBase;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,20 +13,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Blow fish cipher implementation
+ * Seed cipher implementation
  */
-public class BlowFishCrypt extends CryptBase {
+public class SeedCrypt extends CryptBase {
 
-    public final static String CIPHER_BLOWFISH_CFB = "bf-cfb";
+    public final static String CIPHER_SEED_CFB = "seed-cfb";
 
     public static Map<String, String> getCiphers() {
         Map<String, String> ciphers = new HashMap<>();
-        ciphers.put(CIPHER_BLOWFISH_CFB, BlowFishCrypt.class.getName());
+        ciphers.put(CIPHER_SEED_CFB, SeedCrypt.class.getName());
 
         return ciphers;
     }
 
-    public BlowFishCrypt(String name, String password) {
+    public SeedCrypt(String name, String password) {
         super(name, password);
     }
 
@@ -37,10 +37,10 @@ public class BlowFishCrypt extends CryptBase {
 
     @Override
     protected StreamBlockCipher getCipher(boolean isEncrypted) throws InvalidAlgorithmParameterException {
-        BlowfishEngine engine = new BlowfishEngine();
+        SEEDEngine engine = new SEEDEngine();
         StreamBlockCipher cipher;
 
-        if (_name.equals(CIPHER_BLOWFISH_CFB)) {
+        if (_name.equals(CIPHER_SEED_CFB)) {
             cipher = new CFBBlockCipher(engine, getIVLength() * 8);
         }
         else {
@@ -52,7 +52,7 @@ public class BlowFishCrypt extends CryptBase {
 
     @Override
     public int getIVLength() {
-        return 8;
+        return 16;
     }
 
     @Override

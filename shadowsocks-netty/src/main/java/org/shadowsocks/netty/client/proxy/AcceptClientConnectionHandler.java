@@ -3,7 +3,6 @@ package org.shadowsocks.netty.client.proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.SocksAuthResponse;
@@ -15,30 +14,30 @@ import io.netty.handler.codec.socks.SocksCmdType;
 import io.netty.handler.codec.socks.SocksInitResponse;
 import io.netty.handler.codec.socks.SocksRequest;
 
-@ChannelHandler.Sharable
-public final class SocksServerHandler extends SimpleChannelInboundHandler<SocksRequest> {
+/**
+ * SOCK5处理连接请求
+ */
+public final class AcceptClientConnectionHandler extends SimpleChannelInboundHandler<SocksRequest> {
 
-	private static Logger logger = LoggerFactory.getLogger(SocksServerHandler.class);
+	private static Logger logger = LoggerFactory.getLogger(AcceptClientConnectionHandler.class);
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, SocksRequest socksRequest) throws Exception {
 		switch (socksRequest.requestType()) {
 		case INIT: {
-			logger.info("localserver init");
 			ctx.pipeline().addFirst(new SocksCmdRequestDecoder());
 			ctx.write(new SocksInitResponse(SocksAuthScheme.NO_AUTH));
 			break;
 		}
 		case AUTH:
-			logger.info("localserver auth");
 			ctx.pipeline().addFirst(new SocksCmdRequestDecoder());
 			ctx.write(new SocksAuthResponse(SocksAuthStatus.SUCCESS));
 			break;
 		case CMD:
+			//浏览器请求连接
 			SocksCmdRequest req = (SocksCmdRequest) socksRequest;
 			if (req.cmdType() == SocksCmdType.CONNECT) {
-				logger.info("localserver connect");
-				ctx.pipeline().addLast(new SocksServerConnectHandler());
+				ctx.pipeline().addLast(new ServerConnectToRemoteHandler());
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(socksRequest);
 			} else {
@@ -58,7 +57,6 @@ public final class SocksServerHandler extends SimpleChannelInboundHandler<SocksR
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) {
-		throwable.printStackTrace();
 		SocksServerUtils.closeOnFlush(ctx.channel());
 	}
 }

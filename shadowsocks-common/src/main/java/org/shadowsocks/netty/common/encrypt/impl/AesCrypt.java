@@ -1,4 +1,4 @@
-package org.shadowsocks.netty.client.encryption.impl;
+package org.shadowsocks.netty.common.encrypt.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -12,7 +12,7 @@ import org.bouncycastle.crypto.StreamBlockCipher;
 import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
-import org.shadowsocks.netty.client.encryption.CryptBase;
+import org.shadowsocks.netty.common.encrypt.CryptBase;
 
 /**
  * AES 实现类

@@ -1,4 +1,4 @@
-package org.shadowsocks.netty.client.encryption;
+package org.shadowsocks.netty.common.encrypt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
