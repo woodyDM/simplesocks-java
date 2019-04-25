@@ -3,7 +3,7 @@
 	<local_port>10800</local_port>
 	<remotes>
 		<remote>
-			<ip_addr>xxxxxx</ip_addr>
+			<ip_addr>xxxxx797x</ip_addr>
 			<port>443</port>
 			<method>aes-256-cfb</method>
 			<password>xxxx</password>

@@ -27,9 +27,9 @@ public class ConfigXmlLoader {
 		InputStream in = null;
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			in = new FileInputStream(file);
+			in = ConfigXmlLoader.class.getClassLoader().getResourceAsStream(file);
 			Document doc = builder.parse(in);
-			NodeList list = doc.getElementsByTagName("config");
+			NodeList list = doc.getElementsByTagName("conf");
 
 			Config config = new Config();
 			if (list.getLength() > 0) {
@@ -38,7 +38,7 @@ public class ConfigXmlLoader {
 
 				for (int j = 0; j < childs.getLength(); j++) {
 					if ("local_port".equals(childs.item(j).getNodeName())) {
-						config.set_localPort(Integer.parseInt(childs.item(j).getTextContent()));
+						config.setLocalPort(Integer.parseInt(childs.item(j).getTextContent()));
 					}
 				}
 

@@ -87,7 +87,7 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 
 		setProxy(request.host());
 
-		logger.info("host = " + request.host() + ",port = " + request.port() + ",isProxy = " + isProxy);
+		logger.info("connect to host {} port {} proxy {}" , request.host() , request.port() , isProxy);
 
 		b.connect(getIpAddr(request), getPort(request)).addListener(new ChannelFutureListener() {
 			@Override
@@ -106,11 +106,7 @@ public final class SocksServerConnectHandler extends SimpleChannelInboundHandler
 	}
 
 	public void setProxy(String host) {
-		if (PacLoader.is_global_mode()) {
-			isProxy = true;
-		} else {
-			isProxy = PacLoader.isProxy(host);
-		}
+		isProxy = false;
 	}
 
 	/**

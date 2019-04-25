@@ -47,6 +47,7 @@ public class SocksServer {
 
 	public void start() {
 		try {
+			logger.info("user.dir {}",System.getProperty("user.dir"));
 			Config config = ConfigXmlLoader.load(CONFIG);
 			PacLoader.load(PAC);
 			RemoteServerManager.init(config);
@@ -59,9 +60,9 @@ public class SocksServer {
 			bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(trafficHandler));
 
-			logger.info("Start At Port " + config.get_localPort());
+			logger.info("Start At Port " + config.getLocalPort());
 			startMBean();
-			bootstrap.bind(config.get_localPort()).sync().channel().closeFuture().sync();
+			bootstrap.bind(config.getLocalPort()).sync().channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("start error", e);
 		} finally {

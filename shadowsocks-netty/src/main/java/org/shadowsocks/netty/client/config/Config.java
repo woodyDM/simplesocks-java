@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Config {
 
-	private int _localPort;
+	private int localPort;
 	private List<RemoteServer> remoteList = new ArrayList<RemoteServer>(20);
 
 	public Config() {
@@ -26,12 +26,12 @@ public class Config {
 		return remoteList;
 	}
 
-	public int get_localPort() {
-		return _localPort;
+	public int getLocalPort() {
+		return localPort;
 	}
 
-	public void set_localPort(int _localPort) {
-		this._localPort = _localPort;
+	public void setLocalPort(int localPort) {
+		this.localPort = localPort;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -38,17 +39,9 @@ public class PacLoader {
 	private static long lastModify;
 
 	public static void load(final String filePath) throws Exception {
-		File file = new File(filePath);
-		if (!file.exists()) {
-			throw new RuntimeException("file = " + filePath + " is not exist!");
-		}
-		if (file.lastModified() == lastModify) {
-			return;
-		}
-		lastModify = file.lastModified();
 
 		loadFile(filePath);
-
+		log.info("load pac at start.");
 		Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(new Runnable() {
 
 			@Override
@@ -67,7 +60,8 @@ public class PacLoader {
 		InputStream in = null;
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			in = new FileInputStream(file);
+			in = PacLoader.class.getClassLoader().getResourceAsStream(file);
+
 			Document doc = builder.parse(in);
 			NodeList list = doc.getElementsByTagName("domain");
 
@@ -88,7 +82,6 @@ public class PacLoader {
 				}
 			}
 
-			log.info("load pac !");
 		} catch (Exception e) {
 			throw e;
 		} finally {
