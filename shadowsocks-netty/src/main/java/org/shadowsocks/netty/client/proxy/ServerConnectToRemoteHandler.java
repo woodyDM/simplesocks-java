@@ -55,8 +55,10 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 					/**
 					 *           ctx.channel()               future.getNow()
  					 *  Broswer ---------------> ThisServer -----------------> TargetServer
-					 *               IN                           OUT
-					 */
+					 *
+					 *       IN <------------------
+					 *       ---------------->  OUT
+					 **/
 					RemoteDataRelayHandler inRelay = new RemoteDataRelayHandler(ctx.channel(), ServerConnectToRemoteHandler.this);
 					LocalDataRelayHandler outRelay = new LocalDataRelayHandler(outboundChannel, ServerConnectToRemoteHandler.this);
 					/**
@@ -68,9 +70,9 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 						@Override
 						public void operationComplete(ChannelFuture channelFuture) {
 							try {
+								ctx.pipeline().remove(ServerConnectToRemoteHandler.this);
 								outboundChannel.pipeline().addLast(inRelay);
 								ctx.pipeline().addLast(outRelay);
-								ctx.pipeline().remove(ServerConnectToRemoteHandler.this);
 							} catch (NoSuchElementException e) {
 								//ignore	?? why
 							} catch (Exception e){

@@ -5,6 +5,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.shadowsocks.netty.common.protocol.CmdRequestFactory;
+import org.shadowsocks.netty.common.protocol.SimpleSocksCmdRequest;
 
 import java.nio.charset.StandardCharsets;
 
@@ -14,11 +16,9 @@ public class ByteReceiveHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
         int len = msg.readableBytes();
-        byte[] bytes = new byte[len];
-        msg.readBytes(bytes);
-
-        String string = new String(bytes, StandardCharsets.UTF_8);
-        log.info(string);
+        log.info("readable = {}",len);
+        SimpleSocksCmdRequest simpleSocksCmdRequest = CmdRequestFactory.newInstance(msg);
+        log.info("{");
     }
 
     @Override

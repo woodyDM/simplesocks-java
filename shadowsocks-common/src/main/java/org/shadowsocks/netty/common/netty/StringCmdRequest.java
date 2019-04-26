@@ -1,7 +1,8 @@
 package org.shadowsocks.netty.common.netty;
 
 import io.netty.buffer.ByteBuf;
-import org.shadowsocks.netty.common.util.ContentLengthUtils;
+import org.shadowsocks.netty.common.protocol.DataType;
+import org.shadowsocks.netty.common.protocol.SimpleSocksCmdRequest;
 
 import java.nio.charset.StandardCharsets;
 
@@ -20,5 +21,10 @@ public class StringCmdRequest implements SimpleSocksCmdRequest {
         int len = 1+4+bytes.length;
         buf.writeInt(len);
         buf.writeBytes(bytes);
+    }
+
+    @Override
+    public DataType getType() {
+        return null;
     }
 }

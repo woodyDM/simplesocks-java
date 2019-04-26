@@ -62,10 +62,12 @@ client to server:
 |  4| |content-length-total |
 |  1| 0x04| end proxy cmd |
 
-5.server response(all server response is same)
+5.server responses(all server response is same)
 
 |len| byte|description|
 |:----:|:---:|:-------:|
 |  1| 0x01| version number |
+|  4| |content-length-total |
+|1 | | response-type|
 |  1| 0x01 success<br> 0x02 fail| result|
  

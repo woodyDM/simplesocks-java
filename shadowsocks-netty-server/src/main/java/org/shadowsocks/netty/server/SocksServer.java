@@ -2,6 +2,7 @@ package org.shadowsocks.netty.server;
 
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.shadowsocks.netty.common.netty.ByteReceiveHandler;
+import org.shadowsocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,8 @@ public class SocksServer {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
 							socketChannel.pipeline()
-									.addFirst(decoder)
-                                    .addLast(new ByteReceiveHandler())
+									.addLast(decoder)
+                                    .addLast(new SimpleSocksProtocolDecoder())
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}
 					});

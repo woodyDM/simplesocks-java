@@ -2,10 +2,8 @@ package org.shadowsocks.netty.common.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
-
-import java.util.List;
+import org.shadowsocks.netty.common.protocol.SimpleSocksCmdRequest;
 
 public class SimpleSocksProtocolEncoder extends MessageToByteEncoder<SimpleSocksCmdRequest> {
 
