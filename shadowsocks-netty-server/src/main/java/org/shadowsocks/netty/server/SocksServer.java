@@ -1,8 +1,8 @@
 package org.shadowsocks.netty.server;
 
-import org.shadowsocks.netty.server.config.Config;
-import org.shadowsocks.netty.server.config.ConfigXmlLoader;
-import org.shadowsocks.netty.server.proxy.HostHandler;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import org.shadowsocks.netty.common.netty.ByteReceiveHandler;
+import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ public class SocksServer {
 
 	private static Logger logger = LoggerFactory.getLogger(SocksServer.class);
 
-	private static final String CONFIG = "conf/config.xml";
+	//private static final String CONFIG = "conf/config.xml";
 
 	private EventLoopGroup bossGroup = null;
 	private EventLoopGroup workerGroup = null;
@@ -35,21 +35,28 @@ public class SocksServer {
 
 	public void start() {
 		try {
-			final Config config = ConfigXmlLoader.load(CONFIG);
+			int port = 10801;
 
+			LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
+					1,4,-5,5);
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			bootstrap = new ServerBootstrap();
-			bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-					.option(ChannelOption.SO_KEEPALIVE, true).childHandler(new ChannelInitializer<SocketChannel>() {
+			bootstrap.group(bossGroup, workerGroup)
+					.channel(NioServerSocketChannel.class)
+					.childOption(ChannelOption.SO_KEEPALIVE, true)
+					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
-							socketChannel.pipeline().addLast(new HostHandler(config));
+							socketChannel.pipeline()
+									.addFirst(decoder)
+                                    .addLast(new ByteReceiveHandler())
+									.addFirst(new SimpleSocksProtocolEncoder());
 						}
 					});
 
-			logger.info("Start At Port " + config.get_localPort());
-			bootstrap.bind(config.get_localPort()).sync().channel().closeFuture().sync();
+			logger.info("Start At Port {} " ,port);
+			bootstrap.bind(port).sync().channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("start error", e);
 		} finally {
@@ -57,6 +64,9 @@ public class SocksServer {
 		}
 	}
 
+    public static void main(String[] args) {
+        SocksServer.getInstance().start();
+    }
 	public void stop() {
 		if (bossGroup != null) {
 			bossGroup.shutdownGracefully();

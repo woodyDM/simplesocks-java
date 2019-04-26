@@ -31,6 +31,10 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 	private static Logger logger = LoggerFactory.getLogger(ServerConnectToRemoteHandler.class);
 	private final Bootstrap b = new Bootstrap();
 
+
+	private String remoteIp = "127.0.0.1";
+	private int remotePort = 10900;
+
 	/**
 	 * read
 	 * @param ctx
