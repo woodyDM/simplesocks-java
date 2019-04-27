@@ -12,5 +12,7 @@
         <appender-ref ref="STDOUT" />
     </root>
 
+    <logger name="org.shadowsocks.netty" level="DEBUG" />
+
 
 </configuration>

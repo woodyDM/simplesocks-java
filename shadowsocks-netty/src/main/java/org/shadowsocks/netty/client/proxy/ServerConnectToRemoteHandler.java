@@ -1,18 +1,17 @@
 package org.shadowsocks.netty.client.proxy;
 
+import org.shadowsocks.netty.client.proxy.relay.RelayClient;
+import org.shadowsocks.netty.client.proxy.relay.RelayProxyDataHandler;
+import org.shadowsocks.netty.common.protocol.ProxyRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.socks.SocksAddressType;
 import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
@@ -21,106 +20,36 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 
-import java.util.NoSuchElementException;
-
 /**
  * 本地浏览器请求远程连接处理handler
  */
 public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHandler<SocksCmdRequest> {
 
 	private static Logger logger = LoggerFactory.getLogger(ServerConnectToRemoteHandler.class);
-	private final Bootstrap b = new Bootstrap();
+
+	private RelayClient client ;
+	private String remoteIp = "localhost";
+	private int remotePort = 10801;
+	private SocksCmdRequest request;
+
+	public ServerConnectToRemoteHandler(SocksCmdRequest request) {
+		this.request = request;
+	}
 
 
-	private String remoteIp = "127.0.0.1";
-	private int remotePort = 10900;
-
-	/**
-	 * read
-	 * @param ctx
-	 * @param request
-	 * @throws Exception
-	 */
 	@Override
-	public void channelRead0(final ChannelHandlerContext ctx, final SocksCmdRequest request) throws Exception {
-		String targetHost = request.host();
-		int targetPort = request.port();
-
-		Promise<Channel> promise = ctx.executor().newPromise();
-		promise.addListener(new GenericFutureListener<Future<Channel>>() {
-			@Override
-			public void operationComplete(final Future<Channel> future) throws Exception {
-				final Channel outboundChannel = future.getNow();
-				if (future.isSuccess()) {
-					/**
-					 *           ctx.channel()               future.getNow()
- 					 *  Broswer ---------------> ThisServer -----------------> TargetServer
-					 *
-					 *       IN <------------------
-					 *       ---------------->  OUT
-					 **/
-					RemoteDataRelayHandler inRelay = new RemoteDataRelayHandler(ctx.channel(), ServerConnectToRemoteHandler.this);
-					LocalDataRelayHandler outRelay = new LocalDataRelayHandler(outboundChannel, ServerConnectToRemoteHandler.this);
-					/**
-					 * set socks5 success signal and remove this handler,
-					 * then the local app will send bytes , which will handle by LocalDataRelayHandler.
-					 * Add handler for out pipeline.
-					 */
-					ctx.channel().writeAndFlush(getSuccessResponse(request)).addListener(new ChannelFutureListener() {
-						@Override
-						public void operationComplete(ChannelFuture channelFuture) {
-							try {
-								ctx.pipeline().remove(ServerConnectToRemoteHandler.this);
-								outboundChannel.pipeline().addLast(inRelay);
-								ctx.pipeline().addLast(outRelay);
-							} catch (NoSuchElementException e) {
-								//ignore	?? why
-							} catch (Exception e){
-								logger.error("", e);
-							}
-						}
-					});
-				} else {
-					ctx.channel().writeAndFlush(getFailureResponse(request));
-					SocksServerUtils.closeOnFlush(ctx.channel());
-					logger.warn("@@@Failed to connect to host {} port {} proxy {}, close channel." , request.host() , request.port() );
-				}
-			}
-		});
-
-
+	protected void channelRead0(ChannelHandlerContext ctx, SocksCmdRequest socksCmdRequest) throws Exception {
 		final Channel inboundChannel = ctx.channel();
-		b.group(inboundChannel.eventLoop())
-				.channel(NioSocketChannel.class)
-				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-				.option(ChannelOption.SO_KEEPALIVE, true)
-				.handler(new RemoteConnectedHandler(promise));
-		b.connect(targetHost, targetPort)
-				.addListener(new ChannelFutureListener() {
-			@Override
-			public void operationComplete(ChannelFuture future) throws Exception {
-				if (!future.isSuccess()) {
-					ctx.channel().writeAndFlush(getFailureResponse(request));
-					SocksServerUtils.closeOnFlush(ctx.channel());
-					logger.warn("Failed to connect to host {} port {}  , close channel." , request.host() , request.port() );
-				}else{
-					//only connect success
-					//the success response to local socks5 connection is send by
-					//promise above
-					logger.info("Success Connect to host {} port {}  " , request.host() , request.port() );
-				}
-			}
-		});
+		client = new RelayClient(remoteIp, remotePort, inboundChannel.eventLoop() );
+		client.setRequest(request);
+		client.init();
+		ctx.pipeline().remove(this);
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		SocksServerUtils.closeOnFlush(ctx.channel());
 	}
-
-
-
-
 
 
 

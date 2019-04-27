@@ -1,9 +1,9 @@
 package org.shadowsocks.netty.server;
 
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import org.shadowsocks.netty.common.netty.ByteReceiveHandler;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
+import org.shadowsocks.netty.server.proxy.SimpleSocksCmdHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,22 +15,22 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class SocksServer {
+public class RemoteSocksServer {
 
-	private static Logger logger = LoggerFactory.getLogger(SocksServer.class);
+	private static Logger logger = LoggerFactory.getLogger(RemoteSocksServer.class);
 
 	//private static final String CONFIG = "conf/config.xml";
 
 	private EventLoopGroup bossGroup = null;
 	private EventLoopGroup workerGroup = null;
 	private ServerBootstrap bootstrap = null;
-	private static SocksServer socksServer = new SocksServer();
+	private static RemoteSocksServer remoteSocksServer = new RemoteSocksServer();
 
-	public static SocksServer getInstance() {
-		return socksServer;
+	public static RemoteSocksServer getInstance() {
+		return remoteSocksServer;
 	}
 
-	private SocksServer() {
+	private RemoteSocksServer() {
 
 	}
 
@@ -53,10 +53,10 @@ public class SocksServer {
 							socketChannel.pipeline()
 									.addLast(decoder)
                                     .addLast(new SimpleSocksProtocolDecoder())
+									.addLast(new SimpleSocksCmdHandler())
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}
 					});
-
 			logger.info("Start At Port {} " ,port);
 			bootstrap.bind(port).sync().channel().closeFuture().sync();
 		} catch (Exception e) {
@@ -67,7 +67,7 @@ public class SocksServer {
 	}
 
     public static void main(String[] args) {
-        SocksServer.getInstance().start();
+        RemoteSocksServer.getInstance().start();
     }
 	public void stop() {
 		if (bossGroup != null) {

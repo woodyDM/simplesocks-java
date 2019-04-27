@@ -24,9 +24,11 @@ public class AuthConnectionRequest extends ByteBasedRequest {
         return bytes;
     }
 
-    private void init(String auth){
-
+    @Override
+    public String toString() {
+        return "AuthConnectionRequest{" +
+                "auth='" + auth + '\'' +
+                ", type=" + type +
+                '}';
     }
-
-
 }

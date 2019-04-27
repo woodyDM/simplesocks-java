@@ -28,7 +28,6 @@ public abstract class ByteBasedRequest implements SimpleSocksCmdRequest {
         int len = body.length;
         buf.writeByte(Constants.VERSION1);
         buf.writeInt(len + Constants.LEN_HEAD);
-        log.info("send bytes len = {} {}", (len+1),this.getClass().getName());
         buf.writeByte(type.getBit());
         if(len>0){
             buf.writeBytes(body);

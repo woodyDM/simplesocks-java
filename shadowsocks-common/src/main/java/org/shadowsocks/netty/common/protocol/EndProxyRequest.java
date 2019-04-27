@@ -10,4 +10,9 @@ public class EndProxyRequest extends ByteBasedRequest {
     protected byte[] body() {
         return new byte[0];
     }
+
+    @Override
+    public String toString() {
+        return "EndProxyRequest ";
+    }
 }

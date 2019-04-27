@@ -12,6 +12,7 @@ public class ProxyRequest extends ByteBasedRequest {
     private int port;
     private String target;
     private Type proxyType;
+
     public ProxyRequest(Type t, int port, String target) {
         super(DataType.PROXY);
         if(StringUtil.isNullOrEmpty(target)){
@@ -20,6 +21,18 @@ public class ProxyRequest extends ByteBasedRequest {
         this.proxyType = t;
         this.port = port;
         this.target=target;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public Type getProxyType() {
+        return proxyType;
     }
 
     @Override
@@ -42,6 +55,14 @@ public class ProxyRequest extends ByteBasedRequest {
     }
 
 
+    @Override
+    public String toString() {
+        return "ProxyRequest{" +
+                "port=" + port +
+                ", target='" + target + '\'' +
+                ", proxyType=" + proxyType +
+                '}';
+    }
 
     public enum Type{
         IPV4(Constants.PROXY_TYPE_IPV4),

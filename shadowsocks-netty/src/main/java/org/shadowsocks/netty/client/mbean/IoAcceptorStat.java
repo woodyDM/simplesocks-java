@@ -1,18 +1,18 @@
 package org.shadowsocks.netty.client.mbean;
 
-import org.shadowsocks.netty.client.SocksServer;
+import org.shadowsocks.netty.client.LocalSocksServer;
 
 public class IoAcceptorStat implements IoAcceptorStatMBean {
 
 	@Override
 	public long getWrittenBytesThroughput() {
-		return SocksServer.getInstance().getTrafficCounter()
+		return LocalSocksServer.getInstance().getTrafficCounter()
 				.lastWriteThroughput();
 	}
 
 	@Override
 	public long getReadBytesThroughput() {
-		return SocksServer.getInstance().getTrafficCounter()
+		return LocalSocksServer.getInstance().getTrafficCounter()
 				.lastReadThroughput();
 	}
 

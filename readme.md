@@ -1,8 +1,9 @@
 ## Notice
-Total a copy of
+Totally based on
 [shadowsocks-netty](https://github.com/ksfzhaohui/shadowsocks-netty)
 and
-[基于netty4.0的shadowsocks客户端](http://my.oschina.net/OutOfMemory/blog/744475)
+[基于netty4.0的shadowsocks客户端](http://my.oschina.net/OutOfMemory/blog/744475)  
+Thanks.
 
 
 ## TODO  
@@ -11,14 +12,19 @@ and
 3. client to server connection pool;
 4. encrypt between client and server;
  
+## name
 
 
-## Protocol   
+
+              Socks5                SimpleSocksProtocol                 Http
+    LocalAPP  ----->  LocalServer  --------------------> RemoteServer -------> TargetServer
+                                          
+
+## Simple Socks Protocol   
 
 client to server:  
 
  
-
 1.connect
 
 |len| byte|description|
@@ -45,6 +51,8 @@ client to server:
 
 3.proxy data
 
+server send proxy data or proxy data response (failed)
+
 |len| byte|description|
 |:----:|:---:|:-------:|
 |  1| 0x01| version number |
@@ -62,7 +70,7 @@ client to server:
 |  4| |content-length-total |
 |  1| 0x04| end proxy cmd |
 
-5.server responses(all server response is same)
+5.server responses(all server response same)
 
 |len| byte|description|
 |:----:|:---:|:-------:|

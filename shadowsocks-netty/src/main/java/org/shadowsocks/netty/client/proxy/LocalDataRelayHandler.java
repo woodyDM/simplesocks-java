@@ -1,5 +1,6 @@
 package org.shadowsocks.netty.client.proxy;
 
+import org.shadowsocks.netty.common.protocol.ProxyDataRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,34 +15,36 @@ import io.netty.util.ReferenceCountUtil;
  * receive data from local app and send to remote server.
  * 
  */
-public final class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
+public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 
 	private static Logger logger = LoggerFactory.getLogger(LocalDataRelayHandler.class);
+	private final Channel remoteChannel;
 
-	private final Channel relayChannel;
-	private ServerConnectToRemoteHandler connectHandler;
-
-	public LocalDataRelayHandler(Channel relayChannel, ServerConnectToRemoteHandler connectHandler) {
-		this.relayChannel = relayChannel;
-		this.connectHandler = connectHandler;
+	public LocalDataRelayHandler(Channel remoteChannel) {
+		this.remoteChannel = remoteChannel;
 	}
+
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		ctx.writeAndFlush(Unpooled.EMPTY_BUFFER);
+		logger.debug("local app data handler active .{}",ctx.channel().remoteAddress());
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		try {
-			if (relayChannel.isActive()) {
+			if (remoteChannel.isActive()) {
 				ByteBuf bytebuff = (ByteBuf) msg;
 				if (!bytebuff.hasArray()) {
 					int len = bytebuff.readableBytes();
 					byte[] arr = new byte[len];
 					bytebuff.getBytes(0, arr);
-					connectHandler.sendRemote(arr, arr.length, relayChannel);
+					ByteBuf byteBuf = Unpooled.wrappedBuffer(arr);
+					ProxyDataRequest proxyData = new ProxyDataRequest(byteBuf);
+					remoteChannel.writeAndFlush(proxyData);
 				}
+			}else{
+				logger.debug("remoteChannel is inactive skip.?");
 			}
 		} catch (Exception e) {
 			logger.error("send data to remoteServer error", e);
@@ -52,7 +55,7 @@ public final class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) {
-		SocksServerUtils.closeOnFlush(relayChannel);
+		SocksServerUtils.closeOnFlush(remoteChannel);
 		SocksServerUtils.closeOnFlush(ctx.channel());
 		logger.info("outRelay channelInactive close");
 	}

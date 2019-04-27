@@ -5,6 +5,10 @@ public class ServerResponse extends ByteBasedRequest {
 
     protected Code code;
 
+    public Code getCode() {
+        return code;
+    }
+
     public ServerResponse(DataType type, Code code) {
         super(type);
         this.code = code;
@@ -25,5 +29,13 @@ public class ServerResponse extends ByteBasedRequest {
         Code(int bit) {
             this.bit = (byte)bit;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ServerResponse{" +
+                "code=" + code +
+                ", type=" + type +
+                '}';
     }
 }

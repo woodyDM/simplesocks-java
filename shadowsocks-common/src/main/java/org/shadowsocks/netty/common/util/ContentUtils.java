@@ -2,6 +2,7 @@ package org.shadowsocks.netty.common.util;
 
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.nio.charset.StandardCharsets;
 
@@ -33,10 +34,19 @@ public class ContentUtils {
     }
 
     public static String leftBytesToString(ByteBuf byteBuf){
+
+        return new String(getAllBytes(byteBuf), StandardCharsets.UTF_8);
+    }
+
+    public static ByteBuf wrapByteBuf(ByteBuf byteBuf){
+        return Unpooled.wrappedBuffer(getAllBytes(byteBuf));
+    }
+
+    public static byte[] getAllBytes(ByteBuf byteBuf){
         int len = byteBuf.readableBytes();
         byte[] bytes = new byte[len];
         byteBuf.readBytes(bytes);
-        return new String(bytes, StandardCharsets.UTF_8);
+        return bytes;
     }
 
 

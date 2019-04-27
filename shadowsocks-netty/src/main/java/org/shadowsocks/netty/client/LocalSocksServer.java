@@ -19,11 +19,11 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
 
 /**
- * SOCKS5 代理主程序
+ * SOCKS5 本地代理
  */
-public class SocksServer implements Runnable{
+public class LocalSocksServer implements Runnable{
 
-	private static Logger logger = LoggerFactory.getLogger(SocksServer.class);
+	private static Logger logger = LoggerFactory.getLogger(LocalSocksServer.class);
 	private static final String CONFIG = "conf/config.xml";
 	private static final String PAC = "conf/pac.xml";
 
@@ -32,13 +32,18 @@ public class SocksServer implements Runnable{
 	private ServerBootstrap bootstrap = null;
 	private GlobalTrafficShapingHandler trafficHandler;
 
-	private static SocksServer socksServer = new SocksServer();
+	private static LocalSocksServer localSocksServer = new LocalSocksServer();
 
-	public static SocksServer getInstance() {
-		return socksServer;
+	public static LocalSocksServer getInstance() {
+		return localSocksServer;
 	}
 
-	private SocksServer() {}
+	private LocalSocksServer() {}
+
+
+	public static void main(String[] args) {
+		getInstance().run();
+	}
 
 	/**
 	 * 入口
@@ -59,13 +64,9 @@ public class SocksServer implements Runnable{
 					.childHandler(new SocksServerInitializer(trafficHandler));
 
 			logger.info("Start At Port {} "  ,port);
-			startMBean();
-			bootstrap
-					.bind(port)
-					.sync().
-					channel()
-					.closeFuture()
-					.sync();
+			//startMBean();
+			bootstrap.bind(port).sync().
+					channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("start error", e);
 		} finally {

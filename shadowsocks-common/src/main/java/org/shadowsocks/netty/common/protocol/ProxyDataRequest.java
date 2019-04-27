@@ -7,6 +7,10 @@ public class ProxyDataRequest implements SimpleSocksCmdRequest {
 
     private ByteBuf incomingBuf;
 
+    public ByteBuf getIncomingBuf() {
+        return incomingBuf;
+    }
+
     public ProxyDataRequest(ByteBuf incomingBuf) {
 
         this.incomingBuf = incomingBuf;

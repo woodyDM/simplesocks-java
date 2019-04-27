@@ -37,7 +37,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 			//浏览器请求连接
 			SocksCmdRequest req = (SocksCmdRequest) socksRequest;
 			if (req.cmdType() == SocksCmdType.CONNECT) {
-				ctx.pipeline().addLast(new ServerConnectToRemoteHandler());
+				ctx.pipeline().addLast(new ServerConnectToRemoteHandler(req));
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(socksRequest);
 			} else {

@@ -15,8 +15,6 @@ public class SimpleSocksProtocolDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         SimpleSocksCmdRequest request = CmdRequestFactory.newInstance(byteBuf);
-        if(request!=null){
-            list.add(request);
-        }
+        list.add(request);
     }
 }

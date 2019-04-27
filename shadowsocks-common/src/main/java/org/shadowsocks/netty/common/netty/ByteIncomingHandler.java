@@ -23,20 +23,6 @@ public class ByteIncomingHandler extends SimpleChannelInboundHandler<ByteBuf> {
         super.channelActive(ctx);
         log.info("client channel {}", ctx.channel().remoteAddress());
         Channel channel = ctx.channel();
-
-        channel.write(new NoAuthConnectionRequest());
-        channel.write(new AuthConnectionRequest("1234呵呵哒"));
-        channel.write(new ProxyRequest(ProxyRequest.Type.DOMAIN,10090,"google.com~!@#哈😊"));
-        channel.write(new EndProxyRequest());
-        channel.write(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.SUCCESS));
-        channel.write(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.FAIL));
-        channel.writeAndFlush(new ServerResponse(DataType.END_PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
-
-        String msg = "你好，这里是来自proxy data的数据!";
-        byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(bytes);
-        ProxyDataRequest proxyDataRequest = new ProxyDataRequest(byteBuf);
-        channel.writeAndFlush(proxyDataRequest);
-
+        channel.writeAndFlush(new NoAuthConnectionRequest());
     }
 }
