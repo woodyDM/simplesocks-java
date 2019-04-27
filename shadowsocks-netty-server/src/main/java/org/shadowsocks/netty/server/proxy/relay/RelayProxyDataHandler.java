@@ -27,6 +27,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
      */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        Channel localChannel = ctx.channel();
         bootstrap = new Bootstrap();
         bootstrap.group(ctx.channel().eventLoop())
                 .channel(NioSocketChannel.class)
@@ -35,7 +36,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new TargetServerDataHandler(ctx.channel()));
+                        socketChannel.pipeline().addLast(new TargetServerDataHandler(localChannel));
                     }
                 });
         bootstrap.connect(proxyRequest.getTarget(), proxyRequest.getPort())
@@ -45,11 +46,12 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                         if (future.isSuccess()) {
                             toTargetServerChannel = future.channel();
                             log.info("Success! connect to host {}:{}.", proxyRequest.getTarget(), proxyRequest.getPort());
-                            ctx.channel().writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
+                            localChannel.writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
                         }else{
                             future.channel().close();
+                            localChannel.close();
                             log.warn("Failed to connect to host {}:{}  , close channel.", proxyRequest.getTarget(), proxyRequest.getPort());
-                            ctx.channel().writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.FAIL));
+                            localChannel.writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.FAIL));
                         }
                     }
                 });

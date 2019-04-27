@@ -19,21 +19,25 @@ public class RemoteSocksServer {
 
 	private static Logger logger = LoggerFactory.getLogger(RemoteSocksServer.class);
 
-	//private static final String CONFIG = "conf/config.xml";
 
 	private EventLoopGroup bossGroup = null;
 	private EventLoopGroup workerGroup = null;
 	private ServerBootstrap bootstrap = null;
+
 	private static RemoteSocksServer remoteSocksServer = new RemoteSocksServer();
 
 	public static RemoteSocksServer getInstance() {
 		return remoteSocksServer;
 	}
 
-	private RemoteSocksServer() {
-
+	public static void main(String[] args) {
+		RemoteSocksServer.getInstance().start();
 	}
 
+
+	/**
+	 * Main entry
+	 */
 	public void start() {
 		try {
 			int port = 10801;
@@ -66,9 +70,6 @@ public class RemoteSocksServer {
 		}
 	}
 
-    public static void main(String[] args) {
-        RemoteSocksServer.getInstance().start();
-    }
 	public void stop() {
 		if (bossGroup != null) {
 			bossGroup.shutdownGracefully();

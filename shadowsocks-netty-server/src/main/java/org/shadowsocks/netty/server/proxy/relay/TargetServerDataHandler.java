@@ -26,11 +26,7 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 		this.toLocalServerChannel = remoteServerChannel;
 	}
 
-	@Override
-	public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-		log.debug("Channel active, ready to receive data from target server.{}",ctx.channel().remoteAddress());
 
-	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
