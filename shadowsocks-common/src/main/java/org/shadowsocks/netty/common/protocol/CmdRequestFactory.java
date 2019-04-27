@@ -44,6 +44,10 @@ public class CmdRequestFactory {
             case END_PROXY:{
                 return new EndProxyRequest();
             }
+            case PROXY_DATA:{
+                String msg = ContentUtils.leftBytesToString(byteBuf);
+                return new EndProxyRequest();
+            }
             case CONNECT_RESPONSE:
             case PROXY_RESPONSE:
             case PROXY_DATA_RESPONSE:

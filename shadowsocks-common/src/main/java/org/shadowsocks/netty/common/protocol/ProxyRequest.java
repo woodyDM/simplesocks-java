@@ -26,12 +26,11 @@ public class ProxyRequest extends ByteBasedRequest {
     protected byte[] body() {
         byte[] str = target.getBytes(StandardCharsets.UTF_8);
         int len = str.length + Constants.LEN_PROXY;
-        byte[] portB = ContentUtils.shortToByte((short) port);
+        byte[] portBytes = ContentUtils.shortToByte((short) port);
         byte[] bytes = new byte[len];
-        bytes[0]=proxyType.bit;
-        bytes[1] =
-        bytes[1]=portB[0];
-        bytes[2]=portB[1];
+        bytes[0] = proxyType.bit;
+        bytes[1] = portBytes[0];
+        bytes[2] = portBytes[1];
         Random random = new Random();
         int i = 128 - random.nextInt(256);
         byte offset = (byte) i;

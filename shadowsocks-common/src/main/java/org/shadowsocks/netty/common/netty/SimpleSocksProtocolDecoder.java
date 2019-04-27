@@ -18,6 +18,5 @@ public class SimpleSocksProtocolDecoder extends ByteToMessageDecoder {
         if(request!=null){
             list.add(request);
         }
-
     }
 }

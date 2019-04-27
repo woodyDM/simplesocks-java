@@ -38,8 +38,7 @@ public class SocksServer {
 		try {
 			int port = 10801;
 
-			LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-					1,4,-5,5);
+
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			bootstrap = new ServerBootstrap();
@@ -49,6 +48,8 @@ public class SocksServer {
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
+							LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
+									1,4,-5,5);
 							socketChannel.pipeline()
 									.addLast(decoder)
                                     .addLast(new SimpleSocksProtocolDecoder())

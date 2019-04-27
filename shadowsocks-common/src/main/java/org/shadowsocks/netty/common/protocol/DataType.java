@@ -30,6 +30,6 @@ public enum DataType {
             if(b==t.bit)
                 return t;
         }
-        throw new NoSuchElementException("not found "+b);
+        throw new NoSuchElementException("DataType not found bit:"+b);
     }
 }

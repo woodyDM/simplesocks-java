@@ -7,16 +7,16 @@ and
 
 ## TODO  
 1. client and server protocol;  
-2. client to server connection pool;
-3. encrypt between client and server;
-4. netty handler.  
+2. protocol netty codec. 
+3. client to server connection pool;
+4. encrypt between client and server;
+ 
 
 
 ## Protocol   
 
 client to server:  
 
- 
  
 
 1.connect
