@@ -19,7 +19,6 @@ import io.netty.handler.codec.socks.SocksRequest;
  */
 public final class AcceptClientConnectionHandler extends SimpleChannelInboundHandler<SocksRequest> {
 
-	private static Logger logger = LoggerFactory.getLogger(AcceptClientConnectionHandler.class);
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, SocksRequest socksRequest) throws Exception {

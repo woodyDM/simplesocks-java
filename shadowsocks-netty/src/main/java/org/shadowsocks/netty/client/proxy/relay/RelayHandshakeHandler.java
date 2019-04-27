@@ -77,15 +77,17 @@ public class RelayHandshakeHandler extends SimpleChannelInboundHandler<SimpleSoc
         }
     }
 
+
+
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         log.info("client channel {}, send no auth connection request.", ctx.channel().remoteAddress());
         Channel channel = ctx.channel();
         channel.writeAndFlush(new NoAuthConnectionRequest());
     }
 
-    void close(Channel localChannel,ChannelHandlerContext ctx, SocksAddressType socksAddressType ){
+    void close(Channel localChannel, ChannelHandlerContext ctx, SocksAddressType socksAddressType ){
         localChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.FAILURE, socksAddressType));
         SocksServerUtils.closeOnFlush(ctx.channel());
         ctx.close();
