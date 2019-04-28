@@ -39,8 +39,8 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 					int len = bytebuff.readableBytes();
 					byte[] arr = new byte[len];
 					bytebuff.getBytes(0, arr);
-					ByteBuf byteBuf = Unpooled.wrappedBuffer(arr);
-					ProxyDataRequest proxyData = new ProxyDataRequest(byteBuf);
+
+					ProxyDataRequest proxyData = new ProxyDataRequest(arr);
 					remoteChannel.writeAndFlush(proxyData);
 				}
 			}else{

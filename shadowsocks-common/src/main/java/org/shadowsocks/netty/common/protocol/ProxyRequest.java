@@ -58,9 +58,9 @@ public class ProxyRequest extends ByteBasedRequest {
     @Override
     public String toString() {
         return "ProxyRequest{" +
-                "port=" + port +
-                ", target='" + target + '\'' +
-                ", proxyType=" + proxyType +
+
+                target + ':' + port +
+                ", type=" + proxyType +
                 '}';
     }
 

@@ -16,4 +16,8 @@ public class NoAuthConnectionRequest extends ByteBasedRequest {
         return bytes;
     }
 
+    @Override
+    public String toString() {
+        return "NoAuthConnectionRequest{}";
+    }
 }

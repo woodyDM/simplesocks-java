@@ -3,7 +3,8 @@ package org.shadowsocks.netty.server;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
-import org.shadowsocks.netty.server.proxy.SimpleSocksCmdHandler;
+import org.shadowsocks.netty.server.proxy.SimpleSocksAuthHandler;
+import org.shadowsocks.netty.server.proxy.relay.RelayProxyDataHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class RemoteSocksServer {
 	 */
 	public void start() {
 		try {
-			int port = 10801;
+			int port = 10900;
 
 
 			bossGroup = new NioEventLoopGroup(1);
@@ -57,11 +58,12 @@ public class RemoteSocksServer {
 							socketChannel.pipeline()
 									.addLast(decoder)
                                     .addLast(new SimpleSocksProtocolDecoder())
-									.addLast(new SimpleSocksCmdHandler())
+									.addLast(new SimpleSocksAuthHandler())
+									.addLast(new RelayProxyDataHandler())
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}
 					});
-			logger.info("Start At Port {} " ,port);
+			logger.info("Remote server start at port {}" ,port);
 			bootstrap.bind(port).sync().channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("start error", e);

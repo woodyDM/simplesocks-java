@@ -9,7 +9,9 @@ import org.shadowsocks.netty.common.protocol.*;
 import org.shadowsocks.netty.server.proxy.relay.RelayProxyDataHandler;
 
 @Slf4j
-public class SimpleSocksCmdHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
+public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
+
+    private boolean isProxying = false;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksCmdRequest msg) throws Exception {
@@ -20,19 +22,13 @@ public class SimpleSocksCmdHandler extends SimpleChannelInboundHandler<SimpleSoc
                 ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.SUCCESS));
                 break;
             }
-            case PROXY:{
-                ProxyRequest request = (ProxyRequest)msg;
-                RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request);
-                ctx.pipeline().addLast(relayProxyDataHandler);
-                log.debug("add new handler to proxy data {}.",request);
-                break;
-            }
             default:ctx.fireChannelRead(msg);
         }
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("exception found. {}",cause.getMessage());
+        ctx.close();
     }
 }

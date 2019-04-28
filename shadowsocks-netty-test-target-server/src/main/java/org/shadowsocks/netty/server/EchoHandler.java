@@ -21,12 +21,12 @@ public class EchoHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
+        int port = EchoServer.PORT;
         int len = byteBuf.readableBytes();
         byte[] data = new byte[len];
         byteBuf.readBytes(data);
-        String echo = "Echo: ";
+        String echo = "Echo from ["+port+"]: ";
         byte[] bytes = echo.getBytes(StandardCharsets.UTF_8);
-
         ByteBuf buf = Unpooled.wrappedBuffer(bytes, data);
         ctx.channel().writeAndFlush(buf);
         log.info("echo len = {}  {}",len,len+bytes.length);
@@ -34,11 +34,14 @@ public class EchoHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("exception ,close {}",ctx.channel().remoteAddress());
         ctx.close();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
+        log.info("inactive ,close {}",ctx.channel().remoteAddress());
+
     }
 }

@@ -34,8 +34,7 @@ public class ServerResponse extends ByteBasedRequest {
     @Override
     public String toString() {
         return "ServerResponse{" +
-                "code=" + code +
-                ", type=" + type +
+                 type + ':'+code+
                 '}';
     }
 }

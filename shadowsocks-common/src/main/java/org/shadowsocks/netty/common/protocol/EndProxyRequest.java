@@ -13,6 +13,6 @@ public class EndProxyRequest extends ByteBasedRequest {
 
     @Override
     public String toString() {
-        return "EndProxyRequest ";
+        return "EndProxyRequest{}";
     }
 }

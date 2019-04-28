@@ -27,8 +27,6 @@ public class AuthConnectionRequest extends ByteBasedRequest {
     @Override
     public String toString() {
         return "AuthConnectionRequest{" +
-                "auth='" + auth + '\'' +
-                ", type=" + type +
-                '}';
+                "auth='" + auth +"}";
     }
 }

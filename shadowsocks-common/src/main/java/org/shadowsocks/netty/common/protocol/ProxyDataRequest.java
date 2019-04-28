@@ -1,31 +1,72 @@
 package org.shadowsocks.netty.common.protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.util.ReferenceCountUtil;
+
+
 
 public class ProxyDataRequest implements SimpleSocksCmdRequest {
 
     private ByteBuf incomingBuf;
+    private boolean hasArray;
+    private byte[] data;
 
-    public ByteBuf getIncomingBuf() {
-        return incomingBuf;
-    }
 
     public ProxyDataRequest(ByteBuf incomingBuf) {
-
         this.incomingBuf = incomingBuf;
+        hasArray = false;
+    }
+
+    public ProxyDataRequest(byte[] incomingBytes) {
+        this.data = incomingBytes;
+        hasArray = true;
+    }
+
+    public byte[] getBytes() {
+        return data;
     }
 
     @Override
+    public String toString() {
+        int len = hasArray ? data.length : incomingBuf.readableBytes();
+        return "ProxyDataRequest{" +
+                "hasArray=" + hasArray + "  len="+len+
+                '}';
+    }
+
+    public ByteBuf getIncomingBuf() {
+        if(hasArray){
+            return Unpooled.wrappedBuffer(data);
+        }else{
+            return incomingBuf;
+        }
+    }
+
+    public int size(){
+        return hasArray ? data.length : incomingBuf.readableBytes();
+    }
+
+
+
+
+    @Override
     public void write(ByteBuf buf) {
-        int len = incomingBuf.readableBytes();
-        try{
-            buf.writeByte(Constants.VERSION1);
-            buf.writeInt(len + Constants.LEN_HEAD);
-            buf.writeByte(getType().getBit());
-            buf.writeBytes(incomingBuf);
-        }finally {
-            ReferenceCountUtil.release(incomingBuf);
+
+        buf.writeByte(Constants.VERSION1);
+        buf.writeInt(size() + Constants.LEN_HEAD);
+        buf.writeByte(getType().getBit());
+
+        if(hasArray){
+            buf.writeBytes(data);
+        }else{
+            try{
+                buf.writeBytes(incomingBuf);
+            }finally {
+                ReferenceCountUtil.release(incomingBuf);
+            }
         }
     }
 

@@ -23,6 +23,7 @@ public class EchoServer {
 		return echoServer;
 	}
 
+	public static final int PORT = 8087;
 
 
     public static void main(String[] args) {
@@ -32,7 +33,7 @@ public class EchoServer {
 
     public void start() {
 		try {
-			int port = 10802;
+			int port = PORT;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			bootstrap = new ServerBootstrap();
@@ -40,7 +41,7 @@ public class EchoServer {
 					.channel(NioServerSocketChannel.class)
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childHandler(new EchoHandler());
-			logger.info("Echo Start At Port {} " ,port);
+			logger.info("Target Server [Echo] start at port {} " ,port);
 			bootstrap.bind(port).sync().channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("start error", e);

@@ -49,8 +49,7 @@ public class CmdRequestFactory {
                 int len = byteBuf.readableBytes();
                 byte[] data = new byte[len];
                 byteBuf.readBytes(data);
-                ByteBuf myBuffer = Unpooled.wrappedBuffer(data);
-                return new ProxyDataRequest(myBuffer);
+                return new ProxyDataRequest(data);
             }
             case CONNECT_RESPONSE:
             case PROXY_RESPONSE:

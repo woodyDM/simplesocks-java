@@ -14,7 +14,8 @@
 		<module>shadowsocks-common</module>
 		<module>shadowsocks-netty</module>
 		<module>shadowsocks-netty-server</module>
-		<module>shadowsocks-netty-server-echo</module>
+		<module>shadowsocks-netty-test-target-server</module>
+		<module>shadowsocks-netty-local-server</module>
 
 	</modules>
 
