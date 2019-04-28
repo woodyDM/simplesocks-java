@@ -25,7 +25,7 @@ Thanks.
 client to server:  
 
  
-1.connect
+1.connect  
 
 |len| byte|description|
 |:----:|:---:|:-------:|
@@ -36,7 +36,7 @@ client to server:
 |  ?|  |password (UTF8 bytes)   |
 
 
-2.proxy   
+2.proxy    
 Request to proxy data to target server.  
 Used when connect ok.
 
@@ -51,7 +51,7 @@ Used when connect ok.
 |  ?|     |request server(UTF8) <br>  *All bytes offset |
 
 
-3.proxy data
+3.proxy data   
 Send proxy data to remote server, used when proxy request ok.
 
 server send proxy data or proxy data response (failed)
@@ -65,7 +65,7 @@ server send proxy data or proxy data response (failed)
  
  
  
-4.end proxy
+4.end proxy   
 End proxy. used when no more data to send.
 At this state , local server can send a new ProxyRequest to 
 start new proxy data channel.
@@ -76,7 +76,7 @@ start new proxy data channel.
 |  4| |content-length-total |
 |  1| 0x04| end proxy cmd |
 
-5.server responses(all server response same)
+5.server responses(all server response same)   
 
 |len| byte|description|
 |:----:|:---:|:-------:|
