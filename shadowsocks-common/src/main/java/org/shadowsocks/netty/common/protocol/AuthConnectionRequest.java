@@ -12,7 +12,10 @@ public class AuthConnectionRequest extends ByteBasedRequest {
             throw new IllegalArgumentException("must provide auth");
         }
         this.auth = auth;
+    }
 
+    public String getAuth() {
+        return auth;
     }
 
     @Override

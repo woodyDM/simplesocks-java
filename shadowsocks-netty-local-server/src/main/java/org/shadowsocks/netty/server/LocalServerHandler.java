@@ -25,8 +25,8 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("connect to {}, send no auth",ctx.channel().remoteAddress());
-        ctx.channel().writeAndFlush(new NoAuthConnectionRequest());
+        log.info("connect to {}, send auth.",ctx.channel().remoteAddress());
+        ctx.channel().writeAndFlush(new AuthConnectionRequest("123456"));
     }
 
     @Override

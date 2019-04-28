@@ -50,8 +50,6 @@ public class ProxyDataRequest implements SimpleSocksCmdRequest {
     }
 
 
-
-
     @Override
     public void write(ByteBuf buf) {
 

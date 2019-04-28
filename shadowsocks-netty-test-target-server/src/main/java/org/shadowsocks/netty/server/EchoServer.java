@@ -23,7 +23,7 @@ public class EchoServer {
 		return echoServer;
 	}
 
-	public static final int PORT = 8087;
+	public static final int PORT = 8086;
 
 
     public static void main(String[] args) {

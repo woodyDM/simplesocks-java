@@ -5,6 +5,7 @@ import org.shadowsocks.netty.common.encrypt.OffsetEncrypter;
 import org.shadowsocks.netty.common.util.ContentUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class ProxyRequest extends ByteBasedRequest {
@@ -58,7 +59,6 @@ public class ProxyRequest extends ByteBasedRequest {
     @Override
     public String toString() {
         return "ProxyRequest{" +
-
                 target + ':' + port +
                 ", type=" + proxyType +
                 '}';
@@ -79,7 +79,7 @@ public class ProxyRequest extends ByteBasedRequest {
             for(Type it:values()){
                 if(it.bit==b)return it;
             }
-            return null;
+            throw new NoSuchElementException("no Type found for "+b);
         }
 
     }

@@ -26,7 +26,7 @@ public class CmdRequestFactory {
                     String authStr = ContentUtils.leftBytesToString(byteBuf);
                     return new AuthConnectionRequest(authStr);
                 }else{
-                    log.warn("no ");
+                    throw new ProtocolParseException("auth parse error: "+auth);
                 }
             }
             case PROXY:{
@@ -61,11 +61,11 @@ public class CmdRequestFactory {
                 }else if(code==Constants.RESPONSE_FAIL){
                     return new ServerResponse(dataType, ServerResponse.Code.FAIL);
                 }else{
-                    throw new ProtocolParseException("..");
+                    throw new ProtocolParseException("response code parse error "+code);
                 }
             }
             default:
-                throw new ProtocolParseException("..");
+                throw new IllegalStateException("Impossible to get here "+type);
         }
     }
 }

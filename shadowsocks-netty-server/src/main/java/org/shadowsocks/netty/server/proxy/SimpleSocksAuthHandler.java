@@ -6,12 +6,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.shadowsocks.netty.common.protocol.*;
+import org.shadowsocks.netty.server.auth.AuthProvider;
 import org.shadowsocks.netty.server.proxy.relay.RelayProxyDataHandler;
 
 @Slf4j
 public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
 
-    private boolean isProxying = false;
+    private AuthProvider authProvider;
+
+    public SimpleSocksAuthHandler(AuthProvider authProvider) {
+        this.authProvider = authProvider;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksCmdRequest msg) throws Exception {
@@ -19,16 +24,32 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
         log.debug("receive {} from {}",msg,ctx.channel().remoteAddress());
         switch (type){
             case CONNECT:{
-                ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.SUCCESS));
+                if(msg instanceof NoAuthConnectionRequest){
+                    ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.FAIL));
+                }else{
+                    AuthConnectionRequest request = (AuthConnectionRequest)msg;
+                    boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel().remoteAddress().toString());
+                    if(ok){
+                        ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.SUCCESS));
+                    }else{
+                        ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.FAIL));
+                    }
+                }
                 break;
             }
-            default:ctx.fireChannelRead(msg);
+            default:{
+                String identifier = ctx.channel().remoteAddress().toString();
+                boolean authenticated = authProvider.authenticated(identifier);
+                if(authenticated){
+                    ctx.fireChannelRead(msg);
+                }else{
+                    ctx.channel().writeAndFlush(new ServerResponse(type.toResponse(), ServerResponse.Code.FAIL));
+                }
+            }
         }
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("exception found. {}",cause.getMessage());
-        ctx.close();
-    }
+
+
+
 }

@@ -3,6 +3,9 @@ package org.shadowsocks.netty.server;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
+import org.shadowsocks.netty.server.auth.AuthProvider;
+import org.shadowsocks.netty.server.auth.MemoryAuthProvider;
+import org.shadowsocks.netty.server.proxy.ExceptionHandler;
 import org.shadowsocks.netty.server.proxy.SimpleSocksAuthHandler;
 import org.shadowsocks.netty.server.proxy.relay.RelayProxyDataHandler;
 import org.slf4j.Logger;
@@ -43,6 +46,7 @@ public class RemoteSocksServer {
 		try {
 			int port = 10900;
 
+			AuthProvider authProvider = new MemoryAuthProvider();
 
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
@@ -58,8 +62,9 @@ public class RemoteSocksServer {
 							socketChannel.pipeline()
 									.addLast(decoder)
                                     .addLast(new SimpleSocksProtocolDecoder())
-									.addLast(new SimpleSocksAuthHandler())
+									.addLast(new SimpleSocksAuthHandler(authProvider))
 									.addLast(new RelayProxyDataHandler())
+									.addLast(new ExceptionHandler(authProvider))
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}
 					});

@@ -8,14 +8,9 @@ public abstract class ByteBasedRequest implements SimpleSocksCmdRequest {
 
     protected DataType type;
 
-
     public ByteBasedRequest(DataType type){
         this.type = type;
     }
-
-
-    abstract protected byte[] body();
-
 
     @Override
     public DataType getType() {
@@ -33,4 +28,7 @@ public abstract class ByteBasedRequest implements SimpleSocksCmdRequest {
             buf.writeBytes(body);
         }
     }
+
+    abstract protected byte[] body();
+
 }

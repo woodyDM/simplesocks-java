@@ -123,7 +123,8 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                                 channelHandlerContext.channel()
                                         .writeAndFlush(new ServerResponse(DataType.PROXY_DATA_RESPONSE, ServerResponse.Code.FAIL));
                             }else{
-                                log.debug("Success send proxy data to target server. ");
+                                channelHandlerContext.channel()
+                                        .writeAndFlush(new ServerResponse(DataType.PROXY_DATA_RESPONSE, ServerResponse.Code.SUCCESS));
                             }
                         });
                     }
@@ -131,11 +132,13 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 break;
             }
             case END_PROXY:{
-                clear();
+                if(isProxying){
+                    clear();
+                }
                 channelHandlerContext.writeAndFlush(new ServerResponse(DataType.END_PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
                 break;
             }
-            default: throw new IllegalStateException("impossible to get here!");
+            default: throw new IllegalStateException("Impossible to get here! Type is " + dataType);
         }
 
     }
