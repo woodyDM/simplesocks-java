@@ -32,13 +32,15 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     }
 
     public void clear(){
-        SocketAddress remoteAddress = toTargetServerChannel.remoteAddress();
-        toTargetServerChannel.close().addListener(future -> {
-            if(future.isSuccess())
-                log.debug("close connection to {}", remoteAddress);
-            else
-                log.warn("close failed, connection is {}", remoteAddress);
-        });
+        if(toTargetServerChannel!=null){
+            SocketAddress remoteAddress = toTargetServerChannel.remoteAddress();
+            toTargetServerChannel.close().addListener(future -> {
+                if(future.isSuccess())
+                    log.debug("close connection to {}", remoteAddress);
+                else
+                    log.warn("close failed, connection is {}", remoteAddress);
+            });
+        }
         bootstrap = null;
         proxyRequest = null;
         isProxying = false;
@@ -96,7 +98,6 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
      */
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, SimpleSocksCmdRequest simpleSocksCmdRequest) throws Exception {
-        log.debug("receive data [{}] from localServer",simpleSocksCmdRequest);
         DataType dataType = simpleSocksCmdRequest.getType();
         switch (dataType){
             case PROXY:{

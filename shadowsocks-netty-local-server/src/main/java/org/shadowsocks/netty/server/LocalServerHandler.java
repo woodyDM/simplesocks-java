@@ -20,13 +20,18 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
     int port2 = 8087;
     boolean one=true;
     String host = "localhost";
-
     int counter = 0;
+
+    private SimpleSocksProtocolClient client;
+
+    public LocalServerHandler(SimpleSocksProtocolClient client) {
+        this.client = client;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("connect to {}, send auth.",ctx.channel().remoteAddress());
-        ctx.channel().writeAndFlush(new AuthConnectionRequest("123456"));
+        log.info("try connecting to {}, send auth.",ctx.channel().remoteAddress());
+        ctx.channel().writeAndFlush(new AuthConnectionRequest(client.getAuth()));
     }
 
     @Override
@@ -36,12 +41,17 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
         DataType type = msg.getType();
         switch (type){
             case CONNECT_RESPONSE:{
-                ProxyRequest proxyRequest = new ProxyRequest(ProxyRequest.Type.DOMAIN, port, host);
-                channel.writeAndFlush(proxyRequest);
+                ServerResponse response = (ServerResponse)msg;
+                if(response.getCode()== ServerResponse.Code.SUCCESS){
+                    client.setConnected(true);
+                    client.getConnectAction().setSuccess(true);
+                }else{
+                    client.getConnectAction().setSuccess(false);
+                }
                 break;
             }
             case PROXY_RESPONSE: {
-                write(channel);
+
                 break;
             }
 

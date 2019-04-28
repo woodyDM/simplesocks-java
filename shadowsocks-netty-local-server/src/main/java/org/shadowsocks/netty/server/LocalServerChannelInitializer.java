@@ -7,6 +7,11 @@ import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
 
 public class LocalServerChannelInitializer extends io.netty.channel.ChannelInitializer<SocketChannel> {
 
+    private SimpleSocksProtocolClient client;
+
+    public LocalServerChannelInitializer(SimpleSocksProtocolClient client) {
+        this.client = client;
+    }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
@@ -15,7 +20,7 @@ public class LocalServerChannelInitializer extends io.netty.channel.ChannelIniti
         ch.pipeline()
                 .addLast(decoder)
                 .addLast(new SimpleSocksProtocolDecoder())
-                .addLast(new LocalServerHandler())
+                .addLast(new LocalServerHandler(client))
                 .addFirst(new SimpleSocksProtocolEncoder());
 
     }

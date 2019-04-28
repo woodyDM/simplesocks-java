@@ -9,7 +9,7 @@ public class MemoryAuthProvider implements AuthProvider {
 
     @Override
     public boolean tryAuthenticate(String password, String identifier) {
-        boolean ok = "123456".equals(password);
+        boolean ok = "123456笑脸☺".equals(password);
         Objects.requireNonNull(identifier);
         if(ok)
             cache.putIfAbsent(identifier,Boolean.TRUE);
