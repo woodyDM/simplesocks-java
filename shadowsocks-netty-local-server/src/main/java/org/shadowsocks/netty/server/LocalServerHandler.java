@@ -1,26 +1,18 @@
 package org.shadowsocks.netty.server;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.proxy.ProxyConnectException;
+import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.shadowsocks.netty.common.protocol.*;
 
-import java.nio.charset.StandardCharsets;
+import javax.security.sasl.AuthenticationException;
 
-@ChannelHandler.Sharable
+
 @Slf4j
 public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
 
-
-    int port = 8086;
-    int port2 = 8087;
-    boolean one=true;
-    String host = "localhost";
-    int counter = 0;
 
     private SimpleSocksProtocolClient client;
 
@@ -36,63 +28,50 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksCmdRequest msg) throws Exception {
-        log.info("receive {}",msg);
-        Channel channel = ctx.channel();
+        log.debug("receive from ssocks server: {}",msg);
         DataType type = msg.getType();
         switch (type){
             case CONNECT_RESPONSE:{
                 ServerResponse response = (ServerResponse)msg;
                 if(response.getCode()== ServerResponse.Code.SUCCESS){
                     client.setConnected(true);
-                    client.getConnectAction().setSuccess(true);
+                    client.getConnectionChannelPromise().setSuccess(ctx.channel());
                 }else{
-                    client.getConnectAction().setSuccess(false);
+                    log.debug("connection auth failed , set promise fail.");
+                    client.getConnectionChannelPromise().setFailure(new AuthenticationException("failed to auth."));
                 }
                 break;
             }
             case PROXY_RESPONSE: {
-
+                ServerResponse response = (ServerResponse)msg;
+                if(response.getCode()== ServerResponse.Code.SUCCESS){
+                    client.getProxyChannelPromise().setSuccess(ctx.channel());
+                }else{
+                    client.getProxyChannelPromise().setFailure(new ProxyConnectException("proxy request failed."));
+                }
                 break;
             }
-
             case PROXY_DATA:{
                 ProxyDataRequest request = (ProxyDataRequest)msg;
-                String ms = new String(request.getBytes(), StandardCharsets.UTF_8);
-                log.info("receive msg: {}",ms);
-                write(channel);
+                client.onReceiveProxyData(request);
                 break;
             }
 
             case END_PROXY_RESPONSE:{
-                if(one){
-                    ProxyRequest proxyRequest = new ProxyRequest(ProxyRequest.Type.DOMAIN, port2, host);
-                    counter=5;
-                    one = false;
-                    channel.writeAndFlush(proxyRequest);
-                    log.info("ReProxy to {}",proxyRequest);
-                }
+                Promise<Void> oldPromise = client.getEndProxyPromise();
+                client.clearProxySession();
+                oldPromise.setSuccess(null);
                 break;
             }
-
         }
     }
 
 
-    void write(Channel channel){
-        if(counter<10){
-            counter++;
-            String msgStr = "你好！！netty😊 " + counter;
-            byte[] data = msgStr.getBytes(StandardCharsets.UTF_8);
-            ProxyDataRequest request = new ProxyDataRequest(data);
-            channel.writeAndFlush(request);
-        }else{
-            channel.writeAndFlush(new EndProxyRequest());
-        }
-    }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("exception in handler",cause);
+        log.error("exception when communicate with remote server cause is :",cause);
         ctx.close();
     }
 

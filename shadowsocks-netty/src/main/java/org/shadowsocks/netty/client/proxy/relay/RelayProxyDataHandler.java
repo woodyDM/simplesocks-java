@@ -2,7 +2,6 @@ package org.shadowsocks.netty.client.proxy.relay;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.SocksAddressType;
@@ -10,10 +9,10 @@ import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
 import io.netty.handler.codec.socks.SocksCmdStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.shadowsocks.netty.client.proxy.LocalDataRelayHandler;
-import org.shadowsocks.netty.client.proxy.RemoteDataRelayHandler;
-import org.shadowsocks.netty.client.proxy.ServerConnectToRemoteHandler;
-import org.shadowsocks.netty.common.protocol.*;
+import org.shadowsocks.netty.common.protocol.DataType;
+import org.shadowsocks.netty.common.protocol.ProxyDataRequest;
+import org.shadowsocks.netty.common.protocol.ServerResponse;
+import org.shadowsocks.netty.common.protocol.SimpleSocksCmdRequest;
 
 @Slf4j
 public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {

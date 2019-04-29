@@ -1,16 +1,16 @@
 package org.shadowsocks.netty.client.manager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.net.telnet.TelnetClient;
 import org.shadowsocks.netty.client.config.Config;
 import org.shadowsocks.netty.client.config.RemoteServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 远程服务器管理器

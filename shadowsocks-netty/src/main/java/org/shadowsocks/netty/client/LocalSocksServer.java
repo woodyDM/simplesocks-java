@@ -1,22 +1,20 @@
 package org.shadowsocks.netty.client;
 
-import java.lang.management.ManagementFactory;
-import java.util.concurrent.Executors;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.shadowsocks.netty.client.mbean.IoAcceptorStat;
-import org.shadowsocks.netty.client.proxy.server.SocksServerInitializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
+import org.shadowsocks.netty.client.mbean.IoAcceptorStat;
+import org.shadowsocks.netty.client.proxy.server.SocksServerInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.util.concurrent.Executors;
 
 /**
  * SOCKS5 本地代理

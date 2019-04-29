@@ -30,16 +30,13 @@ public enum DataType {
             if(b==t.bit)
                 return t;
         }
-        throw new NoSuchElementException("DataType not found bit:"+b);
+        throw new NoSuchElementException("DataType not found . bit is "+b);
     }
 
     public DataType toResponse(){
-        switch (this){
-            case CONNECT:return CONNECT_RESPONSE;
-            case PROXY:return PROXY_RESPONSE;
-            case PROXY_DATA:return PROXY_DATA_RESPONSE;
-            case END_PROXY:return END_PROXY_RESPONSE;
-            default:return this;
-        }
+        byte b =(byte)( bit | 0x10);
+        return parseByte(b);
     }
+
+
 }

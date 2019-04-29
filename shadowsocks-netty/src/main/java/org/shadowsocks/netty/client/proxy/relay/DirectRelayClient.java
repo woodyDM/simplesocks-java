@@ -4,12 +4,10 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.socks.SocksCmdRequest;
-import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
-import org.shadowsocks.netty.client.proxy.relay.RelayHandlerInitializer;
 
 @Slf4j
-public class RelayClient {
+public class DirectRelayClient {
 
     private Bootstrap b;
     private String host;
@@ -35,7 +33,7 @@ public class RelayClient {
         this.remoteChannel = remoteChannel;
     }
 
-    public RelayClient(String host, int port, EventLoopGroup group ) {
+    public DirectRelayClient(String host, int port, EventLoopGroup group ) {
         this.host = host;
         this.port = port;
         this.group = group;

@@ -18,6 +18,7 @@ public class LocalServerChannelInitializer extends io.netty.channel.ChannelIniti
         LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
                 1,4,-5,5);
         ch.pipeline()
+
                 .addLast(decoder)
                 .addLast(new SimpleSocksProtocolDecoder())
                 .addLast(new LocalServerHandler(client))

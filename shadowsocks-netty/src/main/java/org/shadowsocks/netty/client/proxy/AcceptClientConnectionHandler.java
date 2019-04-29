@@ -1,27 +1,20 @@
 package org.shadowsocks.netty.client.proxy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.socks.SocksAuthResponse;
-import io.netty.handler.codec.socks.SocksAuthScheme;
-import io.netty.handler.codec.socks.SocksAuthStatus;
-import io.netty.handler.codec.socks.SocksCmdRequest;
-import io.netty.handler.codec.socks.SocksCmdRequestDecoder;
-import io.netty.handler.codec.socks.SocksCmdType;
-import io.netty.handler.codec.socks.SocksInitResponse;
-import io.netty.handler.codec.socks.SocksRequest;
+import io.netty.handler.codec.socks.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SOCK5处理连接请求
  */
+@Slf4j
 public final class AcceptClientConnectionHandler extends SimpleChannelInboundHandler<SocksRequest> {
 
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, SocksRequest socksRequest) throws Exception {
+
 		switch (socksRequest.requestType()) {
 		case INIT: {
 			ctx.pipeline().addFirst(new SocksCmdRequestDecoder());
@@ -40,6 +33,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(socksRequest);
 			} else {
+				log.error("this server does't not support cmd except CONNECTION, closing ctx: {}",ctx.channel().remoteAddress());
 				ctx.close();
 			}
 			break;

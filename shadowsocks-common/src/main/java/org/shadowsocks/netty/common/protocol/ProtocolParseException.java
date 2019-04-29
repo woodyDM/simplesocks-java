@@ -1,6 +1,6 @@
 package org.shadowsocks.netty.common.protocol;
 
-public class ProtocolParseException extends RuntimeException {
+public class ProtocolParseException extends BaseSystemException {
 
     public ProtocolParseException() {
     }

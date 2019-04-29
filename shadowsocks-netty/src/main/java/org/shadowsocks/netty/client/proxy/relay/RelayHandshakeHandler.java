@@ -5,24 +5,19 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.SocksAddressType;
-import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
 import io.netty.handler.codec.socks.SocksCmdStatus;
-import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.shadowsocks.netty.client.proxy.LocalDataRelayHandler;
-import org.shadowsocks.netty.client.proxy.ServerConnectToRemoteHandler;
 import org.shadowsocks.netty.client.proxy.SocksServerUtils;
 import org.shadowsocks.netty.common.protocol.*;
-
-import javax.security.sasl.AuthenticationException;
 
 @Slf4j
 public class RelayHandshakeHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
 
-    private RelayClient client;
+    private DirectRelayClient client;
 
-    public RelayHandshakeHandler(  RelayClient client) {
+    public RelayHandshakeHandler(  DirectRelayClient client) {
 
         this.client = client;
     }
@@ -56,22 +51,22 @@ public class RelayHandshakeHandler extends SimpleChannelInboundHandler<SimpleSoc
                 break;
             }
             case PROXY_RESPONSE:{
-                ServerResponse response =(ServerResponse) simpleSocksCmdRequest;
-                log.info("connection {}  ", response);
-                if(response.getCode()== ServerResponse.Code.SUCCESS){
-                    outboundChannel.pipeline().addLast(new RelayProxyDataHandler(localChannel, outboundChannel, socksAddressType ));
-                    localChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksAddressType))
-                            .addListener((ChannelFutureListener) future->{
-                                if(future.isSuccess()){
-                                    LocalDataRelayHandler localDataRelay = new LocalDataRelayHandler(client.getRemoteChannel());
-                                    localChannel.pipeline().addLast(localDataRelay);
-                                }
-                            });
-                    log.info("proxy established {}",client.getRequest());
-                }else{
-                    close(ctx.channel(), ctx, socksAddressType);
-                    log.error("remote Auth failed , connect failed.");
-                }
+//                ServerResponse response =(ServerResponse) simpleSocksCmdRequest;
+//                log.info("connection {}  ", response);
+//                if(response.getCode()== ServerResponse.Code.SUCCESS){
+//                    outboundChannel.pipeline().addLast(new RelayProxyDataHandler(localChannel, outboundChannel, socksAddressType ));
+//                    localChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksAddressType))
+//                            .addListener((ChannelFutureListener) future->{
+//                                if(future.isSuccess()){
+//                                    LocalDataRelayHandler localDataRelay = new LocalDataRelayHandler(client.getRemoteChannel());
+//                                    localChannel.pipeline().addLast(localDataRelay);
+//                                }
+//                            });
+//                    log.info("proxy established {}",client.getRequest());
+//                }else{
+//                    close(ctx.channel(), ctx, socksAddressType);
+//                    log.error("remote Auth failed , connect failed.");
+//                }
             }
             default: ctx.fireChannelRead(simpleSocksCmdRequest);
         }

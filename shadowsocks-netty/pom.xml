@@ -87,6 +87,11 @@
 			<groupId>org.shadowsocks-netty.demo</groupId>
 		</dependency>
 		<dependency>
+			<artifactId>shadowsocks-netty-local-server</artifactId>
+			<version>0.0.1</version>
+			<groupId>org.shadowsocks-netty.demo</groupId>
+		</dependency>
+		<dependency>
 			<groupId>com.lmax</groupId>
 			<artifactId>disruptor</artifactId>
 		</dependency>

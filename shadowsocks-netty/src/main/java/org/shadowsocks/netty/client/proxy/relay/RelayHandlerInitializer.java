@@ -1,10 +1,8 @@
 package org.shadowsocks.netty.client.proxy.relay;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.util.concurrent.Promise;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
 
@@ -14,9 +12,9 @@ import org.shadowsocks.netty.common.netty.SimpleSocksProtocolEncoder;
  */
 public final class RelayHandlerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private RelayClient client;
+    private DirectRelayClient client;
 
-    public RelayHandlerInitializer( RelayClient client) {
+    public RelayHandlerInitializer( DirectRelayClient client) {
         this.client = client;
     }
 
