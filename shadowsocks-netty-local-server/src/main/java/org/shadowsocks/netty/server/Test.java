@@ -32,7 +32,7 @@ public class Test {
                         });
                     }
                 });
-                client.sendProxyRequest("localhost",8087, ProxyRequest.Type.DOMAIN)
+                client.sendProxyRequest("localhost",8086, ProxyRequest.Type.DOMAIN)
                         .addListener(future1 -> {
                             log.info("REQUEST OK!");
                             byte[] b = "哈哈哈！！".getBytes(StandardCharsets.UTF_8);

@@ -33,10 +33,14 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 		try {
 			ByteBuf byteBuf = (ByteBuf)msg;
 			int len = byteBuf.readableBytes();
-			byte[] bytes = new byte[len];
-			byteBuf.readBytes(byteBuf);
-			log.debug("relay local app data len = {}.",len);
-			relayClient.sendProxyData(bytes);
+			if(len>3){
+				byte[] bytes = new byte[len-3];
+
+				byteBuf.readBytes(bytes, 0, len-3);
+				log.debug("relay local app data len = {}.",len);
+				relayClient.sendProxyData(bytes);
+			}
+
 		}finally {
 			ReferenceCountUtil.release(msg);
 		}
@@ -46,6 +50,7 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		ctx.close();
+		log.error("exception !~", cause);
 	}
 
 }

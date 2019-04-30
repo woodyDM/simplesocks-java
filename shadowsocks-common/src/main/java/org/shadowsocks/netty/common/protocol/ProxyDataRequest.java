@@ -13,16 +13,24 @@ public class ProxyDataRequest implements SimpleSocksCmdRequest {
     private ByteBuf incomingBuf;
     private boolean hasArray;
     private byte[] data;
+    private int index ;
 
 
-    public ProxyDataRequest(ByteBuf incomingBuf) {
+    public ProxyDataRequest(ByteBuf incomingBuf ) {
         this.incomingBuf = incomingBuf;
-        hasArray = false;
+        this.hasArray = false;
     }
 
     public ProxyDataRequest(byte[] incomingBytes) {
         this.data = incomingBytes;
         hasArray = true;
+        this.index = 0;
+    }
+
+    public ProxyDataRequest(byte[] incomingBytes, int index) {
+        this.data = incomingBytes;
+        hasArray = true;
+        this.index = index;
     }
 
     public byte[] getBytes() {
@@ -39,14 +47,14 @@ public class ProxyDataRequest implements SimpleSocksCmdRequest {
 
     public ByteBuf getIncomingBuf() {
         if(hasArray){
-            return Unpooled.wrappedBuffer(data);
+            return Unpooled.wrappedBuffer(data, index, data.length-index);
         }else{
             return incomingBuf;
         }
     }
 
     public int size(){
-        return hasArray ? data.length : incomingBuf.readableBytes();
+        return hasArray ? data.length-index : incomingBuf.readableBytes();
     }
 
 
@@ -58,7 +66,7 @@ public class ProxyDataRequest implements SimpleSocksCmdRequest {
         buf.writeByte(getType().getBit());
 
         if(hasArray){
-            buf.writeBytes(data);
+            buf.writeBytes(data, index, data.length - index);
         }else{
             try{
                 buf.writeBytes(incomingBuf);

@@ -68,6 +68,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		SocksServerUtils.closeOnFlush(ctx.channel());
+        logger.error("exception !",cause);
 		this.relayClientManager.returnOne(client);
 		this.client = null;
 	}
