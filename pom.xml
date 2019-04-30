@@ -2,20 +2,21 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.shadowsocks-netty.demo</groupId>
-	<artifactId>shadowsocks-parent</artifactId>
+	<groupId>org.simplesocks-netty</groupId>
+	<artifactId>simplesocks-parent</artifactId>
 	<version>0.0.1</version>
 	<packaging>pom</packaging>
 
-	<name>shadowsocks</name>
+	<name>simplesocks</name>
 	<url>http://maven.apache.org</url>
 
 	<modules>
-		<module>shadowsocks-common</module>
-		<module>shadowsocks-netty</module>
-		<module>shadowsocks-netty-server</module>
-		<module>shadowsocks-netty-test-target-server</module>
-		<module>shadowsocks-netty-local-server</module>
+		<module>simplesocks-common</module>
+		<module>simplesocks-netty-app</module>
+		<module>simplesocks-netty-client</module>
+		<module>simplesocks-netty-server</module>
+		<module>simplesocks-netty-test-echo-server</module>
+
 
 	</modules>
 
@@ -23,15 +24,21 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<lombok.versin>1.18.6</lombok.versin>
+		<simplesocks.version>0.0.1</simplesocks.version>
 	</properties>
 
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<artifactId>shadowsocks-common</artifactId>
-				<groupId>org.shadowsocks-netty.demo</groupId>
-				<version>0.0.1</version>
+				<artifactId>simplesocks-common</artifactId>
+				<groupId>org.simplesocks-netty</groupId>
+				<version>${simplesocks.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>simplesocks-netty-client</artifactId>
+				<groupId>org.simplesocks-netty</groupId>
+				<version>${simplesocks.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.netty</groupId>
