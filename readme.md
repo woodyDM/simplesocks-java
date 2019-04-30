@@ -6,18 +6,18 @@ and
 Thanks.
 
 
-## TODO  
-1. client and server protocol;  
-2. protocol netty codec. 
-3. client to server connection pool;
-4. encrypt between client and server;
+## Under construction  
+1. LocalServer and RemoteServer protocol:Simple Socks Protocol;  
+2. the protocol netty codec. 
+3. client to server connection pool(pool authenticated channel);
+4. data encryption between LocalServer and RemoteServer;
  
-## name
+## Map
 
 
 
               Socks5                SimpleSocksProtocol                 Http
-    LocalAPP  ----->  LocalServer  --------------------> RemoteServer -------> TargetServer
+    LocalAPP  ----->  LocalServer  ---------------------> RemoteServer -------> TargetServer
                                           
 
 ## Simple Socks Protocol   
@@ -68,7 +68,7 @@ server send proxy data or proxy data response (failed)
 4.end proxy   
 End proxy. used when no more data to send.
 At this state , local server can send a new ProxyRequest to 
-start new proxy data channel.
+start new proxy data channel. 
 
 |len| byte|description|
 |:----:|:---:|:-------:|
