@@ -13,6 +13,7 @@
     </root>
 
     <logger name="org.shadowsocks.netty" level="DEBUG" />
+    <logger name="io.netty" level="INFO" />
 
 
 </configuration>

@@ -1,6 +1,7 @@
 package org.shadowsocks.netty.common.netty;
 
 import io.netty.channel.Channel;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.shadowsocks.netty.common.protocol.DataType;
 import org.shadowsocks.netty.common.protocol.ProxyRequest;
@@ -18,10 +19,10 @@ public interface RelayClient {
     boolean isConnect();
 
 
-    Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType);
+    Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType, EventExecutor eventExecutor);
 
 
-    Promise<Void> endProxy();
+    Promise<Void> endProxy(EventExecutor eventExecutor);
 
 
     void sendProxyData(byte[] data);

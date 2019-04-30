@@ -5,7 +5,7 @@ import io.netty.handler.proxy.ProxyConnectException;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
-import org.shadowsocks.netty.client.proxy.relay.SimpleSocksRelayClientAdapter;
+import org.shadowsocks.netty.client.utils.SimpleSocksRelayClientAdapter;
 import org.shadowsocks.netty.common.netty.RelayClient;
 import org.shadowsocks.netty.server.SimpleSocksProtocolClient;
 
@@ -18,19 +18,19 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     private int port;
     private String auth;
     private EventLoopGroup loopGroup;
-    private EventExecutor eventExecutor;
 
 
-    public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup, EventExecutor eventExecutor) {
+
+    public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup ) {
         this.host = host;
         this.port = port;
         this.auth = auth;
         this.loopGroup = loopGroup;
-        this.eventExecutor = eventExecutor;
+
     }
 
     @Override
-    public Promise<RelayClient> borrowerOne() {
+    public Promise<RelayClient> borrow(EventExecutor eventExecutor) {
         SimpleSocksProtocolClient client = new SimpleSocksProtocolClient(host, port, auth,loopGroup);
         SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client);
         Promise<RelayClient> objectPromise = eventExecutor.newPromise();
@@ -48,7 +48,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     }
 
     @Override
-    public void returnOne(RelayClient client) {
+    public void returnClient(RelayClient client) {
         SimpleSocksRelayClientAdapter adapter = (SimpleSocksRelayClientAdapter)client;
         try {
             adapter.getClient().close();

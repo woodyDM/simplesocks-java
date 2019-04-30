@@ -20,14 +20,8 @@ public final class RelayHandlerInitializer extends ChannelInitializer<SocketChan
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-                1,4,-5,5);
         ch.pipeline()
-                .addLast(decoder)
-                .addLast(new SimpleSocksProtocolDecoder())
-                .addLast(new RelayHandshakeHandler(client))
-                .addFirst(new SimpleSocksProtocolEncoder());
-
+                .addLast(new RelayProxyDataHandler(client));
     }
 
 }

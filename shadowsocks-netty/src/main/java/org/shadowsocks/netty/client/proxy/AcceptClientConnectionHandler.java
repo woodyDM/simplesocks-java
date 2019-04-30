@@ -4,6 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.*;
 import lombok.extern.slf4j.Slf4j;
+import org.shadowsocks.netty.client.manager.RelayClientManager;
+import org.shadowsocks.netty.client.utils.SocksServerUtils;
 
 /**
  * SOCK5处理连接请求
@@ -11,6 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class AcceptClientConnectionHandler extends SimpleChannelInboundHandler<SocksRequest> {
 
+	private RelayClientManager relayClientManager;
+
+	public AcceptClientConnectionHandler(RelayClientManager relayClientManager) {
+		this.relayClientManager = relayClientManager;
+	}
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, SocksRequest socksRequest) throws Exception {
@@ -26,10 +33,9 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 			ctx.write(new SocksAuthResponse(SocksAuthStatus.SUCCESS));
 			break;
 		case CMD:
-			//浏览器请求连接
 			SocksCmdRequest req = (SocksCmdRequest) socksRequest;
 			if (req.cmdType() == SocksCmdType.CONNECT) {
-				ctx.pipeline().addLast(new ServerConnectToRemoteHandler(req));
+				ctx.pipeline().addLast(new ServerConnectToRemoteHandler(relayClientManager));
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(socksRequest);
 			} else {

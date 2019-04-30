@@ -1,4 +1,4 @@
-package org.shadowsocks.netty.client.proxy;
+package org.shadowsocks.netty.client.utils;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;

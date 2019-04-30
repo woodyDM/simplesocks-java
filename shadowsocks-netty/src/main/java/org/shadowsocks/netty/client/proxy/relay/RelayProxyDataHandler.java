@@ -1,13 +1,16 @@
 package org.shadowsocks.netty.client.proxy.relay;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.SocksAddressType;
 import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
 import io.netty.handler.codec.socks.SocksCmdStatus;
+import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.shadowsocks.netty.common.protocol.DataType;
 import org.shadowsocks.netty.common.protocol.ProxyDataRequest;
@@ -15,62 +18,34 @@ import org.shadowsocks.netty.common.protocol.ServerResponse;
 import org.shadowsocks.netty.common.protocol.SimpleSocksCmdRequest;
 
 @Slf4j
-public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
+public class RelayProxyDataHandler extends ChannelInboundHandlerAdapter {
 
-    private String targetHost;
-    private int port;
-    private SocksAddressType socksAddressType;
-    private Channel remoteChannel;
-    private Channel localChannel;
+    private DirectRelayClient client;
 
-    public RelayProxyDataHandler(Channel localChannel,Channel remoteChannel,SocksAddressType socksAddressType ) {
-        this.localChannel = localChannel;
-        this.remoteChannel = remoteChannel;
-        this.socksAddressType = socksAddressType;
+    public RelayProxyDataHandler(DirectRelayClient client ) {
+        this.client = client;
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
-    }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, SimpleSocksCmdRequest simpleSocksCmdRequest) throws Exception {
-        DataType type = simpleSocksCmdRequest.getType();
-        switch (type){
-            case PROXY_DATA:{
-                if(localChannel.isActive()){
-                    ProxyDataRequest request = (ProxyDataRequest)simpleSocksCmdRequest;
-                    int len = request.getIncomingBuf().readableBytes();
-                    byte[] bytes = new byte[len];
-                    request.getIncomingBuf().readBytes(bytes);
-                    localChannel.writeAndFlush(Unpooled.wrappedBuffer(bytes));
-                    log.debug("send to local channel len {}",len);
-                    //send to local
-                }
-                break;
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        try{
+            ByteBuf byteBuf = (ByteBuf)msg;
+            if(byteBuf.hasArray()){
+                byte[] array = byteBuf.array();
+                client.onReceiveProxyData(array);
+            }else{
+                int len = byteBuf.readableBytes();
+                byte[] bytes = new byte[len];
+                byteBuf.readBytes(bytes);
+                client.onReceiveProxyData(bytes);
             }
-            case PROXY_DATA_RESPONSE:{
-                log.info("proxy data response! {}",simpleSocksCmdRequest);
-                ServerResponse response = (ServerResponse)simpleSocksCmdRequest;
-                if(response.getCode()== ServerResponse.Code.SUCCESS){
-                    log.debug("server already receive data");
-                }else{
-                    channelHandlerContext.channel().close();
-                }
-                break;
-            }
+        }finally {
+            ReferenceCountUtil.release(msg);
         }
-
-
     }
 
 
-    private SocksCmdResponse getSuccessResponse(SocksCmdRequest request) {
-        return new SocksCmdResponse(SocksCmdStatus.SUCCESS, SocksAddressType.IPv4);
-    }
 
-    private SocksCmdResponse getFailureResponse(SocksCmdRequest request) {
-        return new SocksCmdResponse(SocksCmdStatus.FAILURE, SocksAddressType.IPv4);
-    }
+
 }

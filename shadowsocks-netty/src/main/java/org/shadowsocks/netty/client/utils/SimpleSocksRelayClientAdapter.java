@@ -1,6 +1,7 @@
-package org.shadowsocks.netty.client.proxy.relay;
+package org.shadowsocks.netty.client.utils;
 
 import io.netty.channel.Channel;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.Getter;
 import org.shadowsocks.netty.common.netty.RelayClient;
@@ -28,12 +29,12 @@ public class SimpleSocksRelayClientAdapter implements RelayClient {
     }
 
     @Override
-    public Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType) {
+    public Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType, EventExecutor eventExecutor) {
         return client.sendProxyRequest(host, port, proxyType);
     }
 
     @Override
-    public Promise<Void> endProxy() {
+    public Promise<Void> endProxy(EventExecutor eventExecutor) {
         return client.endProxy();
     }
 

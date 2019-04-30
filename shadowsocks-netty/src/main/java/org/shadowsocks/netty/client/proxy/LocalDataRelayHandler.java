@@ -25,7 +25,7 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		log.debug("local app data handler active ready to receive raw data {}.",ctx.channel().remoteAddress());
+		log.debug("local app data handler active ready to receive local data {}.",ctx.channel().remoteAddress());
 	}
 
 	@Override
@@ -33,14 +33,10 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 		try {
 			ByteBuf byteBuf = (ByteBuf)msg;
 			int len = byteBuf.readableBytes();
-			if(len>3){
-				byte[] bytes = new byte[len-3];
-
-				byteBuf.readBytes(bytes, 0, len-3);
-				log.debug("relay local app data len = {}.",len);
-				relayClient.sendProxyData(bytes);
-			}
-
+			byte[] bytes = new byte[len];
+			byteBuf.readBytes(bytes);
+			log.debug("relay local app data len = {}.",len);
+			relayClient.sendProxyData(bytes);
 		}finally {
 			ReferenceCountUtil.release(msg);
 		}

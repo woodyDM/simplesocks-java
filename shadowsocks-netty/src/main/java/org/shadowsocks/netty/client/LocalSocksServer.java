@@ -6,8 +6,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
+import org.shadowsocks.netty.client.manager.DirectRelayClientManager;
+import org.shadowsocks.netty.client.manager.RelayClientManager;
+import org.shadowsocks.netty.client.manager.SimpleSocksRelayClientManager;
 import org.shadowsocks.netty.client.mbean.IoAcceptorStat;
-import org.shadowsocks.netty.client.proxy.server.SocksServerInitializer;
+import org.shadowsocks.netty.client.proxy.SocksServerInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,15 +54,17 @@ public class LocalSocksServer implements Runnable{
 		try {
 			logger.info("'user.dir' is {}",System.getProperty("user.dir"));
 			int port = 10800;
-
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
+			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
+			//RelayClientManager manager = new DirectRelayClientManager(workerGroup);
+
 			bootstrap = new ServerBootstrap();
 			trafficHandler = new GlobalTrafficShapingHandler(Executors.newScheduledThreadPool(1), 1000);
 
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
-					.childHandler(new SocksServerInitializer(trafficHandler));
+					.childHandler(new SocksServerInitializer(trafficHandler,manager));
 
 			logger.info("Start At Port {} "  ,port);
 			//startMBean();
