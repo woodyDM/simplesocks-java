@@ -14,8 +14,8 @@ public enum DataType {
     PROXY_RESPONSE(0x12),
     PROXY_DATA_RESPONSE(0x13),
     END_PROXY_RESPONSE(0x14),
-    PONG(0x15);
-
+    PONG(0x15),
+    END_CONNECTION(0x16);
     private byte bit;
 
     DataType(int bit){

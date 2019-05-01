@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.protocol.*;
 
 import javax.security.sasl.AuthenticationException;
+import java.io.IOException;
 
 
 @Slf4j
@@ -63,6 +64,11 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
                 oldPromise.setSuccess(null);
                 break;
             }
+            case END_CONNECTION:{
+                log.warn("server request to end connection.");
+                ctx.close();
+                client.close();
+            }
         }
     }
 
@@ -71,7 +77,11 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("exception when communicate with remote server cause is :",cause);
+        if(cause instanceof IOException){
+            log.warn("exception ,may be force close {}",cause.getMessage());
+        }else{
+            log.error("exception when communicate with remote server cause is :",cause);
+        }
         ctx.close();
     }
 

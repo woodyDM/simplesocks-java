@@ -56,6 +56,9 @@ public class CmdRequestFactory {
             case PONG:{
                 return PongRequest.getInstance();
             }
+            case END_CONNECTION:{
+                return EndConnectionRequest.getInstance();
+            }
             case CONNECT_RESPONSE:
             case PROXY_RESPONSE:
             case PROXY_DATA_RESPONSE:

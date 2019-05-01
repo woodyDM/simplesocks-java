@@ -50,7 +50,7 @@ public class SimpleSocksServer {
 		try {
 
 			AuthProvider authProvider = new MemoryAuthProvider();
-
+			int idleSecond = 120;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			ServerBootstrap bootstrap = new ServerBootstrap();
@@ -62,7 +62,9 @@ public class SimpleSocksServer {
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
                             LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder = SimpleSocksDecoder.newLengthDecoder();
                             socketChannel.pipeline()
+									.addLast(new IdleStateHandler(idleSecond,idleSecond,idleSecond, TimeUnit.SECONDS))
 									.addLast(lengthFieldBasedFrameDecoder)
+									.addLast(new HeartBeatHandler())
                                     .addLast(new SimpleSocksProtocolDecoder())
 									.addLast(new SimpleSocksAuthHandler(authProvider))
 									.addLast(new RelayProxyDataHandler())
