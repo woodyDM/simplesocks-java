@@ -1,12 +1,18 @@
+## Description  
+Simplesocks is a tcp proxy software based on Socks5 and SimpleSocksProtocol for special
+use.
+ 
+
 ## Notice
-Totally based on
+Special thanks to : 
 [shadowsocks-netty](https://github.com/ksfzhaohui/shadowsocks-netty)
 and
 [基于netty4.0的shadowsocks客户端](http://my.oschina.net/OutOfMemory/blog/744475)  
-Thanks.
+  
+ 
 
 
-## Under construction  
+## Now Under construction  
 1. LocalServer and RemoteServer protocol:Simple Socks Protocol;  
 2. the protocol netty codec. 
 3. client to server connection pool(pool authenticated channel);
@@ -21,6 +27,17 @@ Thanks.
                                           
 
 ## Simple Socks Protocol   
+
+ 
+
+0.server responses(all server response same)   
+
+|len| byte|description|
+|:----:|:---:|:-------:|
+|  1| 0x01| version number |
+|  4| |content-length-total |
+|1 | | server-response-type|
+|  1| 0x01 success<br> 0x02 fail| result|
 
 client to server:  
 
@@ -76,12 +93,5 @@ start new proxy data channel.
 |  4| |content-length-total |
 |  1| 0x04| end proxy cmd |
 
-5.server responses(all server response same)   
 
-|len| byte|description|
-|:----:|:---:|:-------:|
-|  1| 0x01| version number |
-|  4| |content-length-total |
-|1 | | response-type|
-|  1| 0x01 success<br> 0x02 fail| result|
  

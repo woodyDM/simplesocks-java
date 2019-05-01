@@ -1,4 +1,4 @@
-package org.simplesocks.netty.app.utils;
+package org.simplesocks.netty.app.proxy.relay.ssocks;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.EventExecutor;
@@ -6,6 +6,7 @@ import io.netty.util.concurrent.Promise;
 import lombok.Getter;
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
 import org.simplesocks.netty.common.netty.RelayClient;
+import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.DataType;
 import org.simplesocks.netty.common.protocol.ProxyDataRequest;
 import org.simplesocks.netty.common.protocol.ProxyRequest;
@@ -18,9 +19,11 @@ import java.util.function.Consumer;
 public class SimpleSocksRelayClientAdapter implements RelayClient {
 
     private SimpleSocksProtocolClient client;
+    private RelayClientManager manager;
 
-    public SimpleSocksRelayClientAdapter(SimpleSocksProtocolClient client) {
+    public SimpleSocksRelayClientAdapter(SimpleSocksProtocolClient client,RelayClientManager manager) {
         this.client = client;
+        this.manager = manager;
     }
 
     @Override
@@ -56,5 +59,10 @@ public class SimpleSocksRelayClientAdapter implements RelayClient {
         client.setServerResponseConsumer((response -> {
             action.accept(response.getType(), response.getCode());
         }));
+    }
+
+    @Override
+    public RelayClientManager manager() {
+        return manager;
     }
 }

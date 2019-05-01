@@ -5,10 +5,11 @@ import io.netty.handler.proxy.ProxyConnectException;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.app.utils.SimpleSocksRelayClientAdapter;
+import org.simplesocks.netty.app.proxy.relay.ssocks.SimpleSocksRelayClientAdapter;
 
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
 import org.simplesocks.netty.common.netty.RelayClient;
+import org.simplesocks.netty.common.netty.RelayClientManager;
 
 import java.io.IOException;
 
@@ -33,7 +34,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor) {
         SimpleSocksProtocolClient client = new SimpleSocksProtocolClient(host, port, auth,loopGroup);
-        SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client);
+        SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client, this);
         Promise<RelayClient> objectPromise = eventExecutor.newPromise();
         client.setConnectionChannelListener(future -> {
             if(future.isSuccess()){
@@ -51,10 +52,6 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     @Override
     public void returnClient(RelayClient client) {
         SimpleSocksRelayClientAdapter adapter = (SimpleSocksRelayClientAdapter)client;
-        try {
-            adapter.getClient().close();
-        } catch (IOException e) {
-            //ignore;
-        }
+        adapter.getClient().close();
     }
 }

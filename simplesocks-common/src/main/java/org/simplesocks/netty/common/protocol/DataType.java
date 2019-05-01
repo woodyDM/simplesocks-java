@@ -8,12 +8,13 @@ public enum DataType {
     PROXY(0x02),
     PROXY_DATA(0x03),
     END_PROXY(0x04),
+    PING(0x05),
 
     CONNECT_RESPONSE(0x11),
     PROXY_RESPONSE(0x12),
     PROXY_DATA_RESPONSE(0x13),
-    END_PROXY_RESPONSE(0x14);
-
+    END_PROXY_RESPONSE(0x14),
+    PONG(0x15);
 
     private byte bit;
 

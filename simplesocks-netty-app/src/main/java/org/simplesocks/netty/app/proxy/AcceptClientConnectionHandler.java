@@ -4,8 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.*;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.app.manager.RelayClientManager;
-import org.simplesocks.netty.app.utils.SocksServerUtils;
+import org.simplesocks.netty.common.netty.RelayClientManager;
+import org.simplesocks.netty.common.util.ServerUtils;
 
 /**
  * SOCK5处理连接请求
@@ -56,6 +56,6 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) {
-		SocksServerUtils.closeOnFlush(ctx.channel());
+		ServerUtils.closeOnFlush(ctx.channel());
 	}
 }

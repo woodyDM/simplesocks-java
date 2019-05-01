@@ -1,4 +1,4 @@
-package org.simplesocks.netty.common;
+package org.simplesocks.netty.common.util;
 
 import java.io.File;
 import java.util.Objects;

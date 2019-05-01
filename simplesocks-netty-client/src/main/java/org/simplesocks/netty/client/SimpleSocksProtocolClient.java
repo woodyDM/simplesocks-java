@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  */
 @Getter
 @Slf4j
-public class SimpleSocksProtocolClient implements Closeable {
+public class SimpleSocksProtocolClient   {
 
 	private static Logger logger = LoggerFactory.getLogger(SimpleSocksProtocolClient.class);
 
@@ -101,11 +101,7 @@ public class SimpleSocksProtocolClient implements Closeable {
 			throw new RuntimeException("Failed to start local server.");
 		} finally {
 			if(selfManageEventLoop){
-				try{
-					close();
-				} catch (IOException e) {
-					//ignore
-				}
+				close();
 			}
 		}
 	}
@@ -115,15 +111,19 @@ public class SimpleSocksProtocolClient implements Closeable {
 	 * close client
 	 * @throws IOException
 	 */
-	@Override
-	public void close() throws IOException {
-		connected = false;
+
+	public void close() {
 		if (group != null && selfManageEventLoop) {
 			group.shutdownGracefully();
 		}
-		if(toRemoteChannel!=null){
-			toRemoteChannel.close();
-		}
+		endProxy().addListener(future -> {
+			if(toRemoteChannel!=null){
+				toRemoteChannel.close().addListener(f2->{
+					log.info("close connection to ssocks server, result is {}.", f2.isSuccess());
+				});
+			}
+			connected = false;
+		});
 	}
 
 
@@ -148,7 +148,7 @@ public class SimpleSocksProtocolClient implements Closeable {
 	}
 
 	private void createPromise(Channel channel){
-		this.connectionChannelPromise = channel.pipeline().firstContext().executor().newPromise();
+		this.connectionChannelPromise = channel.eventLoop().newPromise();
 		if(connectionChannelListener!=null){
 			this.connectionChannelPromise.addListener(connectionChannelListener);
 		}
@@ -169,8 +169,12 @@ public class SimpleSocksProtocolClient implements Closeable {
 			throw new IllegalStateException("before a new proxy request ,try end previous proxy.");
 		}
 		ProxyRequest proxyRequest = new ProxyRequest(proxyType, port, host);
-		proxyChannelPromise = toRemoteChannel.pipeline().firstContext().executor().newPromise();
-		toRemoteChannel.writeAndFlush(proxyRequest);
+		proxyChannelPromise = toRemoteChannel.eventLoop().newPromise();
+		toRemoteChannel.writeAndFlush(proxyRequest).addListener(f->{
+			if(!f.isSuccess()){
+				proxyChannelPromise.setFailure(new RuntimeException("failed to send proxy request to remote!"));
+			}
+		});
 		return proxyChannelPromise;
 	}
 
@@ -179,7 +183,11 @@ public class SimpleSocksProtocolClient implements Closeable {
 	 * @param request
 	 */
 	public void sendProxyData(ProxyDataRequest request){
-		toRemoteChannel.writeAndFlush(request);
+		toRemoteChannel.writeAndFlush(request).addListener(future -> {
+			if(!future.isSuccess()){
+				log.warn("failed to send proxy data to remote.");
+			}
+		});
 	}
 
 
@@ -187,7 +195,7 @@ public class SimpleSocksProtocolClient implements Closeable {
 		if(proxyChannelPromise==null){
 			throw new IllegalStateException("Can't end proxy because there is no proxy task.");
 		}
-		Promise<Void> promise = toRemoteChannel.pipeline().lastContext().executor().newPromise();
+		Promise<Void> promise = toRemoteChannel.eventLoop().newPromise();
 		this.endProxyPromise = promise;
 		toRemoteChannel.writeAndFlush(new EndProxyRequest());
 		return promise;

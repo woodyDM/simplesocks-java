@@ -2,15 +2,18 @@ package org.simplesocks.netty.server;
 
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
+import io.netty.handler.timeout.IdleStateHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.netty.SimpleSocksDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolEncoder;
+import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
 import org.simplesocks.netty.server.auth.MemoryAuthProvider;
 import org.simplesocks.netty.server.proxy.ExceptionHandler;
+import org.simplesocks.netty.server.proxy.HeartBeatHandler;
 import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
 import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -20,23 +23,23 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class RemoteSocksServer {
+import java.util.concurrent.TimeUnit;
 
-	private static Logger logger = LoggerFactory.getLogger(RemoteSocksServer.class);
+@Slf4j
+public class SimpleSocksServer {
 
 
 	private EventLoopGroup bossGroup = null;
 	private EventLoopGroup workerGroup = null;
-	private ServerBootstrap bootstrap = null;
+ 	private int port;
 
-	private static RemoteSocksServer remoteSocksServer = new RemoteSocksServer();
-
-	public static RemoteSocksServer getInstance() {
-		return remoteSocksServer;
+	public SimpleSocksServer(int port) {
+		this.port = port;
 	}
 
+
 	public static void main(String[] args) {
-		RemoteSocksServer.getInstance().start();
+		new SimpleSocksServer(10900).start();
 	}
 
 
@@ -45,23 +48,21 @@ public class RemoteSocksServer {
 	 */
 	public void start() {
 		try {
-			int port = 10900;
 
 			AuthProvider authProvider = new MemoryAuthProvider();
 
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
-			bootstrap = new ServerBootstrap();
+			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
-							LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-									1,4,-5,5);
-							socketChannel.pipeline()
-									.addLast(decoder)
+                            LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder = SimpleSocksDecoder.newLengthDecoder();
+                            socketChannel.pipeline()
+									.addLast(lengthFieldBasedFrameDecoder)
                                     .addLast(new SimpleSocksProtocolDecoder())
 									.addLast(new SimpleSocksAuthHandler(authProvider))
 									.addLast(new RelayProxyDataHandler())
@@ -69,23 +70,21 @@ public class RemoteSocksServer {
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}
 					});
-			logger.info("Remote server start at port {}" ,port);
+			log.info("SSocks server start at port {}" ,port);
 			bootstrap.bind(port).sync().channel().closeFuture().sync();
 		} catch (Exception e) {
-			logger.error("start error", e);
+			log.error("start error", e);
 		} finally {
 			stop();
 		}
 	}
 
 	public void stop() {
-		if (bossGroup != null) {
-			bossGroup.shutdownGracefully();
-		}
-		if (workerGroup != null) {
-			workerGroup.shutdownGracefully();
-		}
-		logger.info("Stop Server!");
+        ServerUtils.closeEventLoopGroup(bossGroup);
+        ServerUtils.closeEventLoopGroup(workerGroup);
+        log.info("Stop Server!");
 	}
+
+
 
 }

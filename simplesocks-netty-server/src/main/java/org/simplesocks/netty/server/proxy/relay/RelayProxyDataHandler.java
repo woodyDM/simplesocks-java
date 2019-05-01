@@ -9,8 +9,10 @@ import org.simplesocks.netty.common.protocol.*;
 
 
 import java.net.SocketAddress;
-import java.util.Objects;
 
+/**
+ * local server data to target server
+ */
 @Slf4j
 public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
 
@@ -23,6 +25,12 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
 
     public RelayProxyDataHandler() {
         isProxying = false;
+    }
+
+
+
+    public Channel getToLocalServerChannel() {
+        return toLocalServerChannel;
     }
 
     public void setProxyRequest(ProxyRequest proxyRequest) {
@@ -45,13 +53,10 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
         isProxying = false;
     }
 
-    /**
-     * init
-     * @param ctx
-     * @throws Exception
-     */
+
+
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.toLocalServerChannel = ctx.channel();
         this.eventLoopGroup = ctx.channel().eventLoop();
     }
@@ -66,7 +71,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new TargetServerDataHandler(toLocalServerChannel));
+                        socketChannel.pipeline().addLast(new TargetServerDataHandler(RelayProxyDataHandler.this));
                     }
                 });
         bootstrap.connect(proxyRequest.getTarget(), proxyRequest.getPort())
@@ -75,12 +80,8 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
                             toTargetServerChannel = future.channel();
-                            Objects.requireNonNull(toTargetServerChannel);
-                            log.info("Success! connect to host {}:{}.", proxyRequest.getTarget(), proxyRequest.getPort());
-                            localChannel.writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
-                            isProxying = true;
                         }else{
-                            log.warn("Failed to connect to host {}:{}  , close channel.", proxyRequest.getTarget(), proxyRequest.getPort());
+                            log.warn("Failed to connect to target {}:{}.", proxyRequest.getTarget(), proxyRequest.getPort());
                             localChannel.writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.FAIL));
                             clear();
                         }
@@ -88,6 +89,14 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 });
     }
 
+    /**
+     *
+     */
+    public void onTargetChannelActive(){
+        log.info("Success! connect to target {}:{}.", proxyRequest.getTarget(), proxyRequest.getPort());
+        toLocalServerChannel.writeAndFlush(new ServerResponse(DataType.PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
+        isProxying = true;
+    }
 
     /**
      * data handle
@@ -112,6 +121,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 if(!isProxying){
                     toLocalServerChannel.writeAndFlush(new ServerResponse(DataType.PROXY_DATA_RESPONSE, ServerResponse.Code.FAIL));
                 }else{
+
                     if(!toTargetServerChannel.isActive()){
                         log.warn("target channel is not active, client is too early to send data.");
                         channelHandlerContext.writeAndFlush(new ServerResponse(DataType.PROXY_DATA_RESPONSE, ServerResponse.Code.FAIL));
@@ -132,9 +142,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 break;
             }
             case END_PROXY:{
-                if(isProxying){
-                    clear();
-                }
+                clear();
                 channelHandlerContext.writeAndFlush(new ServerResponse(DataType.END_PROXY_RESPONSE, ServerResponse.Code.SUCCESS));
                 break;
             }
@@ -144,12 +152,19 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        close(ctx);
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         log.error("error when relay proxy data {}",cause.getMessage());
+        close(ctx);
+    }
+
+    void close(ChannelHandlerContext ctx){
+        clear();
         ctx.close();
-        if(toTargetServerChannel!=null&&toTargetServerChannel.isActive()){
-            toTargetServerChannel.close();
-        }
     }
 }

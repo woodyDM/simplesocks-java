@@ -1,4 +1,4 @@
-package org.simplesocks.netty.app.proxy.relay;
+package org.simplesocks.netty.app.proxy.relay.direct;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -10,6 +10,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.RelayClient;
+import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.BaseSystemException;
 import org.simplesocks.netty.common.protocol.DataType;
 import org.simplesocks.netty.common.protocol.ProxyRequest;
@@ -27,9 +28,11 @@ public class DirectRelayClient implements RelayClient {
     private EventLoopGroup group;
     private Channel remoteChannel;
     private Consumer<byte[]> onDataAction;
+    private RelayClientManager manager;
 
-    public DirectRelayClient( EventLoopGroup group) {
+    public DirectRelayClient( EventLoopGroup group,RelayClientManager manager) {
         this.group = group;
+        this.manager = manager;
         init();
     }
 
@@ -62,7 +65,7 @@ public class DirectRelayClient implements RelayClient {
     @Override
     public Promise<Void> endProxy(EventExecutor eventExecutor) {
         if(this.remoteChannel==null){
-            throw new IllegalStateException("call endproxy when proxy request success!");
+            throw new IllegalStateException("call end proxy when proxy request success!");
         }
         Promise<Void> promise = eventExecutor.newPromise();
         remoteChannel.close().addListener(future -> {
@@ -125,4 +128,8 @@ public class DirectRelayClient implements RelayClient {
 
     }
 
+    @Override
+    public RelayClientManager manager() {
+        return manager;
+    }
 }

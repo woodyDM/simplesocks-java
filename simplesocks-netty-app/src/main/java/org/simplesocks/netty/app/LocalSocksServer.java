@@ -6,10 +6,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
-import org.simplesocks.netty.app.manager.RelayClientManager;
+import org.simplesocks.netty.app.manager.DirectRelayClientManager;
+import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
 import org.simplesocks.netty.app.mbean.IoAcceptorStat;
 import org.simplesocks.netty.app.proxy.SocksServerInitializer;
+import org.simplesocks.netty.common.util.ServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,7 @@ public class LocalSocksServer implements Runnable{
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-			//RelayClientManager manager = new DirectRelayClientManager(workerGroup);
+//			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
 
 			bootstrap = new ServerBootstrap();
 			trafficHandler = new GlobalTrafficShapingHandler(Executors.newScheduledThreadPool(1), 1000);
@@ -77,12 +79,8 @@ public class LocalSocksServer implements Runnable{
 	}
 
 	public void stop() {
-		if (bossGroup != null) {
-			bossGroup.shutdownGracefully();
-		}
-		if (workerGroup != null) {
-			workerGroup.shutdownGracefully();
-		}
+		ServerUtils.closeEventLoopGroup(bossGroup);
+		ServerUtils.closeEventLoopGroup(workerGroup);
 		logger.info("Stop Server!");
 	}
 

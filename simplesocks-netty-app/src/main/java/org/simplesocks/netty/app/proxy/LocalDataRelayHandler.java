@@ -36,7 +36,7 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 			int len = byteBuf.readableBytes();
 			byte[] bytes = new byte[len];
 			byteBuf.readBytes(bytes);
-			log.debug("relay local app data len = {}.",len);
+			log.debug("relay local app data to client ,length is [{}].",len);
 			relayClient.sendProxyData(bytes);
 		}finally {
 			ReferenceCountUtil.release(msg);
@@ -47,7 +47,7 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		ctx.close();
-		log.error("exception !~", cause);
+		log.error("exception in relay handler ,close channel.", cause);
 	}
 
 }

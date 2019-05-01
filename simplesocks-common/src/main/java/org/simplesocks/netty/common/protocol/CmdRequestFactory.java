@@ -25,7 +25,7 @@ public class CmdRequestFactory {
                     String authStr = ContentUtils.leftBytesToString(byteBuf);
                     return new AuthConnectionRequest(authStr);
                 }else{
-                    throw new ProtocolParseException("auth parse error: "+auth);
+                    throw new ProtocolParseException("unable to parse auth type."+auth);
                 }
             }
             case PROXY:{
@@ -50,6 +50,12 @@ public class CmdRequestFactory {
                 byteBuf.readBytes(data);
                 return new ProxyDataRequest(data);
             }
+            case PING:{
+                return PingRequest.getInstance();
+            }
+            case PONG:{
+                return PongRequest.getInstance();
+            }
             case CONNECT_RESPONSE:
             case PROXY_RESPONSE:
             case PROXY_DATA_RESPONSE:
@@ -60,11 +66,11 @@ public class CmdRequestFactory {
                 }else if(code==Constants.RESPONSE_FAIL){
                     return new ServerResponse(dataType, ServerResponse.Code.FAIL);
                 }else{
-                    throw new ProtocolParseException("response code parse error "+code);
+                    throw new ProtocolParseException("unable to parse response code"+code);
                 }
             }
             default:
-                throw new IllegalStateException("Impossible to get here "+type);
+                throw new IllegalStateException("unable to parse ss data "+ dataType);
         }
     }
 }

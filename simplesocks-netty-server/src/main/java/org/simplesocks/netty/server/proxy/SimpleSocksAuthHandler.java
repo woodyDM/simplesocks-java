@@ -10,7 +10,7 @@ import org.simplesocks.netty.server.auth.AuthProvider;
 @Slf4j
 public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
 
-    private AuthProvider authProvider;
+    private AuthProvider authProvider;  //TODO modify to attributekey
 
     public SimpleSocksAuthHandler(AuthProvider authProvider) {
         this.authProvider = authProvider;
@@ -21,7 +21,7 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
         DataType type = msg.getType();
         log.debug("receive {} from {}",msg,ctx.channel().remoteAddress());
         switch (type){
-            case CONNECT:{
+            case CONNECT:{      //this server does not support no auth connection.
                 if(msg instanceof NoAuthConnectionRequest){
                     ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.FAIL));
                 }else{

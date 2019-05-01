@@ -6,7 +6,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.socks.SocksInitRequestDecoder;
 import io.netty.handler.codec.socks.SocksMessageEncoder;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
-import org.simplesocks.netty.app.manager.RelayClientManager;
+import org.simplesocks.netty.common.netty.RelayClientManager;
 
 
 /**

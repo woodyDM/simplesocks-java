@@ -1,4 +1,4 @@
-package org.simplesocks.netty.app.proxy.relay;
+package org.simplesocks.netty.app.proxy.relay.direct;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

@@ -34,4 +34,7 @@ public interface RelayClient {
     void setReceiveRemoteResponseAction(BiConsumer<DataType,ServerResponse.Code> action);
 
 
+    RelayClientManager manager();
+
+
 }
