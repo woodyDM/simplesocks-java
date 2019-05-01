@@ -4,6 +4,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import org.simplesocks.netty.common.encrypt.Encrypter;
+import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.ProxyDataRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	private static Logger log = LoggerFactory.getLogger(TargetServerDataHandler.class);
 	private Channel toLocalServerChannel;
 	RelayProxyDataHandler handler;
+	private Encrypter encrypter = OffsetEncrypter.getInstance();
 
 	public TargetServerDataHandler(RelayProxyDataHandler handler) {
 		this.toLocalServerChannel = handler.getToLocalServerChannel() ;
@@ -44,7 +47,8 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 			int len = bytes.readableBytes();
 			byte[] bytes1 = new byte[len];
 			bytes.readBytes(bytes1);
-            ProxyDataRequest request = new ProxyDataRequest(bytes1);
+			byte[] bytes2 = encrypter.encode(bytes1);
+			ProxyDataRequest request = new ProxyDataRequest(bytes2);
             toLocalServerChannel.writeAndFlush(request);
 		}finally {
 			ReferenceCountUtil.release(bytes);

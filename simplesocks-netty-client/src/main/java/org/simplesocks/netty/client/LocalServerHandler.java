@@ -5,6 +5,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.proxy.ProxyConnectException;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.Encrypter;
+import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.*;
 
 import javax.security.sasl.AuthenticationException;
@@ -16,6 +18,7 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
 
 
     private SimpleSocksProtocolClient client;
+    private Encrypter encrypter = OffsetEncrypter.getInstance();
 
     public LocalServerHandler(SimpleSocksProtocolClient client) {
         this.client = client;
@@ -54,7 +57,9 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
             }
             case PROXY_DATA:{
                 ProxyDataRequest request = (ProxyDataRequest)msg;
-                client.onReceiveProxyData(request);
+                byte[] encoded = request.getBytes();
+                encoded = encrypter.decode(encoded);
+                client.onReceiveProxyData(new ProxyDataRequest(encoded));
                 break;
             }
 

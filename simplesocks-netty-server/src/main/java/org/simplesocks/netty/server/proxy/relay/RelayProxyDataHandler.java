@@ -5,6 +5,8 @@ import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.Encrypter;
+import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.*;
 
 
@@ -22,6 +24,8 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     private boolean isProxying;
     private Channel toLocalServerChannel;
     private EventLoopGroup eventLoopGroup;
+    private Encrypter encrypter = OffsetEncrypter.getInstance();
+
 
     public RelayProxyDataHandler() {
         isProxying = false;
@@ -127,7 +131,10 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                         channelHandlerContext.writeAndFlush(new ServerResponse(DataType.PROXY_DATA_RESPONSE, ServerResponse.Code.FAIL));
                     }else{
                         log.info("receive proxy data {} from local server .", proxyRequest);
-                        toTargetServerChannel.writeAndFlush(request.getIncomingBuf()).addListener(future -> {
+                        byte[] encoded = request.getBytes();
+                        encoded = encrypter.decode(encoded);
+                        ProxyDataRequest requestT = new ProxyDataRequest(encoded);
+                        toTargetServerChannel.writeAndFlush(requestT.getIncomingBuf()).addListener(future -> {
                             if(!future.isSuccess()){
                                 log.debug("Failed to proxy data to target server");
                                 channelHandlerContext.channel()

@@ -3,6 +3,13 @@ package org.simplesocks.netty.common.encrypt;
 public class OffsetEncrypter implements Encrypter {
 
 
+    private static final OffsetEncrypter instance = new OffsetEncrypter((byte)17);
+
+    public static OffsetEncrypter getInstance(){
+        return instance;
+    }
+
+
     private byte offset;
 
     public OffsetEncrypter(byte offset) {

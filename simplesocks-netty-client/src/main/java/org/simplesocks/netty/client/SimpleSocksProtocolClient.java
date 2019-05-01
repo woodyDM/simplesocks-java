@@ -10,6 +10,8 @@ import io.netty.util.concurrent.Promise;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.simplesocks.netty.common.encrypt.Encrypter;
+import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.EndProxyRequest;
 import org.simplesocks.netty.common.protocol.ProxyDataRequest;
 import org.simplesocks.netty.common.protocol.ProxyRequest;
@@ -47,6 +49,8 @@ public class SimpleSocksProtocolClient   {
 	private Promise<Void> endProxyPromise;
 	private Consumer<ProxyDataRequest> proxyDataRequestConsumer;
 	private Consumer<ServerResponse> serverResponseConsumer;
+	private Encrypter encrypter = OffsetEncrypter.getInstance();
+
 
 	public SimpleSocksProtocolClient(String host, int port, String auth) {
 		Objects.requireNonNull(auth);
@@ -183,7 +187,9 @@ public class SimpleSocksProtocolClient   {
 	 * @param request
 	 */
 	public void sendProxyData(ProxyDataRequest request){
-		toRemoteChannel.writeAndFlush(request).addListener(future -> {
+		byte[] decoded = request.getBytes();
+		decoded = encrypter.encode(decoded);
+		toRemoteChannel.writeAndFlush(new ProxyDataRequest(decoded)).addListener(future -> {
 			if(!future.isSuccess()){
 				log.warn("failed to send proxy data to remote.");
 			}
