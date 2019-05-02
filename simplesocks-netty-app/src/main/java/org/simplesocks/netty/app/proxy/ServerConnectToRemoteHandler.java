@@ -38,7 +38,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, SocksCmdRequest socksCmdRequest) throws Exception {
         Channel toLocalChannel = ctx.channel();
-        relayClientManager.borrow(ctx.executor()).addListener(future -> {
+        relayClientManager.borrow(ctx.executor(), socksCmdRequest).addListener(future -> {
             if (future.isSuccess()) {
                 RelayClient client = (RelayClient)future.getNow();
                 this.client = client;

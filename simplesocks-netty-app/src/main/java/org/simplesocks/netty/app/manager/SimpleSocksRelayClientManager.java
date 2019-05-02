@@ -2,6 +2,7 @@ package org.simplesocks.netty.app.manager;
 
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.proxy.ProxyConnectException;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
@@ -33,7 +34,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     }
 
     @Override
-    public Promise<RelayClient> borrow(EventExecutor eventExecutor) {
+    public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
         SimpleSocksProtocolClient client = new SimpleSocksProtocolClient(host, port, auth,loopGroup);
         SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client, this);
         Promise<RelayClient> objectPromise = eventExecutor.newPromise();

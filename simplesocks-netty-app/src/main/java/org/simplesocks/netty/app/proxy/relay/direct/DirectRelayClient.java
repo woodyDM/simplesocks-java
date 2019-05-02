@@ -49,8 +49,7 @@ public class DirectRelayClient implements RelayClient {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (!future.isSuccess()) {
-                            log.warn("Failed to connect to host {} port {}  , close channel.", host, port);
-                            future.channel().close();
+                            log.warn("Failed to connect to host {} port {}.", host, port);
                             promise.setFailure(new ProxyConnectException("failed to get proxy client"));
                         }else{
                             remoteChannel = future.channel();
