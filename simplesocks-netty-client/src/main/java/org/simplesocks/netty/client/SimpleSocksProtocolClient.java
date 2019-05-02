@@ -98,14 +98,33 @@ public class SimpleSocksProtocolClient   {
 
 	public void close() {
 		endProxy().addListener(future -> {
-			if(toRemoteChannel!=null){
-				String host = toRemoteChannel.remoteAddress().toString();
-				toRemoteChannel.close().addListener(f2->{
-					log.info("close connection to server[{}], [{}].", host, f2.isSuccess());
-				});
-			}
-			connected = false;
+			clear();
 		});
+	}
+
+	/**
+	 * close client
+	 * @throws IOException
+	 */
+
+	public void forceClose() {
+		if(isConnected()){
+			endProxy().addListener(future -> {
+				clear();
+			});
+		}else{
+			clear();
+		}
+	}
+
+	private void clear(){
+		if(toRemoteChannel!=null){
+			String host = toRemoteChannel.remoteAddress().toString();
+			toRemoteChannel.close().addListener(f2->{
+				log.info("close connection to server[{}], [{}].", host, f2.isSuccess());
+			});
+		}
+		connected = false;
 	}
 
 
@@ -198,5 +217,19 @@ public class SimpleSocksProtocolClient   {
 		}
 	}
 
+	/**
+	 *               ______________
+	 *              \|/              |
+	 * 			NO_CONNECT ---> CONNECTING --->CONNECTED_IDLE --->PROXY_REQUESTING ---> PROXYING --> END_PROXY_REQUESTING
+	 *
+	 */
+	public enum State{
+		NO_CONNECT,
+		CONNECTING,
+		CONNECTED_IDLE,
+		PROXY_REQUESTING,
+		PROXYING,
+		END_PROXY_REQUESTING,
+	}
 
 }

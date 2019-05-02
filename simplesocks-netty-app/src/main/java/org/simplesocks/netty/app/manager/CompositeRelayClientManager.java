@@ -33,7 +33,7 @@ public class CompositeRelayClientManager implements RelayClientManager {
         this.auth = auth;
         this.loopGroup = loopGroup;
         this.directManager = new DirectRelayClientManager(loopGroup);
-        this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup);
+        this.simpleSocksManager = new SimpleSocksRelayClientPooledManager(host, port, auth, loopGroup);
     }
 
     @Override
@@ -78,6 +78,6 @@ public class CompositeRelayClientManager implements RelayClientManager {
     }
 
     private String getKey(SocksCmdRequest socksCmdRequest){
-        return socksCmdRequest.host()+"__"+socksCmdRequest.port();
+        return socksCmdRequest.host();
     }
 }
