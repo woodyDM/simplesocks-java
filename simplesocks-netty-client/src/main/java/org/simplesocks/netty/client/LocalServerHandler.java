@@ -26,13 +26,12 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("try connecting to {}, send auth.",ctx.channel().remoteAddress());
         ctx.channel().writeAndFlush(new AuthConnectionRequest(client.getAuth()));
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksCmdRequest msg) throws Exception {
-        log.debug("receive from ssocks server: {}",msg);
+        log.debug("receive from simpleSocks server: {}",msg);
         DataType type = msg.getType();
         switch (type){
             case CONNECT_RESPONSE:{
@@ -42,7 +41,7 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
                     client.getConnectionChannelPromise().setSuccess(ctx.channel());
                 }else{
                     log.debug("connection auth failed , set promise fail.");
-                    client.getConnectionChannelPromise().setFailure(new AuthenticationException("failed to auth."));
+                    client.getConnectionChannelPromise().setFailure(new BaseSystemException("Failed to auth."));
                 }
                 break;
             }
@@ -51,15 +50,15 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
                 if(response.getCode()== ServerResponse.Code.SUCCESS){
                     client.getProxyChannelPromise().setSuccess(ctx.channel());
                 }else{
-                    client.getProxyChannelPromise().setFailure(new ProxyConnectException("proxy request failed."));
+                    client.getProxyChannelPromise().setFailure(new BaseSystemException("proxy request failed."));
                 }
                 break;
             }
             case PROXY_DATA:{
                 ProxyDataRequest request = (ProxyDataRequest)msg;
                 byte[] encoded = request.getBytes();
-                encoded = encrypter.decode(encoded);
-                client.onReceiveProxyData(new ProxyDataRequest(encoded));
+                byte[] decoded = encrypter.decode(encoded);
+                client.onReceiveProxyData(new ProxyDataRequest(decoded));
                 break;
             }
 
@@ -87,11 +86,20 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
         }else{
             log.error("exception when communicate with remote server cause is :",cause);
         }
-        ctx.close();
+        close(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ctx.close();
+        close(ctx);
     }
+
+    private void close(ChannelHandlerContext ctx ){
+        if(client.getProxyChannelPromise()==null){
+            ctx.close();
+        }else{
+            client.close();
+        }
+    }
+
 }

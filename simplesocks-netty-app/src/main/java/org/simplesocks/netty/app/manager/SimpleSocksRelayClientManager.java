@@ -1,5 +1,6 @@
 package org.simplesocks.netty.app.manager;
 
+import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.proxy.ProxyConnectException;
 import io.netty.util.concurrent.EventExecutor;
@@ -10,8 +11,8 @@ import org.simplesocks.netty.app.proxy.relay.ssocks.SimpleSocksRelayClientAdapte
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
+import org.simplesocks.netty.common.protocol.BaseSystemException;
 
-import java.io.IOException;
 
 @Slf4j
 public class SimpleSocksRelayClientManager implements RelayClientManager {
@@ -38,11 +39,11 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
         Promise<RelayClient> objectPromise = eventExecutor.newPromise();
         client.setConnectionChannelListener(future -> {
             if(future.isSuccess()){
-                log.info("get client ok");
+                log.info("Get client[{}].", ((Channel)future.getNow()).remoteAddress());
                 objectPromise.setSuccess(adapter);
             }else{
                 log.info("get client failed");
-                objectPromise.setFailure(new ProxyConnectException("failed to connect to server."));
+                objectPromise.setFailure(new BaseSystemException("failed to connect to server."));
             }
         });
         client.init();
