@@ -11,7 +11,9 @@ import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.BaseSystemException;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -25,7 +27,7 @@ public class CompositeRelayClientManager implements RelayClientManager {
     private RelayClientManager simpleSocksManager;
     private static final int expireMinute = 60;
     private Map<String, LocalDateTime> unableMap = new ConcurrentHashMap<>(256);    //expire time
-
+    private Set<String> proxySet = new HashSet<>();
 
     public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup) {
         this.host = host;
@@ -33,7 +35,14 @@ public class CompositeRelayClientManager implements RelayClientManager {
         this.auth = auth;
         this.loopGroup = loopGroup;
         this.directManager = new DirectRelayClientManager(loopGroup);
-        this.simpleSocksManager = new SimpleSocksRelayClientPooledManager(host, port, auth, loopGroup);
+        this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup);
+        proxySet.add("google");
+        proxySet.add("pixiv");
+        proxySet.add("pximg.net");
+        proxySet.add("youtube");
+        proxySet.add("twitter");
+        proxySet.add("facebook");
+        proxySet.add("github.com");
     }
 
     @Override
@@ -42,6 +51,12 @@ public class CompositeRelayClientManager implements RelayClientManager {
         String key = getKey(socksCmdRequest);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expireTime = unableMap.get(key);
+        String host = socksCmdRequest.host();
+        boolean needProxy = proxySet.stream().anyMatch(it -> host.contains(it));
+        if(needProxy){
+            log.debug("Need proxy!get SS Proxy client for {}",key);
+            return simpleSocksManager.borrow(eventExecutor, socksCmdRequest);
+        }
         if(expireTime==null||expireTime.isBefore(now)){ //try direct
             Promise<RelayClient> result = eventExecutor.newPromise();
             directManager.borrow(eventExecutor, socksCmdRequest).addListener(future -> {

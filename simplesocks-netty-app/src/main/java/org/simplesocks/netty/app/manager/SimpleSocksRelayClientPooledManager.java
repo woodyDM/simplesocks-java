@@ -13,6 +13,7 @@ import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.BaseSystemException;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 @Slf4j
@@ -37,19 +38,32 @@ public class SimpleSocksRelayClientPooledManager implements RelayClientManager {
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
         Promise<RelayClient> promise = eventExecutor.newPromise();
-        synchronized (pool){
-            Iterator<SimpleSocksRelayClientAdapter> iterator = pool.iterator();
-            while (iterator.hasNext()){
-                SimpleSocksRelayClientAdapter next = iterator.next();
-                iterator.remove();
-                if(next.getClient().isConnected()){
-                    log.debug("get client from pool {}",next.toString());
-                    promise.setSuccess(next);
-                    return promise;
+        CompletableFuture.runAsync(()->{
+            synchronized (pool){
+                Iterator<SimpleSocksRelayClientAdapter> iterator = pool.iterator();
+                boolean found =false;
+                while (iterator.hasNext()){
+                    SimpleSocksRelayClientAdapter next = iterator.next();
+                    iterator.remove();
+                    if(next.getClient().isConnected()){
+                        log.debug("get client from pool {}",next.toString());
+                        promise.setSuccess(next);
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    manager.borrow(eventExecutor, socksCmdRequest).addListener(future -> {
+                        if(future.isSuccess()){
+                            promise.setSuccess((RelayClient)future.getNow());
+                        }else{
+                            promise.setFailure(future.cause());
+                        }
+                    });
                 }
             }
-        }
-        return manager.borrow(eventExecutor, socksCmdRequest);
+        });
+        return promise;
     }
 
     @Override
@@ -57,7 +71,6 @@ public class SimpleSocksRelayClientPooledManager implements RelayClientManager {
         SimpleSocksRelayClientAdapter adapter = (SimpleSocksRelayClientAdapter)client;
         SimpleSocksProtocolClient c = adapter.getClient();
         if(c.isConnected()){
-
             adapter.getClient().endProxy().addListener(future -> {
                 if(future.isSuccess()){
                     synchronized (pool){

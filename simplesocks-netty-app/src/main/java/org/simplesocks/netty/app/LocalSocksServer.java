@@ -58,6 +58,7 @@ public class LocalSocksServer implements Runnable{
 			int port = 10800;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
+//			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
 
