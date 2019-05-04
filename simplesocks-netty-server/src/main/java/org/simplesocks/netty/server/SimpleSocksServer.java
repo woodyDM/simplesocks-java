@@ -49,7 +49,7 @@ public class SimpleSocksServer {
 			AuthProvider authProvider = new MemoryAuthProvider();
 			int idleSecond = 180;
 			bossGroup = new NioEventLoopGroup(1);
-			workerGroup = new NioEventLoopGroup();
+			workerGroup = new NioEventLoopGroup(16);
 			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)

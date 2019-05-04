@@ -123,8 +123,8 @@ public class SimpleSocksProtocolClient   {
 		byte[] encoded = encrypter.encode(decoded);
 		toRemoteChannel.writeAndFlush(new ProxyDataMessage(request.getId(), encoded)).addListener(future -> {
 			if(!future.isSuccess()){
-				log.warn("Failed to send proxy data to remote, closing client.");
-				close();
+				//log.warn("Failed to send proxy data to remote, closing client.");
+				//close();
 			}
 		});
 	}

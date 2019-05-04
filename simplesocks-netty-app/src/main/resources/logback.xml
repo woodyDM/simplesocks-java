@@ -12,7 +12,7 @@
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="org.simplesocks.netty" level="INFO" />
+    <logger name="org.simplesocks.netty" level="DEBUG" />
 
 
 </configuration>
