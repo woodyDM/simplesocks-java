@@ -54,6 +54,7 @@ public class SimpleSocksServer {
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
+					.childOption(ChannelOption.TCP_NODELAY, false)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
