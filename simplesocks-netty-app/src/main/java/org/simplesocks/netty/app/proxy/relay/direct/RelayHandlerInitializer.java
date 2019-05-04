@@ -17,8 +17,7 @@ public final class RelayHandlerInitializer extends ChannelInitializer<SocketChan
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ch.pipeline()
-                .addLast(new RelayProxyDataHandler(client));
+        ch.pipeline().addLast(new RelayProxyDataHandler(client));
     }
 
 }

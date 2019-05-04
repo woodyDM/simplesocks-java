@@ -1,7 +1,13 @@
 package org.simplesocks.netty.server;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.SimpleSocksDecoder;
@@ -13,15 +19,6 @@ import org.simplesocks.netty.server.auth.MemoryAuthProvider;
 import org.simplesocks.netty.server.proxy.ExceptionHandler;
 import org.simplesocks.netty.server.proxy.HeartBeatHandler;
 import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
-import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
-
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.util.concurrent.TimeUnit;
 
@@ -50,7 +47,7 @@ public class SimpleSocksServer {
 		try {
 
 			AuthProvider authProvider = new MemoryAuthProvider();
-			int idleSecond = 120;
+			int idleSecond = 180;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			ServerBootstrap bootstrap = new ServerBootstrap();
@@ -67,7 +64,6 @@ public class SimpleSocksServer {
 									.addLast(new HeartBeatHandler())
                                     .addLast(new SimpleSocksProtocolDecoder())
 									.addLast(new SimpleSocksAuthHandler(authProvider))
-									.addLast(new RelayProxyDataHandler())
 									.addLast(new ExceptionHandler(authProvider))
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}

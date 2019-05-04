@@ -1,5 +1,10 @@
 package org.simplesocks.netty.server.encryption;
 
+import org.bouncycastle.crypto.StreamBlockCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+
+import javax.crypto.SecretKey;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -7,12 +12,6 @@ import java.security.SecureRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
-
-import javax.crypto.SecretKey;
-
-import org.bouncycastle.crypto.StreamBlockCipher;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
 
 public abstract class CryptBase implements ICrypt {
 

@@ -6,9 +6,9 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.proxy.relay.direct.DirectRelayClient;
+import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
-import org.simplesocks.netty.common.protocol.BaseSystemException;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -38,11 +38,12 @@ public class CompositeRelayClientManager implements RelayClientManager {
         this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup);
         proxySet.add("google");
         proxySet.add("pixiv");
-        proxySet.add("pximg.net");
+        proxySet.add("pximg");
         proxySet.add("youtube");
         proxySet.add("twitter");
         proxySet.add("facebook");
-        proxySet.add("github.com");
+        proxySet.add("github");
+        proxySet.add("twitch");
     }
 
     @Override

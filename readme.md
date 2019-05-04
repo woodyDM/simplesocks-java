@@ -15,7 +15,8 @@ and
 ## Now Under construction  
 1. LocalServer and RemoteServer protocol:Simple Socks Protocol;  
 2. the protocol netty codec. 
-3. client to server connection pool(pool authenticated channel);
+3. ~~client to server connection pool(pool authenticated channel);~~
+(It is hard to create a pool with non-blocking synchronizations)
 4. data encryption between LocalServer and RemoteServer;
  
 ## Map
@@ -29,69 +30,69 @@ and
 ## Simple Socks Protocol   
 
  
-
-0.server responses(all server response same)   
-
-|len| byte|description|
-|:----:|:---:|:-------:|
-|  1| 0x01| version number |
-|  4| |content-length-total |
-|1 | | server-response-type|
-|  1| 0x01 success<br> 0x02 fail| result|
-
 client to server:  
 
  
-1.connect  
+1.connect request
 
 |len| byte|description|
 |:----:|:---:|:-------:|
 |  1| 0x01| version number |
-|  4| |content-length-total |
-|  1| 0x01| connect cmd |
-|  1| 0x01 no auth<br> 0X02 password| authType|
-|  ?|  |password (UTF8 bytes)   |
-
-
-2.proxy    
-Request to proxy data to target server.  
-Used when connect ok.
-
-|len| byte|description|
-|:----:|:---:|:-------:|
-|  1| 0x01| version number |
-|  4|     |content-length-total |
-|  1| 0x02| proxy cmd |
-|  1| 0x01 IPV4 <br> 0x03 domain <br> 0x04 IPV6| type|
+|  4| |content length total |
+|  1| 0x01|  connect cmd |
+|1| ? | auth password length|
+|1| ? | encrypt type string length|
+|?|  |auth password content(UTF8 bytes)|
+|?|  | encrypt type bytes|
+|1|0x01 IPV4 <br> 0x03 domain <br> 0x04 IPV6|host type|
 |  2|     |request port |
 |  1|     | byte offset |
-|  ?|     |request server(UTF8) <br>  *All bytes offset |
+|  ?|     |request server content(UTF8) <br>  *All bytes offset |
 
-
-3.proxy data   
-Send proxy data to remote server, used when proxy request ok.
-
-server send proxy data or proxy data response (failed)
+1.1 server response
 
 |len| byte|description|
 |:----:|:---:|:-------:|
 |  1| 0x01| version number |
 |  4| |content-length-total |
-|  1| 0x03| proxy cmd |
+|  1|0x11 | connect cmd response|
+|  1| 0x01 success<br> 0x02 fail| result|
+| 1 |? | encrypt type string length|
+| 1 |? | encrypt iv length|
+|  ?| | encrypt type|
+|  ?| | encrypt password bytes|
+
+2.proxy data   
+Send proxy data to remote server, used when connect request ok.
+
+|len| byte|description|
+|:----:|:---:|:-------:|
+|  1| 0x01| version number |
+|  4| |content-length-total |
+|  1| 0x02| proxy cmd |
+|  1| | id length|
+|  ?| | id bytes |
 |  ?|     | data|
- 
- 
- 
-4.end proxy   
-End proxy. used when no more data to send.
-At this state , local server can send a new ProxyRequest to 
-start new proxy data channel. 
+
+2.1 the server should proxy the data and response :
 
 |len| byte|description|
 |:----:|:---:|:-------:|
 |  1| 0x01| version number |
 |  4| |content-length-total |
-|  1| 0x04| end proxy cmd |
+|  1| 0x12| proxy cmd response |
+|  1| 0x01 success<br> 0x02 fail| result|
+|1 | | id length|
+|? | | id bytes |
+
+3.server send proxy data same as client proxy data request
+
+ 
+4.if client all data are sent, no need to 
+send end request , client directly close channel.
+
+5.If the channel is idle for long time (defined by server) ,server need 
+close channel.
 
 
  

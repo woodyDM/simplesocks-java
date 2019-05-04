@@ -7,10 +7,10 @@ import lombok.Getter;
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
+import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.protocol.DataType;
-import org.simplesocks.netty.common.protocol.ProxyDataRequest;
-import org.simplesocks.netty.common.protocol.ProxyRequest;
-import org.simplesocks.netty.common.protocol.ServerResponse;
+import org.simplesocks.netty.common.protocol.ProxyDataMessage;
+import org.simplesocks.netty.common.protocol.ServerResponseMessage;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -31,31 +31,32 @@ public class SimpleSocksRelayClientAdapter implements RelayClient {
         return client.isConnected();
     }
 
+
     @Override
-    public Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType, EventExecutor eventExecutor) {
-        return client.sendProxyRequest(host, port, proxyType);
+    public Promise<Channel> sendProxyRequest(String host, int port, ConnectionMessage.Type proxyType, EventExecutor eventExecutor) {
+        return client.sendProxyRequest(host,port,proxyType,eventExecutor);
     }
 
     @Override
-    public Promise<Void> endProxy(EventExecutor eventExecutor) {
-        return client.endProxy();
+    public void close() {
+        client.close();
     }
 
     @Override
     public void sendProxyData(byte[] data) {
-        ProxyDataRequest request = new ProxyDataRequest(data);
+        ProxyDataMessage request = new ProxyDataMessage(data);
         client.sendProxyData(request);
     }
 
     @Override
     public void setReceiveProxyDataAction(Consumer<byte[]> action) {
         client.setProxyDataRequestConsumer((request -> {
-            action.accept(request.getBytes());
+            action.accept(request.getData());
         }));
     }
 
     @Override
-    public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponse.Code> action) {
+    public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponseMessage.Code> action) {
         client.setServerResponseConsumer((response -> {
             action.accept(response.getType(), response.getCode());
         }));

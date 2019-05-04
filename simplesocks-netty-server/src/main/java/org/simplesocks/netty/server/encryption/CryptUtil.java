@@ -1,12 +1,11 @@
 package org.simplesocks.netty.server.encryption;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
+import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.buffer.ByteBuf;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class CryptUtil {
 

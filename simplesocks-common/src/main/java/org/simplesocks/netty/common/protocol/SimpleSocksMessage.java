@@ -2,7 +2,7 @@ package org.simplesocks.netty.common.protocol;
 
 import io.netty.buffer.ByteBuf;
 
-public interface SimpleSocksCmdRequest {
+public interface SimpleSocksMessage {
 
     void write(ByteBuf buf);
 

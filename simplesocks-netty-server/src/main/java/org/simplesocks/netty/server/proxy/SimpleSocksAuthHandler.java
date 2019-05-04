@@ -6,9 +6,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.server.auth.AuthProvider;
+import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
 
 @Slf4j
-public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
+public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksMessage> {
 
     private AuthProvider authProvider;  //TODO modify to attributekey
 
@@ -17,37 +18,36 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksCmdRequest msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
         DataType type = msg.getType();
         log.debug("receive {} from {}",msg,ctx.channel().remoteAddress());
         switch (type){
-            case CONNECT:{      //this server does not support no auth connection.
-                if(msg instanceof NoAuthConnectionRequest){
-                    ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.FAIL));
+            case CONNECT:{
+                ConnectionMessage request = (ConnectionMessage)msg;
+                boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel().remoteAddress().toString());
+                if(ok){
+                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, ctx.channel());
+                    ctx.pipeline().addLast(relayProxyDataHandler);
+                    relayProxyDataHandler.tryToConnectToTarget();
                 }else{
-                    AuthConnectionRequest request = (AuthConnectionRequest)msg;
-                    boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel().remoteAddress().toString());
-                    if(ok){
-                        ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.SUCCESS));
-                    }else{
-                        ctx.channel().writeAndFlush(new ServerResponse(DataType.CONNECT_RESPONSE, ServerResponse.Code.FAIL));
-                    }
+                    ctx.channel().writeAndFlush(new ConnectionResponse(ServerResponseMessage.Code.FAIL, request.getEncryptType(),"."));
                 }
                 break;
             }
-            default:{
+            case PROXY_DATA:{
                 String identifier = ctx.channel().remoteAddress().toString();
                 boolean authenticated = authProvider.authenticated(identifier);
                 if(authenticated){
                     ctx.fireChannelRead(msg);
                 }else{
-                    ctx.channel().writeAndFlush(new ServerResponse(type.toResponse(), ServerResponse.Code.FAIL));
+                    ProxyDataMessage request = (ProxyDataMessage)msg;
+                    ctx.channel().writeAndFlush(new ProxyDataResponse(ServerResponseMessage.Code.FAIL, request.getId()));
                 }
+                break;
             }
+            default:
+                throw new IllegalStateException("client send data illegal! "+type);
         }
     }
-
-
-
 
 }

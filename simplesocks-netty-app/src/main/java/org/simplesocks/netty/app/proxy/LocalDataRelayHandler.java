@@ -5,10 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
-
 import org.simplesocks.netty.common.netty.RelayClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * receive data from local app and send to remote server.

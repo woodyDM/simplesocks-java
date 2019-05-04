@@ -1,19 +1,15 @@
 package org.simplesocks.netty.server.proxy.relay;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
-
+import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
-import org.simplesocks.netty.common.protocol.ProxyDataRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.io.IOError;
 import java.io.IOException;
 
 /**
@@ -22,11 +18,11 @@ import java.io.IOException;
  * @author
  *
  */
+@Slf4j
 public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 
-	private static Logger log = LoggerFactory.getLogger(TargetServerDataHandler.class);
 	private Channel toLocalServerChannel;
-	RelayProxyDataHandler handler;
+	private RelayProxyDataHandler handler;
 	private Encrypter encrypter = OffsetEncrypter.getInstance();
 
 	public TargetServerDataHandler(RelayProxyDataHandler handler) {
@@ -48,28 +44,33 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 			byte[] bytes1 = new byte[len];
 			bytes.readBytes(bytes1);
 			byte[] bytes2 = encrypter.encode(bytes1);
-			ProxyDataRequest request = new ProxyDataRequest(bytes2);
+			ProxyDataMessage request = new ProxyDataMessage(bytes2);
             toLocalServerChannel.writeAndFlush(request);
 		}finally {
 			ReferenceCountUtil.release(bytes);
 		}
 	}
 
-
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		ctx.close();
+		close(ctx);
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		ctx.close();
 		if(cause instanceof IOException){
 			log.warn("io exception, may be channel is forced closed. {}",cause.getMessage());
 		}else{
 			log.error("exception ", cause);
-
 		}
+		close(ctx);
+	}
+
+
+	private void close(ChannelHandlerContext ctx){
+		ctx.close();
+		if(toLocalServerChannel!=null)
+			toLocalServerChannel.close();
 	}
 
 }

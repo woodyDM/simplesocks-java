@@ -1,15 +1,15 @@
 package org.simplesocks.netty.server.encryption;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.simplesocks.netty.server.encryption.impl.AesCrypt;
 import org.simplesocks.netty.server.encryption.impl.BlowFishCrypt;
 import org.simplesocks.netty.server.encryption.impl.CamelliaCrypt;
 import org.simplesocks.netty.server.encryption.impl.SeedCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CryptFactory {
 

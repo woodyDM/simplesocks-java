@@ -2,15 +2,16 @@ package org.simplesocks.netty.common.util;
 
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
-import java.nio.charset.StandardCharsets;
 
 public class ContentUtils {
 
 
 
-
+    public static void checkBitLength(String msg,int len){
+        if(len>Byte.MAX_VALUE){
+            throw new IllegalArgumentException(msg+" exceed max byte length.");
+        }
+    }
 
     public static byte[] shortToByte(short target){
         byte[] result = new byte[2];
@@ -33,14 +34,7 @@ public class ContentUtils {
         return value;
     }
 
-    public static String leftBytesToString(ByteBuf byteBuf){
 
-        return new String(getAllBytes(byteBuf), StandardCharsets.UTF_8);
-    }
-
-    public static ByteBuf wrapByteBuf(ByteBuf byteBuf){
-        return Unpooled.wrappedBuffer(getAllBytes(byteBuf));
-    }
 
     public static byte[] getAllBytes(ByteBuf byteBuf){
         int len = byteBuf.readableBytes();
@@ -50,11 +44,6 @@ public class ContentUtils {
     }
 
 
-    public static void main(String[] args) {
-        byte[] bytes = shortToByte((short)895);
-        System.out.println(byteToShort(bytes));
-        System.out.println(".");
-    }
 
 
 }

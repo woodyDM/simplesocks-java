@@ -4,18 +4,11 @@ import java.util.NoSuchElementException;
 
 public enum DataType {
 
-    CONNECT(0x01),
-    PROXY(0x02),
-    PROXY_DATA(0x03),
-    END_PROXY(0x04),
-    PING(0x05),
-
+    CONNECT (0x01),
+    PROXY_DATA(0x02),
     CONNECT_RESPONSE(0x11),
-    PROXY_RESPONSE(0x12),
-    PROXY_DATA_RESPONSE(0x13),
-    END_PROXY_RESPONSE(0x14),
-    PONG(0x15),
-    END_CONNECTION(0x16);
+    PROXY_DATA_RESPONSE(0x12);
+
     private byte bit;
 
     DataType(int bit){
@@ -31,7 +24,7 @@ public enum DataType {
             if(b==t.bit)
                 return t;
         }
-        throw new NoSuchElementException("DataType not found . bit is "+b);
+        throw new NoSuchElementException("DataType not found .Bit is "+b);
     }
 
     public DataType toResponse(){

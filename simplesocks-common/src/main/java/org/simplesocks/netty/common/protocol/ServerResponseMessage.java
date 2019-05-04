@@ -1,7 +1,7 @@
 package org.simplesocks.netty.common.protocol;
 
 
-public class ServerResponse extends ByteBasedRequest {
+public abstract class ServerResponseMessage extends ByteBasedMessage {
 
     protected Code code;
 
@@ -9,15 +9,9 @@ public class ServerResponse extends ByteBasedRequest {
         return code;
     }
 
-    public ServerResponse(DataType type, Code code) {
+    public ServerResponseMessage(DataType type, Code code) {
         super(type);
         this.code = code;
-
-    }
-
-    @Override
-    protected byte[] body() {
-        return new byte[]{code.bit};
     }
 
     public enum Code{
@@ -33,7 +27,7 @@ public class ServerResponse extends ByteBasedRequest {
 
     @Override
     public String toString() {
-        return "ServerResponse{" +
+        return "ServerResponseMessage{" +
                  type + ':'+code+
                 '}';
     }

@@ -7,11 +7,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.handler.codec.socks.SocksCmdResponse;
 import io.netty.handler.codec.socks.SocksCmdStatus;
-import org.simplesocks.netty.common.netty.RelayClientManager;
-import org.simplesocks.netty.common.util.ServerUtils;
-
 import org.simplesocks.netty.common.netty.RelayClient;
-import org.simplesocks.netty.common.protocol.ProxyRequest;
+import org.simplesocks.netty.common.netty.RelayClientManager;
+import org.simplesocks.netty.common.protocol.ConnectionMessage;
+import org.simplesocks.netty.common.util.ServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +58,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
                 });
                 client.sendProxyRequest(socksCmdRequest.host(),
                         socksCmdRequest.port(),
-                        ProxyRequest.Type.valueOf(socksCmdRequest.addressType().byteValue()),
+                        ConnectionMessage.Type.valueOf(socksCmdRequest.addressType().byteValue()),
                         ctx.executor())
                         .addListener(f2 -> {
                             if(f2.isSuccess()){ //ready for proxy
@@ -88,7 +87,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		ServerUtils.closeOnFlush(ctx.channel());
+
         if(!(cause instanceof IOException)){
             logger.error("exception with local channel, close it!",cause);
         }
@@ -98,7 +97,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ServerUtils.closeOnFlush(ctx.channel());
+
         if(client!=null)
             this.relayClientManager.returnClient(client);
     }

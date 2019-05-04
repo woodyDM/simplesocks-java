@@ -11,11 +11,9 @@ import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
-import org.simplesocks.netty.common.protocol.BaseSystemException;
+import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.protocol.DataType;
-import org.simplesocks.netty.common.protocol.ProxyRequest;
-import org.simplesocks.netty.common.protocol.ServerResponse;
-
+import org.simplesocks.netty.common.protocol.ServerResponseMessage;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -30,7 +28,7 @@ public class DirectRelayClient implements RelayClient {
     private Consumer<byte[]> onDataAction;
     private RelayClientManager manager;
 
-    public DirectRelayClient( EventLoopGroup group,RelayClientManager manager) {
+    public DirectRelayClient(EventLoopGroup group,RelayClientManager manager) {
         this.group = group;
         this.manager = manager;
         init();
@@ -41,8 +39,9 @@ public class DirectRelayClient implements RelayClient {
         return remoteChannel!=null&&remoteChannel.isActive();
     }
 
+
     @Override
-    public Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType, EventExecutor eventExecutor) {
+    public Promise<Channel> sendProxyRequest(String host, int port, ConnectionMessage.Type proxyType, EventExecutor eventExecutor) {
         Promise<Channel> promise = eventExecutor.newPromise();
         b.connect(host, port)
                 .addListener(new ChannelFutureListener() {
@@ -61,21 +60,8 @@ public class DirectRelayClient implements RelayClient {
         return promise;
     }
 
-    @Override
-    public Promise<Void> endProxy(EventExecutor eventExecutor) {
-        if(this.remoteChannel==null){
-            throw new IllegalStateException("call end proxy when proxy request success!");
-        }
-        Promise<Void> promise = eventExecutor.newPromise();
-        remoteChannel.close().addListener(future -> {
-            if(future.isSuccess()){
-                promise.setSuccess(null);
-            }else{
-                promise.setFailure(new BaseSystemException("failed to close proxy!"));
-            }
-        });
-        return promise;
-    }
+
+
 
     @Override
     public void sendProxyData(byte[] data) {
@@ -106,7 +92,7 @@ public class DirectRelayClient implements RelayClient {
     }
 
     @Override
-    public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponse.Code> action) {
+    public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponseMessage.Code> action) {
         log.warn("this client does not support remote response data!");
     }
 

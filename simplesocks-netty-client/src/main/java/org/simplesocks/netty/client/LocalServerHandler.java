@@ -2,19 +2,17 @@ package org.simplesocks.netty.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.proxy.ProxyConnectException;
-import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.protocol.*;
 
-import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 
 
 @Slf4j
-public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksCmdRequest> {
+public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksMessage> {
 
 
     private SimpleSocksProtocolClient client;
@@ -24,58 +22,40 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
         this.client = client;
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().writeAndFlush(new AuthConnectionRequest(client.getAuth()));
-    }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksCmdRequest msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
         log.debug("receive from simpleSocks server: {}",msg);
         DataType type = msg.getType();
         switch (type){
             case CONNECT_RESPONSE:{
-                ServerResponse response = (ServerResponse)msg;
-                if(response.getCode()== ServerResponse.Code.SUCCESS){
+                ConnectionResponse response = (ConnectionResponse)msg;
+                if(response.getCode()== ServerResponseMessage.Code.SUCCESS){
+                    client.setEncPassword(response.getEncPassword());
+                    client.getConnectionPromise().setSuccess(ctx.channel());
                     client.setConnected(true);
-                    client.getConnectionChannelPromise().setSuccess(ctx.channel());
                 }else{
-                    log.debug("connection auth failed , set promise fail.");
-                    client.getConnectionChannelPromise().setFailure(new BaseSystemException("Failed to auth."));
-                }
-                break;
-            }
-            case PROXY_RESPONSE: {
-                ServerResponse response = (ServerResponse)msg;
-                if(response.getCode()== ServerResponse.Code.SUCCESS){
-                    client.getProxyChannelPromise().setSuccess(ctx.channel());
-                }else{
-                    client.getProxyChannelPromise().setFailure(new BaseSystemException("proxy request failed."));
+                    log.debug("Connection auth failed , set promise fail.");
+                    client.getConnectionPromise().setFailure(new BaseSystemException("Failed to auth."));
                 }
                 break;
             }
             case PROXY_DATA:{
-                ProxyDataRequest request = (ProxyDataRequest)msg;
-                byte[] encoded = request.getBytes();
+                ProxyDataMessage request = (ProxyDataMessage)msg;
+                byte[] encoded = request.getData();
                 byte[] decoded = encrypter.decode(encoded);
-                client.onReceiveProxyData(new ProxyDataRequest(decoded));
+                client.onReceiveProxyData(new ProxyDataMessage(request.getId(), decoded));
                 break;
             }
-
-            case END_PROXY_RESPONSE:{
-                Promise<Void> oldPromise = client.getEndProxyPromise();
-                client.clearProxySession();
-                oldPromise.setSuccess(null);
+            case PROXY_DATA_RESPONSE:{
+                ProxyDataResponse response = (ProxyDataResponse)msg;
+                if(response.getCode() == ServerResponseMessage.Code.FAIL){
+                    client.close();
+                }
                 break;
-            }
-            case END_CONNECTION:{
-                log.warn("server request to end connection.");
-                ctx.close();
-                client.close();
             }
         }
     }
-
 
 
 
@@ -95,11 +75,9 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksC
     }
 
     private void close(ChannelHandlerContext ctx ){
-        if(client.getProxyChannelPromise()==null){
-            ctx.close();
-        }else{
-            client.close();
-        }
+        client.close();
+        ctx.close();
+
     }
 
 }

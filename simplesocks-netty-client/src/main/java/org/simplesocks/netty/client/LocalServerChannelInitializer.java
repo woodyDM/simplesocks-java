@@ -22,6 +22,5 @@ public class LocalServerChannelInitializer extends io.netty.channel.ChannelIniti
                 .addLast(new SimpleSocksProtocolDecoder())
                 .addLast(new LocalServerHandler(client))
                 .addFirst(new SimpleSocksProtocolEncoder());
-
     }
 }

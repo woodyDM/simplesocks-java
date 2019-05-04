@@ -5,14 +5,14 @@ import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import org.simplesocks.netty.app.proxy.relay.direct.DirectRelayClient;
+import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
-import org.simplesocks.netty.common.protocol.BaseSystemException;
-import org.simplesocks.netty.common.protocol.ProxyRequest;
+import org.simplesocks.netty.common.protocol.ConnectionMessage;
 
 public class DirectRelayClientManager implements RelayClientManager {
 
-    EventLoopGroup group;
+    private EventLoopGroup group;
 
     public DirectRelayClientManager(EventLoopGroup group) {
         this.group = group;
@@ -22,7 +22,7 @@ public class DirectRelayClientManager implements RelayClientManager {
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
         Promise<RelayClient> promise = eventExecutor.newPromise();
         DirectRelayClient directRelayClient = new DirectRelayClient(group, this);
-        ProxyRequest.Type type = ProxyRequest.Type.valueOf(socksCmdRequest.addressType().byteValue());
+        ConnectionMessage.Type type = ConnectionMessage.Type.valueOf(socksCmdRequest.addressType().byteValue());
         directRelayClient.sendProxyRequest(socksCmdRequest.host(), socksCmdRequest.port(), type, eventExecutor)
                 .addListener(future -> {
                     if(future.isSuccess()){

@@ -1,4 +1,4 @@
-package org.simplesocks.netty.common.protocol;
+package org.simplesocks.netty.common.exception;
 
 public class BaseSystemException extends RuntimeException {
 

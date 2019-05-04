@@ -1,18 +1,17 @@
 package org.simplesocks.netty.server.encryption.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.bouncycastle.crypto.StreamBlockCipher;
 import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.modes.OFBBlockCipher;
 import org.simplesocks.netty.server.encryption.CryptBase;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * AES 实现类

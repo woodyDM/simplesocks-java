@@ -3,9 +3,9 @@ package org.simplesocks.netty.common.netty;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
+import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.protocol.DataType;
-import org.simplesocks.netty.common.protocol.ProxyRequest;
-import org.simplesocks.netty.common.protocol.ServerResponse;
+import org.simplesocks.netty.common.protocol.ServerResponseMessage;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -19,10 +19,10 @@ public interface RelayClient {
     boolean isConnect();
 
 
-    Promise<Channel> sendProxyRequest(String host, int port, ProxyRequest.Type proxyType, EventExecutor eventExecutor);
+    Promise<Channel> sendProxyRequest(String host, int port, ConnectionMessage.Type proxyType, EventExecutor eventExecutor);
 
 
-    Promise<Void> endProxy(EventExecutor eventExecutor);
+    void close();
 
 
     void sendProxyData(byte[] data);
@@ -31,7 +31,7 @@ public interface RelayClient {
     void setReceiveProxyDataAction(Consumer<byte[]> action);
 
 
-    void setReceiveRemoteResponseAction(BiConsumer<DataType,ServerResponse.Code> action);
+    void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponseMessage.Code> action);
 
 
     RelayClientManager manager();

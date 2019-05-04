@@ -35,7 +35,7 @@
 //		_name = name.toLowerCase();
 //		_ivLength = getIVLength();
 //		_keyLength = getKeyLength();
-//		_ssKey = new ShadowSocksKey(password, _keyLength);
+//		_ssKey = new org.shadowsocks.netty.common.encrypt.ShadowSocksKey(password, _keyLength);
 //		_key = getKey();
 //	}
 //

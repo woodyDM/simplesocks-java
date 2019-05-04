@@ -1,12 +1,11 @@
 package org.simplesocks.netty.server.encryption;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-
-import javax.crypto.SecretKey;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.crypto.SecretKey;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 
 /**
  * Shadowsocks key generator
@@ -43,7 +42,7 @@ public class ShadowSocksKey implements SecretKey {
 		} catch (UnsupportedEncodingException e) {
 			logger.error("ShadowSocksKey: Unsupported string encoding", e);
 		} catch (Exception e) {
-			logger.error("init error", e);
+			logger.error("tryToConnectToTarget error", e);
 			return null;
 		}
 
