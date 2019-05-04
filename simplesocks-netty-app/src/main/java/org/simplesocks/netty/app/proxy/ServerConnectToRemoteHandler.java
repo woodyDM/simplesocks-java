@@ -26,7 +26,6 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 
 	private RelayClientManager relayClientManager ;
     private RelayClient client ;
-    private boolean thisHandlerRemoved = false; //some socks5 client may send proxy request many times, which may cause NoSuchElementException when trying to remove this.\
 
 
     public ServerConnectToRemoteHandler(RelayClientManager relayClientManager) {
@@ -41,18 +40,18 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
             if (future.isSuccess()) {
                 RelayClient client = (RelayClient)future.getNow();
                 this.client = client;
-                logger.info("Get connected client: {}", client);
+                logger.debug("Get connected client: {}", client);
                 client.setReceiveProxyDataAction(bytes -> {
                     if(toLocalChannel.isActive()){
                         toLocalChannel.writeAndFlush(Unpooled.wrappedBuffer(bytes)).addListener(f->{
                             if(f.isSuccess()){
-                                logger.debug("success write to local, {}",bytes.length);
+                                logger.debug("Success write to local, {}",bytes.length);
                             }else{
-                                logger.warn("failed to write to local.",f.cause());
+                                logger.warn("Failed to write to local.",f.cause());
                             }
                         });
                     }else{
-                        logger.info("local channel is no longer active, trying to close proxy client.");
+                        logger.debug("Local channel is no longer active, trying to close proxy client.");
                         relayClientManager.returnClient(client);
                     }
                 });
@@ -65,20 +64,17 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
                                 toLocalChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksCmdRequest.addressType()))
                                 .addListener(f3->{ //when send proxy response ok
                                     try{
-                                        if(!thisHandlerRemoved){
-                                            thisHandlerRemoved = true;
-                                            ctx.pipeline().remove(this);
-                                            ctx.pipeline().addLast(new LocalDataRelayHandler(client));
-                                        }else{
-                                            logger.info("handler removed!!");
-                                        }
+                                        ctx.pipeline().remove(this);
+                                        ctx.pipeline().addLast(new LocalDataRelayHandler(client));
                                     }catch (NoSuchElementException e){
-                                        logger.info("exception in ",e);
+                                        logger.warn("NoSuchElementException exception ,ignore.");
+                                    }catch (Exception e){
+                                        logger.error("Exception when proxy ok,",e);
                                     }
                                 });
                             }else{
                                 ctx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.FAILURE, socksCmdRequest.addressType()));
-                                logger.error("failed to request proxy for {}:{}",socksCmdRequest.host(), socksCmdRequest.port());
+                                logger.error("Failed to request proxy for {}:{}",socksCmdRequest.host(), socksCmdRequest.port());
                             }
                         });
             }
@@ -87,9 +83,8 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-
         if(!(cause instanceof IOException)){
-            logger.error("exception with local channel, close it!",cause);
+            logger.error("Exception with local channel, close it!",cause);
         }
 		this.relayClientManager.returnClient(client);
 		this.client = null;
@@ -97,7 +92,6 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-
         if(client!=null)
             this.relayClientManager.returnClient(client);
     }

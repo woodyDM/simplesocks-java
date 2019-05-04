@@ -58,9 +58,9 @@ public class LocalSocksServer implements Runnable{
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-//			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
+			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
-			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
+//			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 
 			bootstrap = new ServerBootstrap();
 			trafficHandler = new GlobalTrafficShapingHandler(Executors.newScheduledThreadPool(1), 1000);

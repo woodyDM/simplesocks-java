@@ -55,7 +55,7 @@ public class CompositeRelayClientManager implements RelayClientManager {
         String host = socksCmdRequest.host();
         boolean needProxy = proxySet.stream().anyMatch(it -> host.contains(it));
         if(needProxy){
-            log.debug("Need proxy!get SS Proxy client for {}",key);
+            log.debug("Force proxy!Get SS Proxy client for {}", key);
             return simpleSocksManager.borrow(eventExecutor, socksCmdRequest);
         }
         if(expireTime==null||expireTime.isBefore(now)){ //try direct

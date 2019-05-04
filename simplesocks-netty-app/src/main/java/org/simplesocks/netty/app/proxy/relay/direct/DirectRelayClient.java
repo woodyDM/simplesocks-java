@@ -75,7 +75,7 @@ public class DirectRelayClient implements RelayClient {
         ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
         this.remoteChannel.writeAndFlush(byteBuf).addListener(future -> {
             if(!future.isSuccess()){
-                log.warn("failed to send to remote, cause is:", future.cause());
+                log.warn("Failed to send to remote, cause is:", future.cause());
             }
         });
     }
@@ -93,12 +93,12 @@ public class DirectRelayClient implements RelayClient {
 
     @Override
     public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponseMessage.Code> action) {
-        log.warn("this client does not support remote response data!");
+        log.warn("This client does not support remote response data!");
     }
 
     public void close(){
         if(this.remoteChannel!=null){
-            log.debug("closing client {}.",remoteChannel.remoteAddress());
+            log.debug("Closing client {}.",remoteChannel.remoteAddress());
             remoteChannel.close();
         }
     }
