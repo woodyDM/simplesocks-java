@@ -18,19 +18,17 @@ public class DirectRelayClientManager implements RelayClientManager {
         this.group = group;
     }
 
+    /**
+     * create direct client always success.
+     * @param eventExecutor
+     * @param socksCmdRequest
+     * @return
+     */
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
         Promise<RelayClient> promise = eventExecutor.newPromise();
-        DirectRelayClient directRelayClient = new DirectRelayClient(group, this);
-        ConnectionMessage.Type type = ConnectionMessage.Type.valueOf(socksCmdRequest.addressType().byteValue());
-        directRelayClient.sendProxyRequest(socksCmdRequest.host(), socksCmdRequest.port(), type, eventExecutor)
-                .addListener(future -> {
-                    if(future.isSuccess()){
-                        promise.setSuccess(directRelayClient);
-                    }else{
-                        promise.setFailure(new BaseSystemException("Failed to connect to "+socksCmdRequest.host()+":" + socksCmdRequest.port()));
-                    }
-                });
+        DirectRelayClient directRelayClient = new DirectRelayClient(group);
+        promise.setSuccess(directRelayClient);
         return promise;
     }
 

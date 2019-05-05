@@ -43,7 +43,8 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		ctx.close();
+		relayClient.close();
+		ctx.channel();
 		log.error("exception in relay handler ,close channel.", cause);
 	}
 

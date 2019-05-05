@@ -6,8 +6,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
-import org.simplesocks.netty.app.manager.CompositeRelayClientManager;
-import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
+import org.simplesocks.netty.app.manager.DirectRelayClientManager;
 import org.simplesocks.netty.app.mbean.IoAcceptorStat;
 import org.simplesocks.netty.app.proxy.SocksServerInitializer;
 import org.simplesocks.netty.common.netty.RelayClientManager;
@@ -59,12 +58,13 @@ public class LocalSocksServer implements Runnable{
 			workerGroup = new NioEventLoopGroup();
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
-//			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
-			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
+//			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
+//			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
+			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
+//			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 
 			bootstrap = new ServerBootstrap();
 			trafficHandler = new GlobalTrafficShapingHandler(Executors.newScheduledThreadPool(1), 1000);
-
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(trafficHandler,manager));

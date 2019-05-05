@@ -4,6 +4,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
+import org.slf4j.Logger;
+
+import java.io.IOException;
 
 public final class ServerUtils {
 
@@ -20,6 +23,14 @@ public final class ServerUtils {
 	public static void closeEventLoopGroup(EventLoopGroup group){
 		if(group!=null){
 			group.shutdownGracefully();
+		}
+	}
+
+	public static void handleException(Logger log, Throwable t){
+		if(t instanceof IOException){
+			log.warn("IOException : {}",t.getMessage());
+		}else{
+			log.error("Exception happended :",t);
 		}
 	}
 

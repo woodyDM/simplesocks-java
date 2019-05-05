@@ -6,24 +6,18 @@ import io.netty.util.concurrent.Promise;
 import lombok.Getter;
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
 import org.simplesocks.netty.common.netty.RelayClient;
-import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
-import org.simplesocks.netty.common.protocol.DataType;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
-import org.simplesocks.netty.common.protocol.ServerResponseMessage;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Getter
 public class SimpleSocksRelayClientAdapter implements RelayClient {
 
     private SimpleSocksProtocolClient client;
-    private RelayClientManager manager;
 
-    public SimpleSocksRelayClientAdapter(SimpleSocksProtocolClient client,RelayClientManager manager) {
+    public SimpleSocksRelayClientAdapter(SimpleSocksProtocolClient client ) {
         this.client = client;
-        this.manager = manager;
     }
 
     @Override
@@ -49,21 +43,17 @@ public class SimpleSocksRelayClientAdapter implements RelayClient {
     }
 
     @Override
-    public void setReceiveProxyDataAction(Consumer<byte[]> action) {
+    public void onReceiveProxyData(Consumer<byte[]> action) {
         client.setProxyDataRequestConsumer((request -> {
             action.accept(request.getData());
         }));
     }
 
-    @Override
-    public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponseMessage.Code> action) {
-        client.setServerResponseConsumer((response -> {
-            action.accept(response.getType(), response.getCode());
-        }));
-    }
 
     @Override
-    public RelayClientManager manager() {
-        return manager;
+    public void onClose(Runnable action) {
+        client.onClose(action);
     }
+
+
 }

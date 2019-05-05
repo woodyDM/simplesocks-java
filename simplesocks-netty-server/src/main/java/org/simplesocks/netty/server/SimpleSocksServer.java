@@ -53,6 +53,7 @@ public class SimpleSocksServer {
 			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
+
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childOption(ChannelOption.TCP_NODELAY, true)
 					.childHandler(new ChannelInitializer<SocketChannel>() {

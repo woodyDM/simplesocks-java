@@ -10,13 +10,9 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.RelayClient;
-import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
-import org.simplesocks.netty.common.protocol.DataType;
-import org.simplesocks.netty.common.protocol.ServerResponseMessage;
 
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -26,11 +22,10 @@ public class DirectRelayClient implements RelayClient {
     private EventLoopGroup group;
     private Channel remoteChannel;
     private Consumer<byte[]> onDataAction;
-    private RelayClientManager manager;
+    private Runnable onClose;
 
-    public DirectRelayClient(EventLoopGroup group,RelayClientManager manager) {
+    public DirectRelayClient(EventLoopGroup group ) {
         this.group = group;
-        this.manager = manager;
         init();
     }
 
@@ -53,7 +48,7 @@ public class DirectRelayClient implements RelayClient {
                         }else{
                             remoteChannel = future.channel();
                             promise.setSuccess(remoteChannel);
-                            log.debug("success to connect to {}:{}",host,port);
+                            log.debug("Success to connect to {}:{}",host,port);
                         }
                     }
                 });
@@ -81,7 +76,7 @@ public class DirectRelayClient implements RelayClient {
     }
 
     @Override
-    public void setReceiveProxyDataAction(Consumer<byte[]> action) {
+    public void onReceiveProxyData(Consumer<byte[]> action) {
         Objects.requireNonNull(action);
         this.onDataAction = action;
     }
@@ -92,8 +87,8 @@ public class DirectRelayClient implements RelayClient {
     }
 
     @Override
-    public void setReceiveRemoteResponseAction(BiConsumer<DataType, ServerResponseMessage.Code> action) {
-        log.warn("This client does not support remote response data!");
+    public void onClose(Runnable action) {
+        this.onClose = action;
     }
 
     public void close(){
@@ -101,7 +96,11 @@ public class DirectRelayClient implements RelayClient {
             log.debug("Closing client {}.",remoteChannel.remoteAddress());
             remoteChannel.close();
         }
+        if(onClose!=null){
+            onClose.run();
+        }
     }
+
 
     private void init( ) {
         b = new Bootstrap();
@@ -113,8 +112,5 @@ public class DirectRelayClient implements RelayClient {
 
     }
 
-    @Override
-    public RelayClientManager manager() {
-        return manager;
-    }
+
 }

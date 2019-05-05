@@ -39,11 +39,9 @@ public class SimpleSocksProtocolClient   {
 	private Promise<Channel> connectionPromise;
 	private boolean connected = false;
 
+	private Runnable onClose;
 	private Consumer<ProxyDataMessage> proxyDataRequestConsumer;
-	private Consumer<ServerResponseMessage> serverResponseConsumer;
 	private Encrypter encrypter = OffsetEncrypter.getInstance();
-
-
 
 
 	public SimpleSocksProtocolClient(String auth,String encType, String proxyHost, int proxyPort,  EventLoopGroup group) {
@@ -67,7 +65,7 @@ public class SimpleSocksProtocolClient   {
 			bootstrap.group(group)
 					.remoteAddress(remoteHost, remotePort)
 					.channel(NioSocketChannel.class)
-					.option(ChannelOption.SO_KEEPALIVE, true)
+					.option(ChannelOption.TCP_NODELAY, true)
 					.handler(new LocalServerChannelInitializer(this));
 			return bootstrap.connect()
 					.addListener(new ChannelFutureListener() {
@@ -103,16 +101,20 @@ public class SimpleSocksProtocolClient   {
 		this.proxyDataRequestConsumer = proxyDataRequestConsumer;
 	}
 
-	public void setServerResponseConsumer(Consumer<ServerResponseMessage> serverResponseConsumer) {
-		this.serverResponseConsumer = serverResponseConsumer;
-	}
+
 
 	public void close(){
 		if(toRemoteChannel!=null){
 			toRemoteChannel.close();
 		}
+		if(onClose!=null){
+		    onClose.run();
+        }
 	}
 
+	public void onClose(Runnable action){
+	    this.onClose = action;
+    }
 
 	/**
 	 *
@@ -140,9 +142,10 @@ public class SimpleSocksProtocolClient   {
 	}
 
 	public void onReceiveServerResponse(ServerResponseMessage response){
-		if(serverResponseConsumer!=null){
-			serverResponseConsumer.accept(response);
-		}
+		if(response.getCode()== ServerResponseMessage.Code.FAIL){
+		    log.warn("failed from server {}, close client.",response.getType());
+		    close();
+        }
 	}
 
 

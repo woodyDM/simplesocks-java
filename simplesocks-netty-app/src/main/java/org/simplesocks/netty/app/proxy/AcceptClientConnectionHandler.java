@@ -39,11 +39,12 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 				ctx.pipeline().remove(this);
 				ctx.fireChannelRead(socksRequest);
 			} else {
-				log.error("this server does't not support cmd except CONNECTION, closing ctx: {}",ctx.channel().remoteAddress());
+				log.error("This server does't not support cmd except CONNECTION, closing ctx: {}",ctx.channel().remoteAddress());
 				ctx.close();
 			}
 			break;
 		case UNKNOWN:
+			log.error("Unknown cmd[{}], closing ctx: {}",socksRequest.requestType(), ctx.channel().remoteAddress());
 			ctx.close();
 			break;
 		}
@@ -56,6 +57,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) {
+		ServerUtils.handleException(log, throwable);
 		ServerUtils.closeOnFlush(ctx.channel());
 	}
 }

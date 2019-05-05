@@ -33,7 +33,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
         SimpleSocksProtocolClient client = new SimpleSocksProtocolClient(auth, encType, host, port, loopGroup);
-        SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client, this);
+        SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client);
         Promise<RelayClient> promise = eventExecutor.newPromise();
         client.init().addListener(f1->{
             if(f1.isSuccess()){

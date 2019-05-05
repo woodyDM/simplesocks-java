@@ -6,7 +6,12 @@ import io.netty.util.concurrent.Promise;
 
 public interface RelayClientManager {
 
-
+    /**
+     * borrow a client
+     * @param eventExecutor
+     * @param socksCmdRequest
+     * @return
+     */
     Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest);
 
 

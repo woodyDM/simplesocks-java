@@ -42,6 +42,7 @@ public class RelayProxyDataHandler extends ChannelInboundHandlerAdapter {
         if(!(cause instanceof IOException)){
             log.error("exception in direct handler:",cause);
         }
-        ctx.close();
+        ctx.channel().close();
+        client.close();
     }
 }

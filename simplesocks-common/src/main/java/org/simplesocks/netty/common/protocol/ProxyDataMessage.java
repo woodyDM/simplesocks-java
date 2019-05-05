@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.UUID;
 
 @Getter
