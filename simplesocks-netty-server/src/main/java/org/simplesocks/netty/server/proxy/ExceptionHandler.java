@@ -20,7 +20,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("exception happens, closing ctx and remove auth. MSG:{}",cause.getMessage());
+        log.error("exception happens, closing ctx and remove auth. MSG:{}",cause.getMessage(),cause);
         authProvider.remove(ctx.channel().remoteAddress().toString());
         ctx.channel().close();
     }

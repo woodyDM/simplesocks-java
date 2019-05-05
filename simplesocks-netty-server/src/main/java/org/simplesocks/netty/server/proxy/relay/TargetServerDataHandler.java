@@ -45,7 +45,11 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 			bytes.readBytes(bytes1);
 			byte[] bytes2 = encrypter.encode(bytes1);
 			ProxyDataMessage request = new ProxyDataMessage(bytes2);
-            toLocalServerChannel.writeAndFlush(request);
+            toLocalServerChannel.writeAndFlush(request).addListener(future -> {
+            	if(!future.isSuccess()){
+            		log.warn("Failed to write to local server channel!");
+				}
+			});
 		}finally {
 			ReferenceCountUtil.release(bytes);
 		}

@@ -78,7 +78,7 @@ public class ConnectionMessage extends ByteBasedMessage {
 
 
     public static void main(String[] args) {
-        ConnectionMessage request = new ConnectionMessage("1234😊笑", "shadow大大大efw", "www.google.com9080哈哈", 18974, Type.DOMAIN);
+        ConnectionMessage request = new ConnectionMessage("1234😊笑", "shadow大大大efw", "www.google.com9080哈哈", 16385, Type.DOMAIN);
         byte[][] body = request.body();
         byte[] header = new byte[1];
         header[0] = (byte)0x01;

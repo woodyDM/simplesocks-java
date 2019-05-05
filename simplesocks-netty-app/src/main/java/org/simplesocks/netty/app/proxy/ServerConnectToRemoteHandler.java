@@ -47,7 +47,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
                             if(f.isSuccess()){
                                 logger.debug("Success write to local, {}",bytes.length);
                             }else{
-                                logger.warn("Failed to write to local.",f.cause());
+                                logger.error("Failed to write to local.",f.cause());
                             }
                         });
                     }else{
@@ -67,7 +67,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
                                         ctx.pipeline().remove(this);
                                         ctx.pipeline().addLast(new LocalDataRelayHandler(client));
                                     }catch (NoSuchElementException e){
-                                        logger.warn("NoSuchElementException exception ,ignore.");
+                                        logger.info("NoSuchElementException exception ,ignore.");
                                     }catch (Exception e){
                                         logger.error("Exception when proxy ok,",e);
                                     }

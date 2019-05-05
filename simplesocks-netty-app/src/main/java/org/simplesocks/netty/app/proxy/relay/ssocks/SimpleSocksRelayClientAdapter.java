@@ -34,7 +34,7 @@ public class SimpleSocksRelayClientAdapter implements RelayClient {
 
     @Override
     public Promise<Channel> sendProxyRequest(String host, int port, ConnectionMessage.Type proxyType, EventExecutor eventExecutor) {
-        return client.sendProxyRequest(host,port,proxyType,eventExecutor);
+        return client.sendProxyRequest(host, port, proxyType, eventExecutor);
     }
 
     @Override

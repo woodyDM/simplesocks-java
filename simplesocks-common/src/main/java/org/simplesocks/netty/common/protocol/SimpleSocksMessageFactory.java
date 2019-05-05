@@ -28,6 +28,8 @@ public class SimpleSocksMessageFactory {
                 byte proxyType = byteBuf.readByte();
                 ConnectionMessage.Type proxyTypeEnum = ConnectionMessage.Type.valueOf(proxyType);
                 short port = byteBuf.readShort();
+                int iPort = port<0 ? 65536 + port : (int)port;
+
                 byte offset = byteBuf.readByte();
                 OffsetEncrypter e = new OffsetEncrypter(offset);
                 int hostLen = byteBuf.readableBytes();
@@ -40,7 +42,7 @@ public class SimpleSocksMessageFactory {
                 String auth = new String(authBytes,StandardCharsets.UTF_8);
                 String encType = new String(encBytes, StandardCharsets.UTF_8);
                 String host = new String(hostBytes, StandardCharsets.UTF_8);
-                return new ConnectionMessage(auth, encType, host, (int)port, proxyTypeEnum);
+                return new ConnectionMessage(auth, encType, host, iPort, proxyTypeEnum);
             }
             case CONNECT_RESPONSE:{
                 byte result = byteBuf.readByte();

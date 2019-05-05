@@ -99,13 +99,13 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     log.warn("target channel is not active, client is too early to send data.");
                     channelHandlerContext.writeAndFlush(new ProxyDataResponse( ServerResponseMessage.Code.FAIL, request.getId()));
                 }else{
-                    log.info("receive proxy data {} from local server .", request);
+                    log.debug("receive proxy data {} from local server .", request);
                     byte[] encoded = request.getData();
                     byte[] decoded = encrypter.decode(encoded);
                     ProxyDataMessage requestT = new ProxyDataMessage(encoded);
                     toTargetServerChannel.writeAndFlush(Unpooled.wrappedBuffer(decoded)).addListener(future -> {
                         if(!future.isSuccess()){
-                            log.debug("Failed to proxy data to target server");
+                            log.warn("Failed to proxy data to target server");
                             channelHandlerContext.channel()
                                     .writeAndFlush(new ProxyDataResponse( ServerResponseMessage.Code.FAIL, request.getId()));
                         }else{

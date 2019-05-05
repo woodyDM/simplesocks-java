@@ -13,12 +13,18 @@ public class ContentUtils {
         }
     }
 
-    public static byte[] shortToByte(short target){
+    public static byte[] shortToByte(int target){
         byte[] result = new byte[2];
-        for (int i = 0; i < 2; i++) {
-            result[1-i] = (byte)((target>>i*8) & 0xFF);
-        }
+        result[0] = (byte) (target>>>8);
+        result[1] = (byte) target ;
         return result;
+    }
+
+    public static void main(String[] args) {
+        int s =  60215;
+        byte[] bytes = shortToByte(s);
+        short i = byteToShort(bytes);
+        System.out.println(i);
     }
 
     public static short byteToShort(byte[] bytes){
@@ -26,12 +32,7 @@ public class ContentUtils {
         if(len!=2){
             throw new IllegalArgumentException("length greater than 4");
         }
-        short value = 0;
-        for (int i = 0; i < 2; i++) {
-            value<<=8;
-            value|=(bytes[i] & 0xFF);
-        }
-        return value;
+        return (short) (bytes[0] << 8 | bytes[1] & 0xFF);
     }
 
 
