@@ -11,6 +11,7 @@ import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
+import org.simplesocks.netty.common.util.ServerUtils;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -70,7 +71,7 @@ public class DirectRelayClient implements RelayClient {
         ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
         this.remoteChannel.writeAndFlush(byteBuf).addListener(future -> {
             if(!future.isSuccess()){
-                log.warn("Failed to send to remote, cause is:", future.cause());
+                ServerUtils.logException(log, future.cause());
             }
         });
     }

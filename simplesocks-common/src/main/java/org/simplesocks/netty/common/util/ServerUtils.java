@@ -26,12 +26,15 @@ public final class ServerUtils {
 		}
 	}
 
-	public static void handleException(Logger log, Throwable t){
+	public static void logException(Logger log, Throwable t){
 		if(t instanceof IOException){
-			log.warn("IOException : {}",t.getMessage());
-		}else{
-			log.error("Exception happended :",t);
-		}
+		    Throwable t2 = t.getCause()==null? t : t.getCause();
+			log.warn("IOException, {}",t2.getMessage());
+		}else if(t.getClass().getName().equals("io.netty.channel.ExtendedClosedChannelException")){
+		    log.warn("ExtendedClosedChannelException, channel may close when flushing.");
+		}else {
+            log.error("Exception happened :", t);
+        }
 	}
 
 	private ServerUtils() {

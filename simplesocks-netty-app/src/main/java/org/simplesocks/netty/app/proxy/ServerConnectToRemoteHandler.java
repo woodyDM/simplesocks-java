@@ -14,7 +14,6 @@ import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
 /**
  * 本地浏览器请求远程连接处理handler
@@ -46,7 +45,7 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
                             if(f.isSuccess()){
                                 log.debug("Success write to local, {}",bytes.length);
                             }else{
-                                ServerUtils.handleException(log,f.cause());
+                                ServerUtils.logException(log,f.cause());
                                 clear(ctx);
                             }
                         });

@@ -57,7 +57,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) {
-		ServerUtils.handleException(log, throwable);
+		ServerUtils.logException(log, throwable);
 		ServerUtils.closeOnFlush(ctx.channel());
 	}
 }
