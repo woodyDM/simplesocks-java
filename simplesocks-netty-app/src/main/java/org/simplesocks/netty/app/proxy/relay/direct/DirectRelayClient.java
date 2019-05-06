@@ -24,6 +24,8 @@ public class DirectRelayClient implements RelayClient {
     private Channel remoteChannel;
     private Consumer<byte[]> onDataAction;
     private Runnable onClose;
+    private String host;
+    private int port;
 
     public DirectRelayClient(EventLoopGroup group ) {
         this.group = group;
@@ -38,6 +40,8 @@ public class DirectRelayClient implements RelayClient {
 
     @Override
     public Promise<Channel> sendProxyRequest(String host, int port, ConnectionMessage.Type proxyType, EventExecutor eventExecutor) {
+        this.host = host;
+        this.port = port;
         Promise<Channel> promise = eventExecutor.newPromise();
         b.connect(host, port)
                 .addListener(new ChannelFutureListener() {
@@ -107,11 +111,19 @@ public class DirectRelayClient implements RelayClient {
         b = new Bootstrap();
         b.group(group)
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .handler(new RelayHandlerInitializer(this));
 
     }
 
+    @Override
+    public String toString() {
+        boolean alive = remoteChannel!=null && remoteChannel.isActive();
 
+        return "DirectRelayClient{alive="+alive+"," +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }

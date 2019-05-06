@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
+import org.simplesocks.netty.common.util.ServerUtils;
 
 import java.io.IOException;
 
@@ -25,8 +26,8 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	private RelayProxyDataHandler handler;
 	private Encrypter encrypter = OffsetEncrypter.getInstance();
 
-	public TargetServerDataHandler(RelayProxyDataHandler handler) {
-		this.toLocalServerChannel = handler.getToLocalServerChannel() ;
+	public TargetServerDataHandler(Channel toLocalServerChannel, RelayProxyDataHandler handler) {
+		this.toLocalServerChannel = toLocalServerChannel;
 		this.handler = handler;
 	}
 
@@ -62,17 +63,13 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		if(cause instanceof IOException){
-			log.warn("io exception, may be channel is forced closed. {}",cause.getMessage());
-		}else{
-			log.error("exception ", cause);
-		}
+		ServerUtils.logException(log, cause);
 		close(ctx);
 	}
 
 
 	private void close(ChannelHandlerContext ctx){
-		ctx.close();
+		ctx.channel().close();
 		if(toLocalServerChannel!=null)
 			toLocalServerChannel.close();
 	}

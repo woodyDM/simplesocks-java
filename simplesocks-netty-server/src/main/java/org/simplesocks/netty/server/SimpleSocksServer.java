@@ -17,7 +17,6 @@ import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
 import org.simplesocks.netty.server.auth.MemoryAuthProvider;
 import org.simplesocks.netty.server.proxy.ExceptionHandler;
-import org.simplesocks.netty.server.proxy.HeartBeatHandler;
 import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
 
 import java.util.concurrent.TimeUnit;
@@ -47,7 +46,7 @@ public class SimpleSocksServer {
 		try {
 
 			AuthProvider authProvider = new MemoryAuthProvider();
-			int idleSecond = 180;
+			int idleSecond = 300;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup(8);
 			ServerBootstrap bootstrap = new ServerBootstrap();
@@ -63,7 +62,6 @@ public class SimpleSocksServer {
                             socketChannel.pipeline()
 									.addLast(new IdleStateHandler(idleSecond,idleSecond,idleSecond, TimeUnit.SECONDS))
 									.addLast(lengthFieldBasedFrameDecoder)
-									.addLast(new HeartBeatHandler())
                                     .addLast(new SimpleSocksProtocolDecoder())
 									.addLast(new SimpleSocksAuthHandler(authProvider))
 									.addLast(new ExceptionHandler(authProvider))

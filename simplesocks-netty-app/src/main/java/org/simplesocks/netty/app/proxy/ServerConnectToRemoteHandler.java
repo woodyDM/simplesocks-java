@@ -37,8 +37,8 @@ public final class ServerConnectToRemoteHandler extends SimpleChannelInboundHand
         relayClientManager.borrow(ctx.executor(), socksCmdRequest).addListener(future -> {
             if (future.isSuccess()) {
                 RelayClient client = (RelayClient)future.getNow();
-                this.client = client;
-                log.debug("Get connected client: {}", client);
+                ServerConnectToRemoteHandler.this.client = client;
+                log.debug("Get client: {}", client);
                 client.onReceiveProxyData(bytes -> {
                     if(toLocalChannel.isActive()){
                         toLocalChannel.writeAndFlush(Unpooled.wrappedBuffer(bytes)).addListener(f->{

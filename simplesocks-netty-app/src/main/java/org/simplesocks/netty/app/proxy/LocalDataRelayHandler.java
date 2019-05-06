@@ -23,11 +23,6 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) {
-		log.debug("local app data handler active ready to receive local data {}.",ctx.channel().remoteAddress());
-	}
-
-	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
 		try {
 			ByteBuf byteBuf = (ByteBuf)msg;

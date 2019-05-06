@@ -3,6 +3,7 @@ package org.simplesocks.netty.server.proxy;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
 
 /**
@@ -20,7 +21,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("exception happens, closing ctx and remove auth. MSG:{}",cause.getMessage(),cause);
+        ServerUtils.logException(log, cause);
         authProvider.remove(ctx.channel().remoteAddress().toString());
         ctx.channel().close();
     }

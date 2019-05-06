@@ -26,10 +26,9 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
                 ConnectionMessage request = (ConnectionMessage)msg;
                 boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel().remoteAddress().toString());
                 if(ok){
-                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, ctx.channel());
+                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request);
                     ctx.pipeline().addLast(relayProxyDataHandler);
-                    relayProxyDataHandler.tryToConnectToTarget();
-
+                    relayProxyDataHandler.tryToConnectToTarget(ctx.channel());
                 }else{
                     ctx.channel().writeAndFlush(new ConnectionResponse(ServerResponseMessage.Code.FAIL, request.getEncryptType(),"."));
                 }

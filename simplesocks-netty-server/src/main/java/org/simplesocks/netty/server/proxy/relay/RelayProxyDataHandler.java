@@ -5,10 +5,12 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.*;
+import org.simplesocks.netty.common.util.ServerUtils;
 
 /**
  * local server data to target server
@@ -17,29 +19,34 @@ import org.simplesocks.netty.common.protocol.*;
 public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSocksMessage> {
 
     private ConnectionMessage connectionMessage;
-    private Bootstrap bootstrap;
-    private Channel toTargetServerChannel;
     private Channel toLocalServerChannel;
     private EventLoopGroup eventLoopGroup;
+
+    private Channel toTargetServerChannel;
     private Encrypter encrypter = OffsetEncrypter.getInstance();
 
-
-    public RelayProxyDataHandler(ConnectionMessage connectionMessage, Channel channel) {
+    public RelayProxyDataHandler(ConnectionMessage connectionMessage) {
         this.connectionMessage = connectionMessage;
-        this.toLocalServerChannel = channel;
-
     }
 
-    public void tryToConnectToTarget(){
-        Channel localChannel = toLocalServerChannel;
-        bootstrap = new Bootstrap();
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        this.eventLoopGroup = ctx.channel().eventLoop();
+        this.toLocalServerChannel = ctx.channel();
+    }
+
+
+    public void tryToConnectToTarget(Channel localChannel){
+        Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new TargetServerDataHandler(RelayProxyDataHandler.this));
+                        socketChannel.pipeline()
+                                .addLast(new TargetServerDataHandler(localChannel,RelayProxyDataHandler.this));
                     }
                 });
         bootstrap.connect(connectionMessage.getHost(), connectionMessage.getPort())
@@ -50,21 +57,13 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                             toTargetServerChannel = future.channel();
                         }else{
                             log.warn("Failed to connect to target {}:{}.",connectionMessage.getHost(), connectionMessage.getPort());
-                            localChannel.writeAndFlush(new ConnectionResponse(ServerResponseMessage.Code.FAIL, connectionMessage.getEncryptType(),"."));
-                            toLocalServerChannel.close();
+                            localChannel.writeAndFlush(new ConnectionResponse(ServerResponseMessage.Code.FAIL, connectionMessage.getEncryptType(),"."))
+                            .addListener(f2 -> {
+                                localChannel.close();
+                            });
                         }
                     }
                 });
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        this.eventLoopGroup = ctx.channel().eventLoop();
-    }
-
-
-    public Channel getToLocalServerChannel() {
-        return toLocalServerChannel;
     }
 
 
@@ -74,11 +73,14 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     public void onTargetChannelActive(){
         String encPassword = "xx";
         ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, connectionMessage.getEncryptType(), encPassword);
-        toLocalServerChannel.writeAndFlush(response).addListener(future1 -> {
-            if(future1.isSuccess())
-                log.debug("Connect to target {}:{}, send response {}",connectionMessage.getHost(), connectionMessage.getPort(), encPassword );
-            else
-                log.error("Failed to send ok response to local server!");
+        toLocalServerChannel.writeAndFlush(response).addListener(future -> {
+            if(future.isSuccess())
+                log.debug("Connect to target {}:{}, encPassword:{}",connectionMessage.getHost(), connectionMessage.getPort(), encPassword );
+            else{
+                log.error("Failed to send ok response to local server,close all channel!");
+                toLocalServerChannel.close();
+                toTargetServerChannel.close();
+            }
         });
     }
 
@@ -98,19 +100,20 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                 if(!toTargetServerChannel.isActive()){
                     log.warn("target channel is not active, client is too early to send data.");
                     channelHandlerContext.writeAndFlush(new ProxyDataResponse( ServerResponseMessage.Code.FAIL, request.getId()));
+                    toTargetServerChannel.close();
                 }else{
                     log.debug("receive proxy data {} from local server .", request);
                     byte[] encoded = request.getData();
                     byte[] decoded = encrypter.decode(encoded);
-                    ProxyDataMessage requestT = new ProxyDataMessage(encoded);
                     toTargetServerChannel.writeAndFlush(Unpooled.wrappedBuffer(decoded)).addListener(future -> {
                         if(!future.isSuccess()){
-                            log.warn("Failed to proxy data to target server");
+                            log.warn("Failed to proxy data to target server,close all channel.");
                             channelHandlerContext.channel()
-                                    .writeAndFlush(new ProxyDataResponse( ServerResponseMessage.Code.FAIL, request.getId()));
+                                    .writeAndFlush(new ProxyDataResponse(ServerResponseMessage.Code.FAIL, request.getId()))
+                            .addListener(f1->clear(channelHandlerContext));
                         }else{
                             channelHandlerContext.channel()
-                                    .writeAndFlush(new ProxyDataResponse( ServerResponseMessage.Code.SUCCESS, request.getId()));
+                                    .writeAndFlush(new ProxyDataResponse(ServerResponseMessage.Code.SUCCESS, request.getId()));
                         }
                     });
                 }
@@ -123,22 +126,31 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        close(ctx);
+        clear(ctx);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
-        log.error("error when relay proxy data {}",cause.getMessage());
-        close(ctx);
+        ServerUtils.logException(log, cause);
+        clear(ctx);
     }
 
-
-    private void close(ChannelHandlerContext ctx){
-        ctx.close();
-        if(toTargetServerChannel!=null){
-            toTargetServerChannel.close();
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent){
+            IdleStateEvent event = (IdleStateEvent)evt;
+            clear(ctx).addListener(future -> {
+                log.warn("Too long to interactive with remote channel. event={}[{}]", event.state(),future.isSuccess());
+            });
+        }else {
+            super.userEventTriggered(ctx,evt);
         }
     }
 
+
+    private ChannelFuture clear(ChannelHandlerContext ctx){
+        if(toTargetServerChannel!=null)
+            toTargetServerChannel.close();      //close channel to target server.
+        return ctx.channel().close();  //close channel to local server.
+    }
 }
