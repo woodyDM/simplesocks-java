@@ -1,13 +1,17 @@
 package org.simplesocks.netty.server.auth;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+
 public interface AuthProvider {
 
-    boolean tryAuthenticate(String password, String identifier);
+
+    boolean tryAuthenticate(String password, Channel channel);
 
 
-    boolean authenticated(String remoteIdentifier);
+    boolean authenticated(Channel channel);
 
 
-    void remove(String identifier);
+    void remove(Channel channel);
 
 }

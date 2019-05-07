@@ -15,7 +15,7 @@ import org.simplesocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolEncoder;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
-import org.simplesocks.netty.server.auth.MemoryAuthProvider;
+import org.simplesocks.netty.server.auth.AttributeAuthProvider;
 import org.simplesocks.netty.server.proxy.ExceptionHandler;
 import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
 
@@ -45,7 +45,7 @@ public class SimpleSocksServer {
 	public void start() {
 		try {
 
-			AuthProvider authProvider = new MemoryAuthProvider();
+			AuthProvider authProvider = new AttributeAuthProvider("123456笑脸☺");
 			int idleSecond = 300;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup(8);

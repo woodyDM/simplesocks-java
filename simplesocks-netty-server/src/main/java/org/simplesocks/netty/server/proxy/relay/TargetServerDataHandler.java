@@ -10,6 +10,7 @@ import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
+import org.simplesocks.netty.server.auth.AuthProvider;
 
 import java.io.IOException;
 
@@ -24,11 +25,13 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 
 	private Channel toLocalServerChannel;
 	private RelayProxyDataHandler handler;
+	private AuthProvider authProvider;
 	private Encrypter encrypter = OffsetEncrypter.getInstance();
 
-	public TargetServerDataHandler(Channel toLocalServerChannel, RelayProxyDataHandler handler) {
+	public TargetServerDataHandler(Channel toLocalServerChannel, RelayProxyDataHandler handler,AuthProvider authProvider) {
 		this.toLocalServerChannel = toLocalServerChannel;
 		this.handler = handler;
+		this.authProvider = authProvider;
 	}
 
 	@Override
@@ -70,6 +73,7 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 
 	private void close(ChannelHandlerContext ctx){
 		ctx.channel().close();
+		authProvider.remove(toLocalServerChannel);
 		if(toLocalServerChannel!=null)
 			toLocalServerChannel.close();
 	}

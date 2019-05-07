@@ -22,7 +22,7 @@ public class ExceptionHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ServerUtils.logException(log, cause);
-        authProvider.remove(ctx.channel().remoteAddress().toString());
+        authProvider.remove(ctx.channel());
         ctx.channel().close();
     }
 }

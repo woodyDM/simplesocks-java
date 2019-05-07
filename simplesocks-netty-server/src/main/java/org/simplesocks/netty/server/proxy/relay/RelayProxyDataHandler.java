@@ -11,6 +11,7 @@ import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.common.util.ServerUtils;
+import org.simplesocks.netty.server.auth.AuthProvider;
 
 /**
  * local server data to target server
@@ -21,12 +22,13 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     private ConnectionMessage connectionMessage;
     private Channel toLocalServerChannel;
     private EventLoopGroup eventLoopGroup;
-
+    private AuthProvider authProvider;
     private Channel toTargetServerChannel;
     private Encrypter encrypter = OffsetEncrypter.getInstance();
 
-    public RelayProxyDataHandler(ConnectionMessage connectionMessage) {
+    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider) {
         this.connectionMessage = connectionMessage;
+        this.authProvider = authProvider;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
-                                .addLast(new TargetServerDataHandler(localChannel,RelayProxyDataHandler.this));
+                                .addLast(new TargetServerDataHandler(localChannel,RelayProxyDataHandler.this, authProvider));
                     }
                 });
         bootstrap.connect(connectionMessage.getHost(), connectionMessage.getPort())
@@ -149,8 +151,9 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
 
 
     private ChannelFuture clear(ChannelHandlerContext ctx){
+        authProvider.remove(ctx.channel());
         if(toTargetServerChannel!=null)
             toTargetServerChannel.close();      //close channel to target server.
-        return ctx.channel().close();  //close channel to local server.
+        return ctx.channel().close();           //close channel to local server.
     }
 }

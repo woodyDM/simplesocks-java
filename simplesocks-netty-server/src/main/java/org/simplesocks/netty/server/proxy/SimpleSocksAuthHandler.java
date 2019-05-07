@@ -11,7 +11,7 @@ import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
 @Slf4j
 public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksMessage> {
 
-    private AuthProvider authProvider;  //TODO modify to attributekey
+    private AuthProvider authProvider;
 
     public SimpleSocksAuthHandler(AuthProvider authProvider) {
         this.authProvider = authProvider;
@@ -24,9 +24,9 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
         switch (type){
             case CONNECT:{
                 ConnectionMessage request = (ConnectionMessage)msg;
-                boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel().remoteAddress().toString());
+                boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel() );
                 if(ok){
-                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request);
+                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, authProvider);
                     ctx.pipeline().addLast(relayProxyDataHandler);
                     relayProxyDataHandler.tryToConnectToTarget(ctx.channel());
                 }else{
@@ -35,8 +35,8 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
                 break;
             }
             case PROXY_DATA:{
-                String identifier = ctx.channel().remoteAddress().toString();
-                boolean authenticated = authProvider.authenticated(identifier);
+
+                boolean authenticated = authProvider.authenticated(ctx.channel());
                 if(authenticated){
                     ctx.fireChannelRead(msg);
                 }else{
