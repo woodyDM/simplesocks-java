@@ -65,6 +65,7 @@ public class SimpleSocksProtocolClient   {
 			bootstrap.group(group)
 					.remoteAddress(remoteHost, remotePort)
 					.channel(NioSocketChannel.class)
+					.option(ChannelOption.SO_KEEPALIVE, true)
 					.option(ChannelOption.TCP_NODELAY, true)
 					.handler(new LocalServerChannelInitializer(this));
 			return bootstrap.connect()
@@ -73,7 +74,7 @@ public class SimpleSocksProtocolClient   {
 						public void operationComplete(ChannelFuture future) throws Exception {
 							if (future.isSuccess()) {
 								toRemoteChannel = future.channel();
-								log.debug("connect to {}:{} success!", remoteHost, remotePort);
+								log.debug("connect to s-server[{}:{}] success!", remoteHost, remotePort);
 							}
 						}
 					});
@@ -127,8 +128,7 @@ public class SimpleSocksProtocolClient   {
 		toRemoteChannel.writeAndFlush(new ProxyDataMessage(request.getId(), encoded)).addListener(future -> {
 			if(!future.isSuccess()){
 				log.warn("Failed to send proxy data to remote len={}. cause ", len, future.cause());
-				throw new RuntimeException(future.cause());
-				//close();
+				close();
 			}
 		});
 	}
@@ -139,13 +139,6 @@ public class SimpleSocksProtocolClient   {
 		if(proxyDataRequestConsumer!=null){
 			proxyDataRequestConsumer.accept(request);
 		}
-	}
-
-	public void onReceiveServerResponse(ServerResponseMessage response){
-		if(response.getCode()== ServerResponseMessage.Code.FAIL){
-		    log.warn("failed from server {}, close client.",response.getType());
-		    close();
-        }
 	}
 
 

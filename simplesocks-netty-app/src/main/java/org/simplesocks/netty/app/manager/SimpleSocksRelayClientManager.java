@@ -19,7 +19,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     private int port;
     private String auth;
     private EventLoopGroup loopGroup;
-    private String encType = "Offset";
+    private String encType = "Offset-0";
 
 
     public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup ) {
@@ -27,7 +27,6 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
         this.port = port;
         this.auth = auth;
         this.loopGroup = loopGroup;
-
     }
 
     @Override

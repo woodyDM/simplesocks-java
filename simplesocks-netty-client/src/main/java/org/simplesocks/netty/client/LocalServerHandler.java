@@ -7,6 +7,7 @@ import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.protocol.*;
+import org.simplesocks.netty.common.util.ServerUtils;
 
 import java.io.IOException;
 
@@ -32,8 +33,8 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
                 ConnectionResponse response = (ConnectionResponse)msg;
                 if(response.getCode()== ServerResponseMessage.Code.SUCCESS){
                     client.setEncPassword(response.getEncPassword());
-                    client.getConnectionPromise().setSuccess(ctx.channel());
                     client.setConnected(true);
+                    client.getConnectionPromise().setSuccess(ctx.channel());
                 }else{
                     log.debug("Connection auth failed , set promise fail.");
                     client.getConnectionPromise().setFailure(new BaseSystemException("Failed to auth."));
@@ -61,11 +62,7 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if(cause instanceof IOException){
-            log.warn("exception ,may be force close {}",cause.getMessage());
-        }else{
-            log.error("exception when communicate with remote server cause is :",cause);
-        }
+        ServerUtils.logException(log, cause);
         close(ctx);
     }
 
@@ -76,8 +73,6 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
 
     private void close(ChannelHandlerContext ctx ){
         client.close();
-        ctx.close();
-
     }
 
 }
