@@ -1,15 +1,14 @@
 package org.simplesocks.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.AdaptiveRecvByteBufAllocator;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.traffic.GlobalTrafficShapingHandler;
+import io.netty.handler.traffic.TrafficCounter;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.SimpleSocksDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolDecoder;
@@ -20,6 +19,10 @@ import org.simplesocks.netty.server.auth.AttributeAuthProvider;
 import org.simplesocks.netty.server.proxy.ExceptionHandler;
 import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -50,6 +53,8 @@ public class SimpleSocksServer {
 			int idleSecond = 300;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup(8);
+			int interval = 1000;
+
 			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
@@ -62,6 +67,7 @@ public class SimpleSocksServer {
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
                             LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder = SimpleSocksDecoder.newLengthDecoder();
                             socketChannel.pipeline()
+
 									.addLast(new IdleStateHandler(idleSecond,idleSecond,idleSecond, TimeUnit.SECONDS))
 									.addLast(lengthFieldBasedFrameDecoder)
                                     .addLast(new SimpleSocksProtocolDecoder())
@@ -71,7 +77,8 @@ public class SimpleSocksServer {
 						}
 					});
 			log.info("SSocks server start at port {}" ,port);
-			bootstrap.bind(port).sync().channel().closeFuture().sync();
+			ChannelFuture channelFuture = bootstrap.bind(port);
+			channelFuture.sync().channel().closeFuture().sync();
 		} catch (Exception e) {
 			log.error("start error", e);
 		} finally {
@@ -83,6 +90,7 @@ public class SimpleSocksServer {
         ServerUtils.closeEventLoopGroup(bossGroup);
         ServerUtils.closeEventLoopGroup(workerGroup);
         log.info("Stop Server!");
+
 	}
 
 

@@ -1,6 +1,7 @@
 package org.simplesocks.netty.app;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -19,7 +20,11 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SOCKS5 本地代理
@@ -34,7 +39,7 @@ public class LocalSocksServer implements Runnable{
 	private EventLoopGroup workerGroup = null;
 	private ServerBootstrap bootstrap = null;
 	private GlobalTrafficShapingHandler trafficHandler;
-
+	private ScheduledExecutorService scheduledExecutorService = null;
 	private static LocalSocksServer localSocksServer = new LocalSocksServer();
 
 	public static LocalSocksServer getInstance() {
@@ -60,20 +65,34 @@ public class LocalSocksServer implements Runnable{
 			workerGroup = new NioEventLoopGroup();
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
+//			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
-//			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-
+			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
+			int interval = 1000;
+			scheduledExecutorService = Executors.newScheduledThreadPool(2);
 			bootstrap = new ServerBootstrap();
-			trafficHandler = new GlobalTrafficShapingHandler(Executors.newScheduledThreadPool(1), 1000);
+			trafficHandler = new GlobalTrafficShapingHandler(scheduledExecutorService, interval);
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(trafficHandler,manager));
 
 			logger.info("Start At Port {} "  ,port);
 			//startMBean();
-			bootstrap.bind(port).sync().
-					channel().closeFuture().sync();
+			ChannelFuture channelFuture = bootstrap.bind(port);
+			channelFuture.addListener(future -> {
+				if(future.isSuccess()){
+					scheduledExecutorService.scheduleAtFixedRate(()->{
+						if(trafficHandler!=null){
+							TrafficCounter counter = trafficHandler.trafficCounter();
+							BigDecimal s = new BigDecimal(1024*interval/1000);
+							BigDecimal read = BigDecimal.valueOf(counter.lastReadThroughput()).divide(s,2, RoundingMode.HALF_UP);
+							BigDecimal write = BigDecimal.valueOf(counter.lastWriteThroughput()).divide(s,2, RoundingMode.HALF_UP);
+							logger.info("[Speed] Read:{}KB/s  Write:{}KB/s", read,write);
+						}
+					}, 0,3, TimeUnit.SECONDS);
+				}
+			});
+			channelFuture.sync().channel().closeFuture().sync();
 		} catch (Exception e) {
 			logger.error("start error", e);
 		} finally {
@@ -85,6 +104,9 @@ public class LocalSocksServer implements Runnable{
 		ServerUtils.closeEventLoopGroup(bossGroup);
 		ServerUtils.closeEventLoopGroup(workerGroup);
 		logger.info("Stop Server!");
+		if(scheduledExecutorService!=null){
+			scheduledExecutorService.shutdownNow();
+		}
 	}
 
 	/**

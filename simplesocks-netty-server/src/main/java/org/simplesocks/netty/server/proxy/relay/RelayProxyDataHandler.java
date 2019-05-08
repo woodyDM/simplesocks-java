@@ -6,12 +6,20 @@ import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.traffic.GlobalTrafficShapingHandler;
+import io.netty.handler.traffic.TrafficCounter;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * local server data to target server
@@ -26,7 +34,8 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     private Channel toTargetServerChannel;
     private Encrypter encrypter = OffsetEncrypter.getInstance();
 
-    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider) {
+
+    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider ) {
         this.connectionMessage = connectionMessage;
         this.authProvider = authProvider;
     }
@@ -50,6 +59,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
                                 .addLast(new TargetServerDataHandler(localChannel,RelayProxyDataHandler.this, authProvider));
+
                     }
                 });
         bootstrap.connect(connectionMessage.getHost(), connectionMessage.getPort())
@@ -57,6 +67,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
+
                             toTargetServerChannel = future.channel();
                         }else{
                             log.warn("Failed to connect to target {}:{}.",connectionMessage.getHost(), connectionMessage.getPort());
