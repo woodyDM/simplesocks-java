@@ -18,10 +18,10 @@
 //	private static Map<String, String> crypts = new HashMap<String, String>();
 //
 //	static {
-//		crypts.putAll(AesCrypt.getCiphers());
-//		crypts.putAll(CamelliaCrypt.getCiphers());
-//		crypts.putAll(BlowFishCrypt.getCiphers());
-//		crypts.putAll(SeedCrypt.getCiphers());
+//		crypts.putAll(AesCrypt.getCipherImplements());
+//		crypts.putAll(CamelliaCrypt.getCipherImplements());
+//		crypts.putAll(BlowFishCrypt.getCipherImplements());
+//		crypts.putAll(SeedCrypt.getCipherImplements());
 //	}
 //
 //	public static ICrypt get(String name, String password) {

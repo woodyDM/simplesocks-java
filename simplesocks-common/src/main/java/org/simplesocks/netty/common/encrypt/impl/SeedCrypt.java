@@ -19,7 +19,7 @@
 //
 //    public final static String CIPHER_SEED_CFB = "seed-cfb";
 //
-//    public static Map<String, String> getCiphers() {
+//    public static Map<String, String> getCipherImplements() {
 //        Map<String, String> ciphers = new HashMap<>();
 //        ciphers.put(CIPHER_SEED_CFB, SeedCrypt.class.getName());
 //
@@ -40,11 +40,11 @@
 //        SEEDEngine engine = new SEEDEngine();
 //        StreamBlockCipher cipher;
 //
-//        if (_name.equals(CIPHER_SEED_CFB)) {
+//        if (name.equals(CIPHER_SEED_CFB)) {
 //            cipher = new CFBBlockCipher(engine, getIVLength() * 8);
 //        }
 //        else {
-//            throw new InvalidAlgorithmParameterException(_name);
+//            throw new InvalidAlgorithmParameterException(name);
 //        }
 //
 //        return cipher;
@@ -57,7 +57,7 @@
 //
 //    @Override
 //    protected SecretKey getKey() {
-//        return new SecretKeySpec(_ssKey.getEncoded(), "AES");
+//        return new SecretKeySpec(ssKey.getEncoded(), "AES");
 //    }
 //
 //    @Override

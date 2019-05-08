@@ -19,7 +19,7 @@
 //
 //    public final static String CIPHER_BLOWFISH_CFB = "bf-cfb";
 //
-//    public static Map<String, String> getCiphers() {
+//    public static Map<String, String> getCipherImplements() {
 //        Map<String, String> ciphers = new HashMap<>();
 //        ciphers.put(CIPHER_BLOWFISH_CFB, BlowFishCrypt.class.getName());
 //
@@ -40,11 +40,11 @@
 //        BlowfishEngine engine = new BlowfishEngine();
 //        StreamBlockCipher cipher;
 //
-//        if (_name.equals(CIPHER_BLOWFISH_CFB)) {
+//        if (name.equals(CIPHER_BLOWFISH_CFB)) {
 //            cipher = new CFBBlockCipher(engine, getIVLength() * 8);
 //        }
 //        else {
-//            throw new InvalidAlgorithmParameterException(_name);
+//            throw new InvalidAlgorithmParameterException(name);
 //        }
 //
 //        return cipher;
@@ -57,7 +57,7 @@
 //
 //    @Override
 //    protected SecretKey getKey() {
-//        return new SecretKeySpec(_ssKey.getEncoded(), "AES");
+//        return new SecretKeySpec(ssKey.getEncoded(), "AES");
 //    }
 //
 //    @Override

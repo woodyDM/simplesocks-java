@@ -21,7 +21,7 @@
 //    public final static String CIPHER_CAMELLIA_192_CFB = "camellia-192-cfb";
 //    public final static String CIPHER_CAMELLIA_256_CFB = "camellia-256-cfb";
 //
-//    public static Map<String, String> getCiphers() {
+//    public static Map<String, String> getCipherImplements() {
 //        Map<String, String> ciphers = new HashMap<>();
 //        ciphers.put(CIPHER_CAMELLIA_128_CFB, CamelliaCrypt.class.getName());
 //        ciphers.put(CIPHER_CAMELLIA_192_CFB, CamelliaCrypt.class.getName());
@@ -36,13 +36,13 @@
 //
 //    @Override
 //    public int getKeyLength() {
-//        if(_name.equals(CIPHER_CAMELLIA_128_CFB)) {
+//        if(name.equals(CIPHER_CAMELLIA_128_CFB)) {
 //            return 16;
 //        }
-//        else if (_name.equals(CIPHER_CAMELLIA_192_CFB)) {
+//        else if (name.equals(CIPHER_CAMELLIA_192_CFB)) {
 //            return 24;
 //        }
-//        else if (_name.equals(CIPHER_CAMELLIA_256_CFB)) {
+//        else if (name.equals(CIPHER_CAMELLIA_256_CFB)) {
 //            return 32;
 //        }
 //
@@ -54,17 +54,17 @@
 //        CamelliaEngine engine = new CamelliaEngine();
 //        StreamBlockCipher cipher;
 //
-//        if (_name.equals(CIPHER_CAMELLIA_128_CFB)) {
+//        if (name.equals(CIPHER_CAMELLIA_128_CFB)) {
 //            cipher = new CFBBlockCipher(engine, getIVLength() * 8);
 //        }
-//        else if (_name.equals(CIPHER_CAMELLIA_192_CFB)) {
+//        else if (name.equals(CIPHER_CAMELLIA_192_CFB)) {
 //            cipher = new CFBBlockCipher(engine, getIVLength() * 8);
 //        }
-//        else if (_name.equals(CIPHER_CAMELLIA_256_CFB)) {
+//        else if (name.equals(CIPHER_CAMELLIA_256_CFB)) {
 //            cipher = new CFBBlockCipher(engine, getIVLength() * 8);
 //        }
 //        else {
-//            throw new InvalidAlgorithmParameterException(_name);
+//            throw new InvalidAlgorithmParameterException(name);
 //        }
 //
 //        return cipher;
@@ -77,7 +77,7 @@
 //
 //    @Override
 //    protected SecretKey getKey() {
-//        return new SecretKeySpec(_ssKey.getEncoded(), "AES");
+//        return new SecretKeySpec(ssKey.getEncoded(), "AES");
 //    }
 //
 //    @Override
