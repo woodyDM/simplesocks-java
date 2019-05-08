@@ -1,6 +1,7 @@
 package org.simplesocks.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -55,6 +56,7 @@ public class SimpleSocksServer {
 
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childOption(ChannelOption.TCP_NODELAY, true)
+					.childOption(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(64,10*1024, 65536))
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
