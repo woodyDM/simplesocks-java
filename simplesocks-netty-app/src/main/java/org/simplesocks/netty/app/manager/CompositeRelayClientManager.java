@@ -44,6 +44,10 @@ public class CompositeRelayClientManager implements RelayClientManager {
         proxySet.add("facebook");
         proxySet.add("github");
         proxySet.add("twitch");
+        proxySet.add("ttvnw.net");
+        proxySet.add("adsrvr.org");
+        proxySet.add("gstatic.com");
+
     }
 
     @Override
