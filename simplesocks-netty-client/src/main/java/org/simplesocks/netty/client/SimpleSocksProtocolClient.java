@@ -43,6 +43,7 @@ public class SimpleSocksProtocolClient   {
 	private Runnable onClose;
 	private Consumer<ProxyDataMessage> proxyDataRequestConsumer;
 	private EncrypterFactory encrypterFactory;
+	private ConnectionMessage proxyMessage;
 
 	public SimpleSocksProtocolClient(String auth,String encType, String proxyHost, int proxyPort,  EventLoopGroup group,EncrypterFactory encrypterFactory) {
 		Objects.requireNonNull(auth);
@@ -89,6 +90,7 @@ public class SimpleSocksProtocolClient   {
 	 */
 	public Promise<Channel> sendProxyRequest(String targetHost, int targetPort, ConnectionMessage.Type proxyType, EventExecutor eventExecutor){
 		ConnectionMessage connectionMessage = new ConnectionMessage(auth, encType, targetHost, targetPort, proxyType);
+		proxyMessage = connectionMessage;
 		Promise<Channel> promise = eventExecutor.newPromise();
 		this.connectionPromise = promise;
 		toRemoteChannel.writeAndFlush(connectionMessage).addListener(f->{
@@ -143,5 +145,11 @@ public class SimpleSocksProtocolClient   {
 		}
 	}
 
-
+	@Override
+	public String toString() {
+		String target = proxyMessage==null?"":proxyMessage.getHost()+":"+proxyMessage+port;
+		return "SimpleSocksProtocolClient{" +
+				"Target='" + target + "encType:"+encType+
+				'}';
+	}
 }

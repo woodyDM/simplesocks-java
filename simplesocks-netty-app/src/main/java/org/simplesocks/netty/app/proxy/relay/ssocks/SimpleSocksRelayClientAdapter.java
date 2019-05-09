@@ -55,5 +55,8 @@ public class SimpleSocksRelayClientAdapter implements RelayClient {
         client.onClose(action);
     }
 
-
+    @Override
+    public String toString() {
+        return "Adapter:"+client.toString();
+    }
 }

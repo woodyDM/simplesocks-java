@@ -53,7 +53,6 @@ public class DirectRelayClient implements RelayClient {
                         }else{
                             remoteChannel = future.channel();
                             promise.setSuccess(remoteChannel);
-                            log.debug("Success to connect to {}:{}",host,port);
                         }
                     }
                 });
@@ -87,7 +86,6 @@ public class DirectRelayClient implements RelayClient {
     }
 
     public void onReceiveProxyData(byte[] bytes){
-        log.debug("client receive data len {}", bytes.length);
         this.onDataAction.accept(bytes);
     }
 
@@ -121,7 +119,7 @@ public class DirectRelayClient implements RelayClient {
     public String toString() {
         boolean alive = remoteChannel!=null && remoteChannel.isActive();
 
-        return "DirectRelayClient{alive="+alive+"," +
+        return "DirectRelayClient{"+
                 "host='" + host + '\'' +
                 ", port=" + port +
                 '}';

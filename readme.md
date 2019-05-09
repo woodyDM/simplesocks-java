@@ -17,8 +17,8 @@ and
 2. the protocol netty codec. 
 3. ~~client to server connection pool(pool authenticated channel);~~
 (It is hard to create a pool with non-blocking synchronizations)
-4. data encryption between LocalServer and RemoteServer;
- 
+4. data encryption between LocalServer and RemoteServer;   
+5. special pac list.
 ## Map
 
 

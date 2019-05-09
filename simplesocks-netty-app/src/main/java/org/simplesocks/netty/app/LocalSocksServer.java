@@ -70,9 +70,9 @@ public class LocalSocksServer implements Runnable{
 			factory.registerKey(key.getBytes(StandardCharsets.UTF_8));
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-//			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",10900,"123456笑脸☺", workerGroup);
+			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",11900,key, workerGroup,factory);
 //			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
-			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",11900,key, workerGroup, factory);
+//			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",11900,key, workerGroup, factory);
 			int interval = 1000;
 			scheduledExecutorService = Executors.newScheduledThreadPool(2);
 			bootstrap = new ServerBootstrap();

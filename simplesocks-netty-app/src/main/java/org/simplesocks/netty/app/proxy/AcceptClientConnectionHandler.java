@@ -65,9 +65,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 				client.onReceiveProxyData(bytes -> {
 					if(toLocalChannel.isActive()){
 						toLocalChannel.writeAndFlush(Unpooled.wrappedBuffer(bytes)).addListener(f->{
-							if(f.isSuccess()){
-								log.debug("Success write to local, {}",bytes.length);
-							}else{
+							if(!f.isSuccess()){
 								ServerUtils.logException(log,f.cause());
 								clear(ctx, client);
 							}
