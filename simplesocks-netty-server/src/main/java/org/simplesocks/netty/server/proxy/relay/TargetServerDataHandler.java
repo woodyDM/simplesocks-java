@@ -14,7 +14,6 @@ import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.Executors;
@@ -68,7 +67,7 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 			int len = bytes.readableBytes();
 			byte[] bytes1 = new byte[len];
 			bytes.readBytes(bytes1);
-			byte[] bytes2 = encrypter.encode(bytes1);
+			byte[] bytes2 = encrypter.encrypt(bytes1);
 			ProxyDataMessage request = new ProxyDataMessage(bytes2);
             toLocalServerChannel.writeAndFlush(request).addListener(future -> {
             	if(!future.isSuccess()){

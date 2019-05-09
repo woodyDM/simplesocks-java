@@ -9,8 +9,6 @@ import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.common.util.ServerUtils;
 
-import java.io.IOException;
-
 
 @Slf4j
 public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksMessage> {
@@ -44,7 +42,7 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
             case PROXY_DATA:{
                 ProxyDataMessage request = (ProxyDataMessage)msg;
                 byte[] encoded = request.getData();
-                byte[] decoded = encrypter.decode(encoded);
+                byte[] decoded = encrypter.decrypt(encoded);
                 client.onReceiveProxyData(new ProxyDataMessage(request.getId(), decoded));
                 break;
             }

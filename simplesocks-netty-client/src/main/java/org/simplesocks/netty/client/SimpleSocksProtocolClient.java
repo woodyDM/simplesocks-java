@@ -13,7 +13,6 @@ import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
-import org.simplesocks.netty.common.protocol.ServerResponseMessage;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -123,7 +122,7 @@ public class SimpleSocksProtocolClient   {
 	 */
 	public void sendProxyData(ProxyDataMessage request){
 		byte[] decoded = request.getData();
-		byte[] encoded = encrypter.encode(decoded);
+		byte[] encoded = encrypter.encrypt(decoded);
 		int len = decoded.length;
 		toRemoteChannel.writeAndFlush(new ProxyDataMessage(request.getId(), encoded)).addListener(future -> {
 			if(!future.isSuccess()){

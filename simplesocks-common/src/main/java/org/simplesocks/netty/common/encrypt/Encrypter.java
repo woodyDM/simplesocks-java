@@ -3,9 +3,10 @@ package org.simplesocks.netty.common.encrypt;
 public interface Encrypter {
 
 
-    byte[] encode(byte[] rawBytes);
+    byte[] encrypt(byte[] rawBytes);
 
-    byte[] decode(byte[] encodedBytes);
+    byte[] decrypt(byte[] encodedBytes);
+
 
 
 }

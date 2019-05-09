@@ -64,9 +64,9 @@ public class ConnectionMessage extends ByteBasedMessage {
         byte offset = (byte) i;
         p4[3] = offset;
         OffsetEncrypter encrypter = new OffsetEncrypter(offset);
-        hostBytes = encrypter.encode(hostBytes);
-        authBytes = encrypter.encode(authBytes);
-        encryptTypeBytes = encrypter.encode(encryptTypeBytes);
+        hostBytes = encrypter.encrypt(hostBytes);
+        authBytes = encrypter.encrypt(authBytes);
+        encryptTypeBytes = encrypter.encrypt(encryptTypeBytes);
         byte[][] result =  new byte[5][];
         result[0]=p1;
         result[1]=authBytes;

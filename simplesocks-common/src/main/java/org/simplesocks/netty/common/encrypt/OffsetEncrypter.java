@@ -1,5 +1,10 @@
 package org.simplesocks.netty.common.encrypt;
 
+
+import java.nio.charset.StandardCharsets;
+import java.util.Random;
+import java.util.UUID;
+
 public class OffsetEncrypter implements Encrypter {
 
 
@@ -17,7 +22,7 @@ public class OffsetEncrypter implements Encrypter {
     }
 
     @Override
-    public byte[] encode(byte[] rawBytes) {
+    public byte[] encrypt(byte[] rawBytes) {
         byte[] result = new byte[rawBytes.length];
         for (int i = 0; i < rawBytes.length; i++) {
             result[i] =(byte)(rawBytes[i]+offset);
@@ -26,13 +31,15 @@ public class OffsetEncrypter implements Encrypter {
     }
 
     @Override
-    public byte[] decode(byte[] encodedBytes) {
+    public byte[] decrypt(byte[] encodedBytes) {
         byte[] result = new byte[encodedBytes.length];
         for (int i = 0; i < encodedBytes.length; i++) {
             result[i] =(byte)(encodedBytes[i]-offset);
         }
         return result;
     }
+
+
 
 
 }

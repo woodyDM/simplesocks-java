@@ -36,9 +36,9 @@ public class SimpleSocksMessageFactory {
                 byte[] hostBytes = new byte[hostLen];
                 byteBuf.readBytes(hostBytes);
 
-                authBytes = e.decode(authBytes);
-                hostBytes = e.decode(hostBytes);
-                encBytes = e.decode(encBytes);
+                authBytes = e.decrypt(authBytes);
+                hostBytes = e.decrypt(hostBytes);
+                encBytes = e.decrypt(encBytes);
                 String auth = new String(authBytes,StandardCharsets.UTF_8);
                 String encType = new String(encBytes, StandardCharsets.UTF_8);
                 String host = new String(hostBytes, StandardCharsets.UTF_8);
