@@ -2,6 +2,7 @@ package org.simplesocks.netty.common.protocol;
 
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.EncryptUtil;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.exception.ProtocolParseException;
 
@@ -53,11 +54,11 @@ public class SimpleSocksMessageFactory {
                 byteBuf.readBytes(enc);
                 String encType = new String(enc, StandardCharsets.UTF_8);
                 byteBuf.readBytes(encPass);
-                String encPassword = new String(encPass, StandardCharsets.UTF_8);
                 if(result==Constants.RESPONSE_FAIL){
-                    return new ConnectionResponse(ServerResponseMessage.Code.FAIL,encType,encPassword);
+                    return ConnectionResponse.fail( encType);
                 }else if(result==Constants.RESPONSE_SUCCESS){
-                    return new ConnectionResponse(ServerResponseMessage.Code.SUCCESS,encType,encPassword);
+                    ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, encType, encPass);
+                    return response;
                 }else{
                     throw new ProtocolParseException("failed to parse response code");
                 }

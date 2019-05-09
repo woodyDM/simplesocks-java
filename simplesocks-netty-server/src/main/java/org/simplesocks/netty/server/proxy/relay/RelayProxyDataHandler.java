@@ -7,11 +7,15 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.EncryptUtil;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
+
+import java.util.Random;
 
 /**
  * local server data to target server
@@ -24,12 +28,14 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     private EventLoopGroup eventLoopGroup;
     private AuthProvider authProvider;
     private Channel toTargetServerChannel;
+    private EncrypterFactory encrypterFactory;
     private Encrypter encrypter = OffsetEncrypter.getInstance();
 
 
-    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider ) {
+    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider,EncrypterFactory encrypterFactory ) {
         this.connectionMessage = connectionMessage;
         this.authProvider = authProvider;
+        this.encrypterFactory = encrypterFactory;
     }
 
     @Override
@@ -50,7 +56,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
-                                .addLast(new TargetServerDataHandler(localChannel,RelayProxyDataHandler.this, authProvider));
+                                .addLast(new TargetServerDataHandler(localChannel,RelayProxyDataHandler.this, authProvider,encrypterFactory));
 
                     }
                 });
@@ -63,7 +69,7 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                             toTargetServerChannel = future.channel();
                         }else{
                             log.warn("Failed to connect to target {}:{}.",connectionMessage.getHost(), connectionMessage.getPort());
-                            localChannel.writeAndFlush(new ConnectionResponse(ServerResponseMessage.Code.FAIL, connectionMessage.getEncryptType(),"."))
+                            localChannel.writeAndFlush(ConnectionResponse.fail( connectionMessage.getEncryptType() ))
                             .addListener(f2 -> {
                                 localChannel.close();
                             });
@@ -77,11 +83,12 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
      *
      */
     public void onTargetChannelActive(){
-        String encPassword = "xx";
-        ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, connectionMessage.getEncryptType(), encPassword);
+        String encryptType = connectionMessage.getEncryptType();
+        byte[] iv = EncryptUtil.generateIV(encryptType);
+        ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, connectionMessage.getEncryptType(), iv);
         toLocalServerChannel.writeAndFlush(response).addListener(future -> {
             if(future.isSuccess())
-                log.debug("Connect to target {}:{}, encPassword:{}",connectionMessage.getHost(), connectionMessage.getPort(), encPassword );
+                log.debug("Connect to target {}:{}, iVlen:{}",connectionMessage.getHost(), connectionMessage.getPort(), iv.length );
             else{
                 log.error("Failed to send ok response to local server,close all channel!");
                 toLocalServerChannel.close();

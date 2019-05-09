@@ -10,6 +10,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.factory.CompositeFactory;
 import org.simplesocks.netty.common.netty.SimpleSocksDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolEncoder;
@@ -21,6 +22,7 @@ import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -48,12 +50,14 @@ public class SimpleSocksServer {
 	 */
 	public void start() {
 		try {
-
-			AuthProvider authProvider = new AttributeAuthProvider("123456笑脸☺");
+			String pass = "123456笑脸☺";
+			CompositeFactory factory = new CompositeFactory();
+			factory.registerKey(pass.getBytes(StandardCharsets.UTF_8));
+			AuthProvider authProvider = new AttributeAuthProvider(pass);
 			int idleSecond = 300;
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup(8);
-			int interval = 1000;
+
 
 			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
@@ -71,7 +75,7 @@ public class SimpleSocksServer {
 									.addLast(new IdleStateHandler(idleSecond,idleSecond,idleSecond, TimeUnit.SECONDS))
 									.addLast(lengthFieldBasedFrameDecoder)
                                     .addLast(new SimpleSocksProtocolDecoder())
-									.addLast(new SimpleSocksAuthHandler(authProvider))
+									.addLast(new SimpleSocksAuthHandler(authProvider, factory))
 									.addLast(new ExceptionHandler(authProvider))
 									.addFirst(new SimpleSocksProtocolEncoder());
 						}

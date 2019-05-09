@@ -10,6 +10,7 @@ import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
@@ -32,7 +33,9 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	private Channel toLocalServerChannel;
 	private RelayProxyDataHandler handler;
 	private AuthProvider authProvider;
+	private EncrypterFactory encrypterFactory;
 	private Encrypter encrypter = OffsetEncrypter.getInstance();
+
 	public static final int INTERVAL = 1000;
     private static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newScheduledThreadPool(2);
 	private static final GlobalTrafficShapingHandler TRAFFIC_SHAPING_HANDLER = new GlobalTrafficShapingHandler(EXECUTOR_SERVICE, INTERVAL);
@@ -47,10 +50,11 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
         }, 0,3, TimeUnit.SECONDS);
     }
 
-	public TargetServerDataHandler(Channel toLocalServerChannel, RelayProxyDataHandler handler,AuthProvider authProvider) {
+	public TargetServerDataHandler(Channel toLocalServerChannel, RelayProxyDataHandler handler,AuthProvider authProvider,EncrypterFactory encrypterFactory) {
 		this.toLocalServerChannel = toLocalServerChannel;
 		this.handler = handler;
 		this.authProvider = authProvider;
+		this.encrypterFactory = encrypterFactory;
 	}
 
 	@Override

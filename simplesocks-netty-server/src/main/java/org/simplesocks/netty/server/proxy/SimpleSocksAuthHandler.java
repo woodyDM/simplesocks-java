@@ -4,6 +4,7 @@ package org.simplesocks.netty.server.proxy;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.server.auth.AuthProvider;
 import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
@@ -12,10 +13,14 @@ import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
 public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSocksMessage> {
 
     private AuthProvider authProvider;
+    private EncrypterFactory encrypterFactory;
 
-    public SimpleSocksAuthHandler(AuthProvider authProvider) {
+    public SimpleSocksAuthHandler(AuthProvider authProvider,EncrypterFactory encrypterFactory) {
         this.authProvider = authProvider;
+        this.encrypterFactory = encrypterFactory;
     }
+
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
@@ -26,11 +31,11 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
                 ConnectionMessage request = (ConnectionMessage)msg;
                 boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel() );
                 if(ok){
-                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, authProvider);
+                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, authProvider, encrypterFactory);
                     ctx.pipeline().addLast(relayProxyDataHandler);
                     relayProxyDataHandler.tryToConnectToTarget(ctx.channel());
                 }else{
-                    ctx.channel().writeAndFlush(new ConnectionResponse(ServerResponseMessage.Code.FAIL, request.getEncryptType(),"."));
+                    ctx.channel().writeAndFlush(ConnectionResponse.fail(request.getEncryptType()));
                 }
                 break;
             }

@@ -11,19 +11,23 @@ import java.nio.charset.StandardCharsets;
 public class ConnectionResponse extends ServerResponseMessage {
 
     private String encType;
-    private String encPassword;
+    private byte[] encIV;
 
-    public ConnectionResponse(Code code, String encType, String encPassword) {
+    public ConnectionResponse(Code code, String encType,  byte[] encIV) {
         super(DataType.CONNECT_RESPONSE, code);
         this.encType = encType;
-        this.encPassword = encPassword;
+        this.encIV = encIV;
+    }
+
+    public static ConnectionResponse fail(String encType){
+        return new ConnectionResponse(ServerResponseMessage.Code.FAIL, encType,new byte[1]);
     }
 
     @Override
     protected byte[][] body() {
         byte[] p1 = new byte[3];
         byte[] p2 = encType.getBytes(StandardCharsets.UTF_8);
-        byte[] p3 = encPassword.getBytes(StandardCharsets.UTF_8);
+        byte[] p3 = encIV;
         p1[0] = code.bit;
         p1[1] = (byte)p2.length;
         p1[2] = (byte)p3.length;
@@ -36,22 +40,13 @@ public class ConnectionResponse extends ServerResponseMessage {
         return result;
     }
 
-    public static void main(String[] args) {
-        ConnectionResponse request = new ConnectionResponse(Code.SUCCESS,"1234😊笑", "shadow大大大efw");
-        byte[][] body = request.body();
-        byte[] header = new byte[1];
-        header[0] = (byte)0x11;
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(header, body[0],body[1],body[2]  );
-        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.newInstance(byteBuf);
 
-        System.out.println(".");
-    }
 
     @Override
     public String toString() {
         return "ConnectionResponse{" +
                 "type='" + encType + '\'' +
-                ", encPassword='" + encPassword + '\'' +
+                ", len='" + encIV.length + '\'' +
                 "," + code +
                 "," + type +
                 '}';
