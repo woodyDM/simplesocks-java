@@ -25,7 +25,6 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
         DataType type = msg.getType();
-        log.debug("receive {} from {}",msg,ctx.channel().remoteAddress());
         switch (type){
             case CONNECT:{
                 ConnectionMessage request = (ConnectionMessage)msg;

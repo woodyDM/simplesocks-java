@@ -10,7 +10,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
+import org.simplesocks.netty.common.exception.EncInfo;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 
@@ -31,7 +33,7 @@ public class SimpleSocksProtocolClient   {
 	private String host;		//ssocks server host
 	private int port;			//ssocks server port
 
-	private String encPassword;	//password
+	private EncInfo encInfo;	//password
 	private EventLoopGroup group;
 
 	private Channel toRemoteChannel;	//to ssocks server channel
@@ -40,16 +42,16 @@ public class SimpleSocksProtocolClient   {
 
 	private Runnable onClose;
 	private Consumer<ProxyDataMessage> proxyDataRequestConsumer;
-	private Encrypter encrypter = OffsetEncrypter.getInstance();
+	private EncrypterFactory encrypterFactory;
 
-
-	public SimpleSocksProtocolClient(String auth,String encType, String proxyHost, int proxyPort,  EventLoopGroup group) {
+	public SimpleSocksProtocolClient(String auth,String encType, String proxyHost, int proxyPort,  EventLoopGroup group,EncrypterFactory encrypterFactory) {
 		Objects.requireNonNull(auth);
 		this.auth = auth;
 		this.encType = encType;
 		this.host = proxyHost;
 		this.port = proxyPort;
 		this.group = group;
+		this.encrypterFactory = encrypterFactory;
 	}
 
 	/**
@@ -121,6 +123,7 @@ public class SimpleSocksProtocolClient   {
 	 * @param request
 	 */
 	public void sendProxyData(ProxyDataMessage request){
+		Encrypter encrypter = encrypterFactory.newInstant(encInfo.getType(), encInfo.getIv());
 		byte[] decoded = request.getData();
 		byte[] encoded = encrypter.encrypt(decoded);
 		int len = decoded.length;

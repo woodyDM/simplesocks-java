@@ -6,15 +6,19 @@ import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.EncryptUtil;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
+import org.simplesocks.netty.common.exception.EncInfo;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -29,8 +33,8 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     private AuthProvider authProvider;
     private Channel toTargetServerChannel;
     private EncrypterFactory encrypterFactory;
-    private Encrypter encrypter = OffsetEncrypter.getInstance();
-
+    private EncInfo encInfo;
+    public static final String ENC_ATTRIBUTE_KEY = "encInfo";
 
     public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider,EncrypterFactory encrypterFactory ) {
         this.connectionMessage = connectionMessage;
@@ -85,10 +89,15 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     public void onTargetChannelActive(){
         String encryptType = connectionMessage.getEncryptType();
         byte[] iv = EncryptUtil.generateIV(encryptType);
+        EncInfo info = new EncInfo(encryptType, iv);
+        this.encInfo = info;
+        AttributeKey<EncInfo> encInfo = AttributeKey.valueOf(ENC_ATTRIBUTE_KEY);
+        Attribute<EncInfo> attr = toLocalServerChannel.attr(encInfo);
+        attr.set(info);
         ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, connectionMessage.getEncryptType(), iv);
         toLocalServerChannel.writeAndFlush(response).addListener(future -> {
             if(future.isSuccess())
-                log.debug("Connect to target {}:{}, iVlen:{}",connectionMessage.getHost(), connectionMessage.getPort(), iv.length );
+                log.debug("To target {}:{}, channel {};iv {}",connectionMessage.getHost(), connectionMessage.getPort(), toLocalServerChannel.remoteAddress(), Arrays.toString(iv) );
             else{
                 log.error("Failed to send ok response to local server,close all channel!");
                 toLocalServerChannel.close();
@@ -115,8 +124,8 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
                     channelHandlerContext.writeAndFlush(new ProxyDataResponse( ServerResponseMessage.Code.FAIL, request.getId()));
                     toTargetServerChannel.close();
                 }else{
-                    log.debug("receive proxy data {} from local server .", request);
                     byte[] encoded = request.getData();
+                    Encrypter encrypter = encrypterFactory.newInstant(encInfo.getType(), encInfo.getIv());
                     byte[] decoded = encrypter.decrypt(encoded);
                     toTargetServerChannel.writeAndFlush(Unpooled.wrappedBuffer(decoded)).addListener(future -> {
                         if(!future.isSuccess()){

@@ -6,11 +6,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.handler.traffic.TrafficCounter;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
+import org.simplesocks.netty.common.exception.EncInfo;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
@@ -34,7 +37,7 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	private RelayProxyDataHandler handler;
 	private AuthProvider authProvider;
 	private EncrypterFactory encrypterFactory;
-	private Encrypter encrypter = OffsetEncrypter.getInstance();
+
 
 	public static final int INTERVAL = 1000;
     private static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newScheduledThreadPool(2);
@@ -46,7 +49,7 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
             BigDecimal s = new BigDecimal(1024*INTERVAL/1000);
             BigDecimal read = BigDecimal.valueOf(counter.lastReadThroughput()).divide(s,2, RoundingMode.HALF_UP);
             BigDecimal write = BigDecimal.valueOf(counter.lastWriteThroughput()).divide(s,2, RoundingMode.HALF_UP);
-            log.info("[Speed] Read:{}KB/s  Write:{}KB/s", read,write);
+          //  log.info("[Speed] Read:{}KB/s  Write:{}KB/s", read,write);
         }, 0,3, TimeUnit.SECONDS);
     }
 
@@ -66,8 +69,11 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf bytes = (ByteBuf) msg;
-		log.debug("write target server data to local server. len {}",bytes.readableBytes());
 		try{
+			AttributeKey<EncInfo> attributeKey = AttributeKey.valueOf(RelayProxyDataHandler.ENC_ATTRIBUTE_KEY);
+			Attribute<EncInfo> attr = toLocalServerChannel.attr(attributeKey);
+			EncInfo info = attr.get();
+			Encrypter encrypter = encrypterFactory.newInstant(info.getType(), info.getIv());
 			int len = bytes.readableBytes();
 			byte[] bytes1 = new byte[len];
 			bytes.readBytes(bytes1);

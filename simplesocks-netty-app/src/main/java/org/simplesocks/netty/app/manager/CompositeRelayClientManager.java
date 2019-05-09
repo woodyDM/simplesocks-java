@@ -6,6 +6,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.proxy.relay.direct.DirectRelayClient;
+import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
@@ -28,14 +29,16 @@ public class CompositeRelayClientManager implements RelayClientManager {
     private static final int expireMinute = 60;
     private Map<String, LocalDateTime> unableMap = new ConcurrentHashMap<>(256);    //expire time
     private Set<String> proxySet = new HashSet<>();
+    private EncrypterFactory encrypterFactory;
 
-    public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup) {
+    public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,EncrypterFactory encrypterFactory) {
         this.host = host;
         this.port = port;
         this.auth = auth;
         this.loopGroup = loopGroup;
+        this.encrypterFactory = encrypterFactory;
         this.directManager = new DirectRelayClientManager(loopGroup);
-        this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup);
+        this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup,encrypterFactory);
         proxySet.add("google");
         proxySet.add("pixiv");
         proxySet.add("pximg");

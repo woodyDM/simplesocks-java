@@ -29,7 +29,6 @@ public class LocalDataRelayHandler extends ChannelInboundHandlerAdapter {
 			int len = byteBuf.readableBytes();
 			byte[] bytes = new byte[len];
 			byteBuf.readBytes(bytes);
-			log.debug("relay local app data to client ,length is [{}].",len);
 			relayClient.sendProxyData(bytes);
 		}finally {
 			ReferenceCountUtil.release(msg);

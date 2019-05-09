@@ -5,9 +5,13 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
+import org.simplesocks.netty.common.exception.EncInfo;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.common.util.ServerUtils;
+
+import java.util.Arrays;
 
 
 @Slf4j
@@ -15,22 +19,23 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
 
 
     private SimpleSocksProtocolClient client;
-    private Encrypter encrypter = OffsetEncrypter.getInstance();
 
     public LocalServerHandler(SimpleSocksProtocolClient client) {
         this.client = client;
+
     }
 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
-        log.debug("receive from simpleSocks server: {}",msg);
         DataType type = msg.getType();
         switch (type){
             case CONNECT_RESPONSE:{
                 ConnectionResponse response = (ConnectionResponse)msg;
                 if(response.getCode()== ServerResponseMessage.Code.SUCCESS){
-                    client.setEncPassword(response.getEncPassword());
+                    EncInfo info = new EncInfo(response.getEncType(), response.getEncIV());
+                    log.debug("Connect ok ,channel {}, iv {}",ctx.channel().localAddress(), Arrays.toString(info.getIv()));
+                    client.setEncInfo(info);
                     client.setConnected(true);
                     client.getConnectionPromise().setSuccess(ctx.channel());
                 }else{
@@ -41,6 +46,8 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
             }
             case PROXY_DATA:{
                 ProxyDataMessage request = (ProxyDataMessage)msg;
+                EncInfo info = client.getEncInfo();
+                Encrypter encrypter = client.getEncrypterFactory().newInstant(info.getType(), info.getIv());
                 byte[] encoded = request.getData();
                 byte[] decoded = encrypter.decrypt(encoded);
                 client.onReceiveProxyData(new ProxyDataMessage(request.getId(), decoded));

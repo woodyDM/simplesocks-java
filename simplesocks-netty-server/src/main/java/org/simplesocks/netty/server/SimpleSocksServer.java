@@ -41,7 +41,7 @@ public class SimpleSocksServer {
 
 
 	public static void main(String[] args) {
-		new SimpleSocksServer(10900).start();
+		new SimpleSocksServer(11900).start();
 	}
 
 
