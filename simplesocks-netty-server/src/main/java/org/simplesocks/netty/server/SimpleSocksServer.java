@@ -2,6 +2,7 @@ package org.simplesocks.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -63,17 +64,21 @@ public class SimpleSocksServer {
 			AuthProvider authProvider = new AttributeAuthProvider(config.getAuth());
 
 			int idleSecond = config.getChannelTimeoutSeconds();
-			bossGroup = new NioEventLoopGroup(1);
-			workerGroup = new NioEventLoopGroup();
+
 
 			ServerBootstrap bootstrap = new ServerBootstrap();
-			bootstrap.group(bossGroup, workerGroup);
+
 			if(config.isEnableEpoll()){
 				log.info("Use epoll on linux, kernel should higher than 2.6.");
+				bossGroup = new EpollEventLoopGroup(1);
+				workerGroup = new EpollEventLoopGroup();
 				bootstrap.channel(EpollServerSocketChannel.class);
 			}else{
+				bossGroup = new NioEventLoopGroup(1);
+				workerGroup = new NioEventLoopGroup();
 				bootstrap.channel(NioServerSocketChannel.class);
 			}
+			bootstrap.group(bossGroup, workerGroup);
 			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childOption(ChannelOption.TCP_NODELAY, true)
 					.childOption(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(64,config.getInitBuffer(), 65536))
