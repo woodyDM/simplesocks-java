@@ -49,7 +49,7 @@ public class SimpleSocksServer {
 		Runtime.getRuntime().addShutdownHook(new Thread(()->{
 			server.stop();
 		}));
-		future.channel().close().syncUninterruptibly();
+		future.channel().closeFuture().syncUninterruptibly();
 	}
 
 
