@@ -20,8 +20,12 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
         this.encrypterFactory = encrypterFactory;
     }
 
-
-
+    /**
+     * read
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
         DataType type = msg.getType();
