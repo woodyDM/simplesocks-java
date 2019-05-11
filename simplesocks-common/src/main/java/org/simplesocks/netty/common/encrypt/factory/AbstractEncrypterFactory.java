@@ -2,6 +2,7 @@ package org.simplesocks.netty.common.encrypt.factory;
 
 
 import org.simplesocks.netty.common.encrypt.Encrypter;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 
 import java.util.HashSet;
 import java.util.Objects;

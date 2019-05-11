@@ -29,7 +29,8 @@ public final class ServerUtils {
 	public static void logException(Logger log, Throwable t){
 		if(t instanceof IOException){
 		    Throwable t2 = t.getCause()==null? t : t.getCause();
-			log.warn("IOException, {}",t2.getMessage());
+		    //usually caused by closed client channel or server.
+			log.debug("IOException, {}",t2.getMessage());
 		}else if(t.getClass().getName().equals("io.netty.channel.ExtendedClosedChannelException")){
 		    log.warn("ExtendedClosedChannelException, channel may close when flushing.");
 		}else {

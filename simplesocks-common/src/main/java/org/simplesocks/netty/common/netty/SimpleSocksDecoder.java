@@ -5,6 +5,10 @@ import org.simplesocks.netty.common.protocol.Constants;
 
 public class SimpleSocksDecoder {
 
+    /**
+     * assert max size is 10M per/read
+     * @return
+     */
     public static LengthFieldBasedFrameDecoder newLengthDecoder(){
         return new LengthFieldBasedFrameDecoder(20*1024*1024,
                 Constants.LEN_VERSION,

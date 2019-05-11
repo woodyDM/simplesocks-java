@@ -2,17 +2,18 @@ package org.simplesocks.netty.common.encrypt.factory;
 
 
 import org.simplesocks.netty.common.encrypt.Encrypter;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompositeEncrypterFactory implements EncrypterFactory  {
+public class CompositeEncrypterFactory implements EncrypterFactory {
     
     private List<EncrypterFactory> factories = new ArrayList<>();
 
     public CompositeEncrypterFactory() {
         factories.add(new AesFactory());
-        factories.add(new OffsetFactory());
+        factories.add(new CaesarFactory());
     }
 
     @Override

@@ -6,6 +6,7 @@
 	<artifactId>simplesocks-common</artifactId>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
+
 	<parent>
 		<groupId>org.simplesocks-netty</groupId>
 		<artifactId>simplesocks-parent</artifactId>

@@ -2,7 +2,7 @@ package org.simplesocks.netty.common.protocol;
 
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.encrypter.CaesarEncrypter;
 import org.simplesocks.netty.common.exception.ProtocolParseException;
 
 import java.nio.charset.StandardCharsets;
@@ -31,7 +31,7 @@ public class SimpleSocksMessageFactory {
                 int iPort = port<0 ? 65536 + port : (int)port;  //fix short overflow
 
                 byte offset = byteBuf.readByte();
-                OffsetEncrypter e = new OffsetEncrypter(offset);
+                CaesarEncrypter e = new CaesarEncrypter(offset);
                 int hostLen = byteBuf.readableBytes();
                 byte[] hostBytes = new byte[hostLen];
                 byteBuf.readBytes(hostBytes);
@@ -56,8 +56,7 @@ public class SimpleSocksMessageFactory {
                 if(result==Constants.RESPONSE_FAIL){
                     return ConnectionResponse.fail(encType);
                 }else if(result==Constants.RESPONSE_SUCCESS){
-                    ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, encType, encIv);
-                    return response;
+                    return new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, encType, encIv);
                 }else{
                     throw new ProtocolParseException("failed to parse response code");
                 }

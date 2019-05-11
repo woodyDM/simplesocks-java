@@ -6,7 +6,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.proxy.relay.direct.DirectRelayClient;
-import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
@@ -20,38 +20,31 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class CompositeRelayClientManager implements RelayClientManager {
 
-    private String host;
-    private int port;
-    private String auth;
-    private EventLoopGroup loopGroup;
+
     private RelayClientManager directManager;
     private RelayClientManager simpleSocksManager;
     private static final int expireMinute = 60;
     private Map<String, LocalDateTime> unableMap = new ConcurrentHashMap<>(256);    //expire time
-    private Set<String> proxySet = new HashSet<>();
-    private EncrypterFactory encrypterFactory;
+    private Set<String> forceProxyDomains = new HashSet<>();
+
 
     public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,EncrypterFactory encrypterFactory) {
-        this.host = host;
-        this.port = port;
-        this.auth = auth;
-        this.loopGroup = loopGroup;
-        this.encrypterFactory = encrypterFactory;
+
         this.directManager = new DirectRelayClientManager(loopGroup);
         this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup,encrypterFactory);
-        proxySet.add("google");
-        proxySet.add("pixiv");
-        proxySet.add("pximg");
-        proxySet.add("youtube");
-        proxySet.add("twitter");
-        proxySet.add("facebook");
-        proxySet.add("github");
-        proxySet.add("twitch");
-        proxySet.add("ttvnw.net");
-        proxySet.add("adsrvr.org");
-        proxySet.add("gstatic.com");
-        proxySet.add("addthis.com");
-        proxySet.add("krxd.net");
+        forceProxyDomains.add("google");
+        forceProxyDomains.add("pixiv");
+        forceProxyDomains.add("pximg");
+        forceProxyDomains.add("youtube");
+        forceProxyDomains.add("twitter");
+        forceProxyDomains.add("facebook");
+        forceProxyDomains.add("github");
+        forceProxyDomains.add("twitch");
+        forceProxyDomains.add("ttvnw.net");
+        forceProxyDomains.add("adsrvr.org");
+        forceProxyDomains.add("gstatic.com");
+        forceProxyDomains.add("addthis.com");
+        forceProxyDomains.add("krxd.net");
 
 
     }
@@ -63,7 +56,7 @@ public class CompositeRelayClientManager implements RelayClientManager {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expireTime = unableMap.get(key);
         String host = socksCmdRequest.host();
-        boolean needProxy = proxySet.stream().anyMatch(it -> host.contains(it));
+        boolean needProxy = forceProxyDomains.stream().anyMatch(it -> host.contains(it));
         if(needProxy){
             log.debug("Force proxy!Get SS Proxy client for {}", key);
             return simpleSocksManager.borrow(eventExecutor, socksCmdRequest);

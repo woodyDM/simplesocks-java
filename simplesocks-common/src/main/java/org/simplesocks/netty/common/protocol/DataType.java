@@ -27,10 +27,4 @@ public enum DataType {
         throw new NoSuchElementException("DataType not found .Bit is "+b);
     }
 
-    public DataType toResponse(){
-        byte b =(byte)( bit | 0x10);
-        return parseByte(b);
-    }
-
-
 }

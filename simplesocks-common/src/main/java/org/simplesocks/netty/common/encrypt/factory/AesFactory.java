@@ -2,21 +2,26 @@ package org.simplesocks.netty.common.encrypt.factory;
 
 
 
-import org.simplesocks.netty.common.encrypt.AesEncrypter;
+import org.simplesocks.netty.common.encrypt.EncType;
+import org.simplesocks.netty.common.encrypt.encrypter.AesEncrypter;
 
 /**
  * support
- * aes-cbc-x
- * aes-cfb-x
- * where x might be 128 192 256 depend on appkey
+ * aes-cbc
+ * aes-cfb
+ * where length might be 128 192 256 depend on appkey
  *
  */
 public class AesFactory extends AbstractEncrypterFactory<AesEncrypter> {
 
+
+    public static final String TYPE_CBC = EncType.AES_CBC.getEncName();
+    public static final String TYPE_CFB = EncType.AES_CFB.getEncName();
+
     @Override
     protected void addSupport() {
-        addSupport("aes-cbc");
-        addSupport("aes-cfb");
+        addSupport(TYPE_CBC);
+        addSupport(TYPE_CFB);
     }
 
     @Override

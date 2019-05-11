@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
-import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.encrypt.EncryptInfo;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
@@ -31,9 +31,11 @@ public class SimpleSocksProtocolClient   {
 	private String encType;
 	private String host;		//ssocks server host
 	private int port;			//ssocks server port
+	private EventLoopGroup group;	//the group is managed by others, this client does not care about its lifecycle.
+	private EncrypterFactory encrypterFactory;
 
 	private EncryptInfo encInfo;	//password
-	private EventLoopGroup group;
+	private ConnectionMessage proxyMessage;
 
 	private Channel toRemoteChannel;	//to ssocks server channel
 	private Promise<Channel> connectionPromise;
@@ -41,8 +43,6 @@ public class SimpleSocksProtocolClient   {
 
 	private Runnable onClose;
 	private Consumer<ProxyDataMessage> proxyDataRequestConsumer;
-	private EncrypterFactory encrypterFactory;
-	private ConnectionMessage proxyMessage;
 
 	public SimpleSocksProtocolClient(String auth,String encType, String proxyHost, int proxyPort,  EventLoopGroup group,EncrypterFactory encrypterFactory) {
 		Objects.requireNonNull(auth);
@@ -60,11 +60,9 @@ public class SimpleSocksProtocolClient   {
 	 */
 	public ChannelFuture init() {
 		try {
-			String remoteHost = host;
-			int remotePort = port;
 			Bootstrap bootstrap = new Bootstrap();
 			bootstrap.group(group)
-					.remoteAddress(remoteHost, remotePort)
+					.remoteAddress(host, port)
 					.channel(NioSocketChannel.class)
 					.option(ChannelOption.SO_KEEPALIVE, true)
 					.option(ChannelOption.TCP_NODELAY, true)
@@ -75,12 +73,12 @@ public class SimpleSocksProtocolClient   {
 						public void operationComplete(ChannelFuture future) throws Exception {
 							if (future.isSuccess()) {
 								toRemoteChannel = future.channel();
-								log.debug("connect to s-server[{}:{}] success!", remoteHost, remotePort);
+								log.debug("connect to s-server[{}:{}] success!", host, port);
 							}
 						}
 					});
-		} catch (Exception e) {
-			throw new BaseSystemException("Failed to start local server.");
+		} catch (Throwable e) {
+			throw new BaseSystemException("Failed to start local server.", e);
 		}
 	}
 
@@ -105,7 +103,6 @@ public class SimpleSocksProtocolClient   {
 	}
 
 
-
 	public void close(){
 		if(toRemoteChannel!=null){
 			toRemoteChannel.close();
@@ -125,10 +122,10 @@ public class SimpleSocksProtocolClient   {
 	 */
 	public void sendProxyData(ProxyDataMessage request){
 		Encrypter encrypter = encrypterFactory.newInstant(encInfo.getType(), encInfo.getIv());
-		byte[] decoded = request.getData();
-		byte[] encoded = encrypter.encrypt(decoded);
-		int len = decoded.length;
-		toRemoteChannel.writeAndFlush(new ProxyDataMessage(request.getId(), encoded)).addListener(future -> {
+		byte[] plain = request.getData();
+		byte[] encrypt = encrypter.encrypt(plain);
+		int len = plain.length;
+		toRemoteChannel.writeAndFlush(new ProxyDataMessage(request.getId(), encrypt)).addListener(future -> {
 			if(!future.isSuccess()){
 				log.warn("Failed to send proxy data to remote len={}. cause ", len, future.cause());
 				close();

@@ -4,7 +4,7 @@ package org.simplesocks.netty.server.proxy;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.server.auth.AuthProvider;
 import org.simplesocks.netty.server.config.ServerConfiguration;

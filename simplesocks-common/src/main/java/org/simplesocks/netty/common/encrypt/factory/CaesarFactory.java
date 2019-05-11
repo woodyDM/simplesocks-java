@@ -1,15 +1,16 @@
 package org.simplesocks.netty.common.encrypt.factory;
 
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.EncType;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
+import org.simplesocks.netty.common.encrypt.encrypter.CaesarEncrypter;
 
-import java.io.RandomAccessFile;
 import java.util.Random;
 
 @Slf4j
-public class OffsetFactory implements EncrypterFactory<OffsetEncrypter> {
+public class CaesarFactory implements EncrypterFactory<CaesarEncrypter> {
 
-    public static final String TYPE = "offset";
+    public static final String TYPE = EncType.CAESAR.getEncName();
 
     @Override
     public void registerKey(byte[] appKey) {
@@ -22,14 +23,14 @@ public class OffsetFactory implements EncrypterFactory<OffsetEncrypter> {
     }
 
     @Override
-    public OffsetEncrypter newInstant(String encType, byte[] iv) {
+    public CaesarEncrypter newInstant(String encType, byte[] iv) {
         if(iv==null||iv.length==0){
             throw new IllegalArgumentException("invalid iv!");
         }
         if(iv.length>1){
-            log.warn("Offset only need 1 byte.");
+            log.warn("Caesar encrypter only need 1 byte.");
         }
-        return new OffsetEncrypter(iv[0]);
+        return new CaesarEncrypter(iv[0]);
     }
 
     @Override

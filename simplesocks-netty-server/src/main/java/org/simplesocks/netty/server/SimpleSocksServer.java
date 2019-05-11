@@ -42,7 +42,7 @@ public class SimpleSocksServer {
 	public static void main(String[] args) {
 		ServerConfiguration config = new ServerConfiguration();
 		config.setPort(11900);
-		config.setEnableEpoll(true);
+		config.setEnableEpoll(false);
 		config.setAuth("123456笑脸☺");
 		SimpleSocksServer server = new SimpleSocksServer(config);
 		ChannelFuture future = server.start();

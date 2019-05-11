@@ -7,11 +7,11 @@ import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.proxy.relay.ssocks.SimpleSocksRelayClientAdapter;
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
-import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
+import org.simplesocks.netty.common.encrypt.EncType;
+import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
-import org.simplesocks.netty.common.protocol.ConnectionMessage;
 
 
 @Slf4j
@@ -21,7 +21,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     private int port;
     private String auth;
     private EventLoopGroup loopGroup;
-    private String encType = "aes-cfb";
+    private String encType = EncType.AES_CBC.getEncName();
     private EncrypterFactory encrypterFactory;
 
     public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,EncrypterFactory encrypterFactory ) {

@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
+import org.simplesocks.netty.common.encrypt.encrypter.CaesarEncrypter;
 import org.simplesocks.netty.common.util.ContentUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -38,7 +38,6 @@ public class ConnectionMessage extends ByteBasedMessage {
     }
 
 
-
     public String getAuth() {
         return auth;
     }
@@ -63,7 +62,7 @@ public class ConnectionMessage extends ByteBasedMessage {
         int i = 128 - random.nextInt(256);
         byte offset = (byte) i;
         p4[3] = offset;
-        OffsetEncrypter encrypter = new OffsetEncrypter(offset);
+        CaesarEncrypter encrypter = new CaesarEncrypter(offset);
         hostBytes = encrypter.encrypt(hostBytes);
         authBytes = encrypter.encrypt(authBytes);
         encryptTypeBytes = encrypter.encrypt(encryptTypeBytes);
@@ -76,17 +75,6 @@ public class ConnectionMessage extends ByteBasedMessage {
         return result;
     }
 
-
-    public static void main(String[] args) {
-        ConnectionMessage request = new ConnectionMessage("1234😊笑", "shadow大大大efw", "www.google.com9080哈哈", 16385, Type.DOMAIN);
-        byte[][] body = request.body();
-        byte[] header = new byte[1];
-        header[0] = (byte)0x01;
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(header, body[0],body[1],body[2],body[3],body[4] );
-        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.newInstance(byteBuf);
-
-        System.out.println(".");
-    }
 
     @Override
     public String toString() {
@@ -113,5 +101,16 @@ public class ConnectionMessage extends ByteBasedMessage {
             throw new NoSuchElementException("no Type found for "+b);
         }
 
+    }
+
+
+    public static void main(String[] args) {
+        ConnectionMessage request = new ConnectionMessage("1234😊笑", "shadow大大大efw", "www.google.com9080哈哈", 16385, Type.DOMAIN);
+        byte[][] body = request.body();
+        byte[] header = new byte[1];
+        header[0] = (byte)0x01;
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(header, body[0],body[1],body[2],body[3],body[4] );
+        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.newInstance(byteBuf);
+        System.out.println(".");
     }
 }

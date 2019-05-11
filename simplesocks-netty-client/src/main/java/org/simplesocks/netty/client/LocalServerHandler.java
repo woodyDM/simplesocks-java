@@ -20,7 +20,6 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
 
     public LocalServerHandler(SimpleSocksProtocolClient client) {
         this.client = client;
-
     }
 
 
@@ -46,9 +45,9 @@ public class LocalServerHandler extends SimpleChannelInboundHandler<SimpleSocksM
                 ProxyDataMessage request = (ProxyDataMessage)msg;
                 EncryptInfo info = client.getEncInfo();
                 Encrypter encrypter = client.getEncrypterFactory().newInstant(info.getType(), info.getIv());
-                byte[] encoded = request.getData();
-                byte[] decoded = encrypter.decrypt(encoded);
-                client.onReceiveProxyData(new ProxyDataMessage(request.getId(), decoded));
+                byte[] encrypted = request.getData();
+                byte[] plain = encrypter.decrypt(encrypted);
+                client.onReceiveProxyData(new ProxyDataMessage(request.getId(), plain));
                 break;
             }
             case PROXY_DATA_RESPONSE:{

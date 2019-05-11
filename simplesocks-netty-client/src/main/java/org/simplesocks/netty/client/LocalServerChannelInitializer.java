@@ -2,7 +2,6 @@ package org.simplesocks.netty.client;
 
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.netty.SimpleSocksDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolDecoder;
 import org.simplesocks.netty.common.netty.SimpleSocksProtocolEncoder;

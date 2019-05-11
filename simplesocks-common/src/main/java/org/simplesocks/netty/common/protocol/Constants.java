@@ -15,8 +15,6 @@ public class Constants {
     public static final int LEN_PROXY_PORT = 2;
     public static final int LEN_PROXY_OFFSET = 1;
     public static final int LEN_HEAD = LEN_VERSION + LEN_CONTENT_LENGTH + LEN_CMD;
-    public static final int LEN_PROXY =   LEN_PROXY_TYPE + LEN_PROXY_PORT + LEN_PROXY_OFFSET;
-
 
 
     public static final int RESPONSE_SUCCESS = 0x01;

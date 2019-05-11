@@ -7,7 +7,13 @@ import lombok.Setter;
 @Setter
 public class EncryptInfo {
 
+    /**
+     * encType
+     */
     private String type;
+    /**
+     * iv of encType
+     */
     private byte[] iv;
 
     public EncryptInfo(String type, byte[] iv) {
