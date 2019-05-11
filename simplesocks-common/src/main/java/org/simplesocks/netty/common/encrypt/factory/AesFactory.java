@@ -21,10 +21,11 @@ public class AesFactory extends AbstractEncrypterFactory<AesEncrypter> {
 
     @Override
     public AesEncrypter newInstant(String encType, byte[] iv) {
-
         return new AesEncrypter(encType, appKey, iv );
     }
 
-
-
+    @Override
+    public byte[] randomIv(String encType) {
+        return randomBytes(16);
+    }
 }

@@ -5,6 +5,7 @@ import org.simplesocks.netty.common.encrypt.Encrypter;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -59,6 +60,11 @@ public abstract class AbstractEncrypterFactory<T extends Encrypter> implements E
     abstract protected void addSupport();
 
 
+    protected byte[] randomBytes(int len){
+        byte[] b = new byte[len];
+        new Random().nextBytes(b);
+        return b;
+    }
 
 
 }

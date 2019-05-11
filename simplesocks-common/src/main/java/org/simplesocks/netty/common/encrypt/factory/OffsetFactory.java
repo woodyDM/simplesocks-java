@@ -3,6 +3,9 @@ package org.simplesocks.netty.common.encrypt.factory;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 
+import java.io.RandomAccessFile;
+import java.util.Random;
+
 @Slf4j
 public class OffsetFactory implements EncrypterFactory<OffsetEncrypter> {
 
@@ -27,5 +30,12 @@ public class OffsetFactory implements EncrypterFactory<OffsetEncrypter> {
             log.warn("Offset only need 1 byte.");
         }
         return new OffsetEncrypter(iv[0]);
+    }
+
+    @Override
+    public byte[] randomIv(String encType) {
+        byte[] b = new byte[1];
+        new Random().nextBytes(b);
+        return b;
     }
 }

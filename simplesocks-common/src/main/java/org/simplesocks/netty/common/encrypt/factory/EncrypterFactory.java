@@ -10,4 +10,6 @@ public interface EncrypterFactory<T extends Encrypter> {
 
     T newInstant(String encType, byte[] iv);
 
+    byte[] randomIv(String encType);
+
 }

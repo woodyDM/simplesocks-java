@@ -2,7 +2,6 @@ package org.simplesocks.netty.common.protocol;
 
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.common.encrypt.EncryptUtil;
 import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.exception.ProtocolParseException;
 
@@ -29,7 +28,7 @@ public class SimpleSocksMessageFactory {
                 byte proxyType = byteBuf.readByte();
                 ConnectionMessage.Type proxyTypeEnum = ConnectionMessage.Type.valueOf(proxyType);
                 short port = byteBuf.readShort();
-                int iPort = port<0 ? 65536 + port : (int)port;
+                int iPort = port<0 ? 65536 + port : (int)port;  //fix short overflow
 
                 byte offset = byteBuf.readByte();
                 OffsetEncrypter e = new OffsetEncrypter(offset);
@@ -50,14 +49,14 @@ public class SimpleSocksMessageFactory {
                 byte encLen = byteBuf.readByte();
                 byte[] enc = new byte[encLen];
                 byte encPasswordLen = byteBuf.readByte();
-                byte[] encPass = new byte[encPasswordLen];
+                byte[] encIv = new byte[encPasswordLen];
                 byteBuf.readBytes(enc);
                 String encType = new String(enc, StandardCharsets.UTF_8);
-                byteBuf.readBytes(encPass);
+                byteBuf.readBytes(encIv);
                 if(result==Constants.RESPONSE_FAIL){
-                    return ConnectionResponse.fail( encType);
+                    return ConnectionResponse.fail(encType);
                 }else if(result==Constants.RESPONSE_SUCCESS){
-                    ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, encType, encPass);
+                    ConnectionResponse response = new ConnectionResponse(ServerResponseMessage.Code.SUCCESS, encType, encIv);
                     return response;
                 }else{
                     throw new ProtocolParseException("failed to parse response code");

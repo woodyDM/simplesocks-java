@@ -22,20 +22,26 @@ public class CompositeEncrypterFactory implements EncrypterFactory  {
 
     @Override
     public boolean support(String encType) {
-        for(EncrypterFactory f:factories){
-            if(f.support(encType))
-                return true;
-        }
-        throw new IllegalArgumentException("Type "+encType+" not supported");
+        return get(encType)!=null;
     }
 
     @Override
     public Encrypter newInstant(String encType, byte[] iv) {
+        return get(encType).newInstant(encType, iv);
+
+    }
+
+    @Override
+    public byte[] randomIv(String encType) {
+        return get(encType).randomIv(encType);
+    }
+
+
+    private EncrypterFactory get(String encType){
         for(EncrypterFactory f:factories){
             if(f.support(encType))
-                return f.newInstant(encType,iv);
+                return f;
         }
         throw new IllegalArgumentException("Type "+encType+" not supported");
     }
-    
 }

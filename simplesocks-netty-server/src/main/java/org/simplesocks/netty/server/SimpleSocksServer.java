@@ -42,7 +42,7 @@ public class SimpleSocksServer {
 	public static void main(String[] args) {
 		ServerConfiguration config = new ServerConfiguration();
 		config.setPort(11900);
-		config.setEnableEpoll(true);
+		config.setEnableEpoll(false);
 		config.setAuth("123456笑脸☺");
 		SimpleSocksServer server = new SimpleSocksServer(config);
 		ChannelFuture future = server.start();
@@ -62,12 +62,9 @@ public class SimpleSocksServer {
 			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
 			factory.registerKey(config.getAuth().getBytes(StandardCharsets.UTF_8));
 			AuthProvider authProvider = new AttributeAuthProvider(config.getAuth());
-
 			int idleSecond = config.getChannelTimeoutSeconds();
 
-
 			ServerBootstrap bootstrap = new ServerBootstrap();
-
 			if(config.isEnableEpoll()){
 				log.info("Use epoll on linux, kernel should higher than 2.6.");
 				bossGroup = new EpollEventLoopGroup(1);

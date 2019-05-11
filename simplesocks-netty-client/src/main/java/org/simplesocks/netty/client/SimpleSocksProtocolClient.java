@@ -9,10 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.Encrypter;
-import org.simplesocks.netty.common.encrypt.OffsetEncrypter;
 import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
-import org.simplesocks.netty.common.exception.EncInfo;
+import org.simplesocks.netty.common.encrypt.EncryptInfo;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.protocol.ProxyDataMessage;
 
@@ -33,7 +32,7 @@ public class SimpleSocksProtocolClient   {
 	private String host;		//ssocks server host
 	private int port;			//ssocks server port
 
-	private EncInfo encInfo;	//password
+	private EncryptInfo encInfo;	//password
 	private EventLoopGroup group;
 
 	private Channel toRemoteChannel;	//to ssocks server channel
@@ -149,7 +148,7 @@ public class SimpleSocksProtocolClient   {
 	public String toString() {
 		String target = proxyMessage==null?"":proxyMessage.getHost()+":"+proxyMessage+port;
 		return "SimpleSocksProtocolClient{" +
-				"Target='" + target + "encType:"+encType+
+				"Target='" + target + "'encType:"+encType+
 				'}';
 	}
 }

@@ -21,7 +21,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     private int port;
     private String auth;
     private EventLoopGroup loopGroup;
-    private String encType = "aes-cbc";
+    private String encType = "aes-cfb";
     private EncrypterFactory encrypterFactory;
 
     public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,EncrypterFactory encrypterFactory ) {
