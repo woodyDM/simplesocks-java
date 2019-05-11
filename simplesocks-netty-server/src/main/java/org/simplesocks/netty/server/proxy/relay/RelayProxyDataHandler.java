@@ -3,6 +3,7 @@ package org.simplesocks.netty.server.proxy.relay;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -34,12 +35,15 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
     private Channel toTargetServerChannel;
     private EncrypterFactory encrypterFactory;
     private EncInfo encInfo;
+    private boolean epoll;
+
     public static final String ENC_ATTRIBUTE_KEY = "encInfo";
 
-    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider,EncrypterFactory encrypterFactory ) {
+    public RelayProxyDataHandler(ConnectionMessage connectionMessage,AuthProvider authProvider,EncrypterFactory encrypterFactory, boolean epoll ) {
         this.connectionMessage = connectionMessage;
         this.authProvider = authProvider;
         this.encrypterFactory = encrypterFactory;
+        this.epoll = epoll;
     }
 
     @Override
@@ -51,9 +55,13 @@ public class RelayProxyDataHandler extends SimpleChannelInboundHandler<SimpleSoc
 
     public void tryToConnectToTarget(Channel localChannel){
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(eventLoopGroup)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
+        bootstrap.group(eventLoopGroup);
+        if(epoll){
+            bootstrap.channel(EpollSocketChannel.class);
+        }else{
+            bootstrap.channel(NioSocketChannel.class);
+        }
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(64,20*1024, 65536))
                 .handler(new ChannelInitializer<SocketChannel>() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<config>
+<serverConfiguration>
 	<local_port>10800</local_port>
 	<remotes>
 		<remote>
@@ -15,4 +15,4 @@
 			<password>xxx</password>
 		</remote>
 	</remotes>
-</config>
+</serverConfiguration>

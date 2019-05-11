@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.protocol.*;
 import org.simplesocks.netty.server.auth.AuthProvider;
+import org.simplesocks.netty.server.config.ServerConfiguration;
 import org.simplesocks.netty.server.proxy.relay.RelayProxyDataHandler;
 
 @Slf4j
@@ -14,14 +15,20 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
 
     private AuthProvider authProvider;
     private EncrypterFactory encrypterFactory;
+    private ServerConfiguration configuration;
 
-    public SimpleSocksAuthHandler(AuthProvider authProvider,EncrypterFactory encrypterFactory) {
+    public SimpleSocksAuthHandler(AuthProvider authProvider, EncrypterFactory encrypterFactory, ServerConfiguration configuration) {
         this.authProvider = authProvider;
         this.encrypterFactory = encrypterFactory;
+        this.configuration = configuration;
     }
 
-
-
+    /**
+     * read
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SimpleSocksMessage msg) throws Exception {
         DataType type = msg.getType();
@@ -30,7 +37,7 @@ public class SimpleSocksAuthHandler extends SimpleChannelInboundHandler<SimpleSo
                 ConnectionMessage request = (ConnectionMessage)msg;
                 boolean ok = authProvider.tryAuthenticate(request.getAuth(), ctx.channel() );
                 if(ok){
-                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, authProvider, encrypterFactory);
+                    RelayProxyDataHandler relayProxyDataHandler = new RelayProxyDataHandler(request, authProvider, encrypterFactory, configuration.isEnableEpoll());
                     ctx.pipeline().addLast(relayProxyDataHandler);
                     relayProxyDataHandler.tryToConnectToTarget(ctx.channel());
                 }else{

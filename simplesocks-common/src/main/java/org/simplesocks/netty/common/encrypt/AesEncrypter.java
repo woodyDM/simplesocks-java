@@ -8,13 +8,7 @@ import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
-import org.simplesocks.netty.common.encrypt.factory.AesFactory;
-import org.simplesocks.netty.common.encrypt.factory.CompositeFactory;
-import org.simplesocks.netty.common.encrypt.factory.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Random;
 
 public class AesEncrypter implements Encrypter {
 
@@ -42,7 +36,7 @@ public class AesEncrypter implements Encrypter {
 //     * @throws Exception
 //     */
 //    public static void main(String[] args) throws Exception{
-//        EncrypterFactory factory = new CompositeFactory();
+//        EncrypterFactory factory = new CompositeEncrypterFactory();
 //        factory.registerKey("yCastle: AES你好啊😊，啦啦BouncEngine,".getBytes());
 //        byte[] ivBytes = new byte[16];
 //        Random rd = new Random();

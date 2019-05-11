@@ -39,19 +39,6 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	private EncrypterFactory encrypterFactory;
 
 
-	public static final int INTERVAL = 1000;
-    private static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newScheduledThreadPool(2);
-	private static final GlobalTrafficShapingHandler TRAFFIC_SHAPING_HANDLER = new GlobalTrafficShapingHandler(EXECUTOR_SERVICE, INTERVAL);
-
-	static {
-        EXECUTOR_SERVICE.scheduleAtFixedRate(()->{
-            TrafficCounter counter = TRAFFIC_SHAPING_HANDLER.trafficCounter();
-            BigDecimal s = new BigDecimal(1024*INTERVAL/1000);
-            BigDecimal read = BigDecimal.valueOf(counter.lastReadThroughput()).divide(s,2, RoundingMode.HALF_UP);
-            BigDecimal write = BigDecimal.valueOf(counter.lastWriteThroughput()).divide(s,2, RoundingMode.HALF_UP);
-          //  log.info("[Speed] Read:{}KB/s  Write:{}KB/s", read,write);
-        }, 0,3, TimeUnit.SECONDS);
-    }
 
 	public TargetServerDataHandler(Channel toLocalServerChannel, RelayProxyDataHandler handler,AuthProvider authProvider,EncrypterFactory encrypterFactory) {
 		this.toLocalServerChannel = toLocalServerChannel;
@@ -63,7 +50,6 @@ public class TargetServerDataHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		handler.onTargetChannelActive();
-		ctx.pipeline().addFirst(TRAFFIC_SHAPING_HANDLER);
 	}
 
 	@Override

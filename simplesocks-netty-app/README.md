@@ -4,7 +4,7 @@
 使用
 ---
 1.maven打包，生成shadowsocks-netty-0.1.0-alpha-bin.zip包<br>
-2.解压zip包，conf/config.xml中配置shadowsocks服务器地址<br>
+2.解压zip包，conf/serverConfiguration.xml中配置shadowsocks服务器地址<br>
 3.执行shell文件夹中的bat/sh文件启动代理服务器<br>
 
 chrome代理设置
