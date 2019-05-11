@@ -50,6 +50,9 @@ public class CompositeRelayClientManager implements RelayClientManager {
         proxySet.add("ttvnw.net");
         proxySet.add("adsrvr.org");
         proxySet.add("gstatic.com");
+        proxySet.add("addthis.com");
+        proxySet.add("krxd.net");
+
 
     }
 
