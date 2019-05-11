@@ -42,7 +42,7 @@ public class SimpleSocksServer {
 	public static void main(String[] args) {
 		ServerConfiguration config = new ServerConfiguration();
 		config.setPort(11900);
-		config.setEnableEpoll(false);
+		config.setEnableEpoll(true);
 		config.setAuth("123456笑脸☺");
 		SimpleSocksServer server = new SimpleSocksServer(config);
 		ChannelFuture future = server.start();
@@ -98,7 +98,7 @@ public class SimpleSocksServer {
 			serverChannel = channelFuture.channel();
 			log.info("Simple socks server start at port {}" , config.getPort());
 			return channelFuture;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.error("Simple socks server start error !", e);
 			stop();
 			throw new BaseSystemException("Failed to start server "+config);

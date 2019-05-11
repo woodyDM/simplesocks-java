@@ -1,12 +1,13 @@
-基于netty4.0实现的shadowsocks服务器端
+A proxy server based on Netty4 and SimpleSocksProtocol
 ====
 
-使用
+How to use
 ---
-1.maven打包，生成shadowsocks-netty-server-0.2.0-alpha-bin.zip包<br>
-2.解压zip包，conf/serverConfiguration.xml进行相关配置<br>
-3.执行shell文件夹中的bat/sh文件启动服务<br>
+1.mvn package  
+2.Unzip the package and write your own configuration in `conf/serverConfiguration.xml`   
+3.Run `start.sh` if on Linux or `start.bat` on Windows    
+4.If you see 
+` java.lang.UnsatisfiedLinkError: failed to load the required native library`
+when trying to start on Linux, try to set `-Dorg.simplesocks.enable.epoll=false` in the start.sh file.
 
-客户端地址
----
-[shadowsocks-netty](https://github.com/ksfzhaohui/shadowsocks-netty)
+ 
