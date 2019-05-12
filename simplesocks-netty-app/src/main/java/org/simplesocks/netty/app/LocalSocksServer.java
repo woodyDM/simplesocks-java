@@ -65,13 +65,13 @@ public class LocalSocksServer implements Runnable{
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
-			String key = "123456qwr";
+			String key = "1234567";
 			factory.registerKey(key.getBytes(StandardCharsets.UTF_8));
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-//			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",11900,key, workerGroup,factory);
+			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",12000,key, workerGroup,factory);
 //			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
-			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",11900,key, workerGroup, factory);
+//			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",12000,key, workerGroup, factory);
 			int interval = 1000;
 			scheduledExecutorService = Executors.newScheduledThreadPool(2);
 			bootstrap = new ServerBootstrap();
