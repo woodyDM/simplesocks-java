@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class DomainXmlBuilder {
+public class PacXmlBuilder {
 
     public static void main(String[] args) {
         Set<String> parse = parse();
@@ -24,8 +24,8 @@ public class DomainXmlBuilder {
     }
 
     static final byte[] TITLE="<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n".getBytes(StandardCharsets.UTF_8) ;
-    static final byte[] ROOT="<sites>\n".getBytes(StandardCharsets.UTF_8)  ;
-    static final byte[] ROOT2="</sites>".getBytes(StandardCharsets.UTF_8)  ;
+    static final byte[] ROOT=("<"+Constants.XML_ROOT+">\n").getBytes(StandardCharsets.UTF_8)  ;
+    static final byte[] ROOT2=("</"+Constants.XML_ROOT+">").getBytes(StandardCharsets.UTF_8)  ;
 
 
     public static void buildXml(Set<String> sites){
@@ -54,7 +54,7 @@ public class DomainXmlBuilder {
             outputStream.write(TITLE);
             outputStream.write(ROOT);
             for(String s : sites){
-                String n = getNode("site", s);
+                String n = getNode(Constants.XML_NODE, s);
                 byte[] nb = n.getBytes(StandardCharsets.UTF_8);
                 outputStream.write(nb);
             }
@@ -96,7 +96,7 @@ public class DomainXmlBuilder {
                 String txt = new String(plain, StandardCharsets.UTF_8);
                 String[] lines = txt.split("\n");
                 Set<String> result = Arrays.stream(lines)
-                        .map(DomainXmlBuilder::parseOneLine)
+                        .map(PacXmlBuilder::parseOneLine)
                         .filter(it -> it != null && it.length() > 0)
                         .collect(Collectors.toSet());
                 return result;

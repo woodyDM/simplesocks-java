@@ -5,6 +5,7 @@ import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.app.gfw.PacXmlLoader;
 import org.simplesocks.netty.app.proxy.relay.direct.DirectRelayClient;
 import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
@@ -32,21 +33,10 @@ public class CompositeRelayClientManager implements RelayClientManager {
 
         this.directManager = new DirectRelayClientManager(loopGroup);
         this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup,encrypterFactory);
-        forceProxyDomains.add("google");
-        forceProxyDomains.add("pixiv");
-        forceProxyDomains.add("pximg");
-        forceProxyDomains.add("youtube");
-        forceProxyDomains.add("twitter");
-        forceProxyDomains.add("facebook");
-        forceProxyDomains.add("github");
-        forceProxyDomains.add("twitch");
-        forceProxyDomains.add("ttvnw.net");
-        forceProxyDomains.add("adsrvr.org");
-        forceProxyDomains.add("gstatic.com");
-        forceProxyDomains.add("addthis.com");
-        forceProxyDomains.add("krxd.net");
+        Set<String> strings = PacXmlLoader.loadPacSites();
+        forceProxyDomains.addAll(strings);
 
-
+        forceProxyDomains.add("github.com");
     }
 
     @Override
