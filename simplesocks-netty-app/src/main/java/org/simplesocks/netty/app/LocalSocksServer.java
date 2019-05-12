@@ -65,7 +65,7 @@ public class LocalSocksServer implements Runnable{
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
 			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
-			String key = "123456笑脸☺";
+			String key = "123456qwr";
 			factory.registerKey(key.getBytes(StandardCharsets.UTF_8));
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
 //			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);

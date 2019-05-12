@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <serverConfiguration>
-	<local_port>1082</local_port>
-	<method>aes-256-cfb</method>
-	<password>123456</password>
+	<auth>123456qwr</auth>	<!-- the auth for client -->
+	<port>11900</port>		<!-- the server listen port -->
+	<channelTimeoutSeconds>600</channelTimeoutSeconds>	<!-- time out for connected client -->
+	<enableEpoll>false</enableEpoll>	<!-- use epoll on Linux  -->
+	<initBuffer>10240</initBuffer>
 </serverConfiguration>

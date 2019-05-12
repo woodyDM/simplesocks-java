@@ -36,6 +36,7 @@
 			<outputDirectory></outputDirectory>
 			<includes>
 				<include>*.properties</include>
+				<include>*.md</include>
 			</includes>
 		</fileSet>
 

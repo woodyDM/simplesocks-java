@@ -18,11 +18,13 @@ import org.simplesocks.netty.common.netty.SimpleSocksProtocolEncoder;
 import org.simplesocks.netty.common.util.ServerUtils;
 import org.simplesocks.netty.server.auth.AuthProvider;
 import org.simplesocks.netty.server.auth.AttributeAuthProvider;
+import org.simplesocks.netty.server.config.ConfigurationXmlLoader;
 import org.simplesocks.netty.server.config.ServerConfiguration;
 import org.simplesocks.netty.server.proxy.ExceptionHandler;
 import org.simplesocks.netty.server.proxy.SimpleSocksAuthHandler;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -34,24 +36,25 @@ public class SimpleSocksServer {
 	private Channel serverChannel = null;
 
 	private ServerConfiguration config;
+	private static final String CONFIG_PATH = "conf/config.xml";
 
 	public SimpleSocksServer(ServerConfiguration config) {
 		this.config = config;
 	}
 
 	public static void main(String[] args) {
-		ServerConfiguration config = new ServerConfiguration();
-		config.setPort(11900);
-		config.setEnableEpoll(false);
-		config.setAuth("123456笑脸☺");
-		SimpleSocksServer server = new SimpleSocksServer(config);
+		Optional<ServerConfiguration> config = ConfigurationXmlLoader.load(CONFIG_PATH);
+		if(!config.isPresent()){
+			log.error("Failed to load configuration, check your conf/config.xml!");
+			return;
+		}
+		SimpleSocksServer server = new SimpleSocksServer(config.get());
 		ChannelFuture future = server.start();
 		Runtime.getRuntime().addShutdownHook(new Thread(()->{
 			server.stop();
 		}));
 		future.channel().closeFuture().syncUninterruptibly();
 	}
-
 
 	/**
 	 * Main entry

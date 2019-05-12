@@ -24,7 +24,6 @@
 
 
 	<dependencies>
-
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
@@ -32,10 +31,6 @@
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.lmax</groupId>
-			<artifactId>disruptor</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
