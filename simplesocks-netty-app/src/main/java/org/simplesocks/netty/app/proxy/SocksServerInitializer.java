@@ -16,11 +16,10 @@ public final class SocksServerInitializer extends ChannelInitializer<SocketChann
 
 
 
-	private GlobalTrafficShapingHandler trafficHandler;
 	private RelayClientManager relayClientManager;
 
-	public SocksServerInitializer(GlobalTrafficShapingHandler trafficHandler, RelayClientManager manager) {
-		this.trafficHandler = trafficHandler;
+	public SocksServerInitializer( RelayClientManager manager) {
+
 		this.relayClientManager = manager;
 	}
 
@@ -30,6 +29,6 @@ public final class SocksServerInitializer extends ChannelInitializer<SocketChann
 		p.addLast(new SocksInitRequestDecoder());
 		p.addLast(new SocksMessageEncoder());
 		p.addLast(new AcceptClientConnectionHandler(relayClientManager));
-		p.addLast(trafficHandler);
+
 	}
 }

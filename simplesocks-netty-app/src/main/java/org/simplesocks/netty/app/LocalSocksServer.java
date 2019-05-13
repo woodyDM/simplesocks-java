@@ -5,131 +5,90 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.traffic.GlobalTrafficShapingHandler;
-import io.netty.handler.traffic.TrafficCounter;
+import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.manager.CompositeRelayClientManager;
 import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
-import org.simplesocks.netty.app.mbean.IoAcceptorStat;
 import org.simplesocks.netty.app.proxy.SocksServerInitializer;
+import org.simplesocks.netty.common.encrypt.EncType;
 import org.simplesocks.netty.common.encrypt.factory.CompositeEncrypterFactory;
+import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.util.ServerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * SOCKS5 本地代理
  */
-public class LocalSocksServer implements Runnable{
+@Slf4j
+public class LocalSocksServer  {
 
-	private static Logger logger = LoggerFactory.getLogger(LocalSocksServer.class);
 	private static final String CONFIG = "conf/config.xml";
 	private static final String PAC = "conf/pac.xml";
 
 	private EventLoopGroup bossGroup = null;
 	private EventLoopGroup workerGroup = null;
-	private ServerBootstrap bootstrap = null;
-	private GlobalTrafficShapingHandler trafficHandler;
-	private ScheduledExecutorService scheduledExecutorService = null;
-	private static LocalSocksServer localSocksServer = new LocalSocksServer();
+ 	private AppConfiguration configuration;
 
-	public static LocalSocksServer getInstance() {
-		return localSocksServer;
+	public LocalSocksServer(AppConfiguration configuration) {
+		this.configuration = configuration;
 	}
 
-	private LocalSocksServer() {}
-
-
 	public static void main(String[] args) {
-		getInstance().run();
+		AppConfiguration configuration = new AppConfiguration();
+        configuration.setLocalPort(10800);
+        configuration.setEncryptType(EncType.AES_CBC.getEncName());
+        configuration.setRemoteHost("35.229.240.146");
+        configuration.setRemotePort(12000);
+        configuration.setAuth("1234567");
+		LocalSocksServer server = new LocalSocksServer(configuration);
+        ChannelFuture future = server.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            server.stop();
+        }));
+        future.channel().closeFuture().syncUninterruptibly();
 	}
 
 	/**
 	 * 入口
 	 */
-	@Override
-	public void run() {
+
+	public ChannelFuture start() {
 		try {
-			logger.info("'user.dir' is {}",System.getProperty("user.dir"));
-			int port = 11800;
+			int port = configuration.getLocalPort();
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
+            //encType and factory not graceful. Refactor later. CompositeEncrypterFactory is desiged to support random authType.
 			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
-			String key = "1234567";
-			factory.registerKey(key.getBytes(StandardCharsets.UTF_8));
-//			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-//			RelayClientManager manager = new CompositeRelayClientManager("localhost",10900,"123456笑脸☺", workerGroup);
-			RelayClientManager manager = new CompositeRelayClientManager("35.229.240.146",12000,key, workerGroup,factory);
-//			RelayClientManager manager = new DirectRelayClientManager(workerGroup);
-//			RelayClientManager manager = new SimpleSocksRelayClientManager("localhost",12000,key, workerGroup, factory);
-			int interval = 1000;
-			scheduledExecutorService = Executors.newScheduledThreadPool(2);
-			bootstrap = new ServerBootstrap();
-			trafficHandler = new GlobalTrafficShapingHandler(scheduledExecutorService, interval);
+			factory.registerKey(configuration.getAuth().getBytes(StandardCharsets.UTF_8));
+            RelayClientManager manager;
+			if(configuration.isForceProxy()){
+                manager = new SimpleSocksRelayClientManager(configuration.getRemoteHost(),configuration.getRemotePort(),configuration.getAuth(), workerGroup, configuration.getEncryptType(), factory);
+            }else{
+                manager = new CompositeRelayClientManager(configuration.getRemoteHost(),configuration.getRemotePort(),configuration.getAuth(), workerGroup, configuration.getEncryptType(), factory);
+            }
+            ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
-					.childHandler(new SocksServerInitializer(trafficHandler,manager));
-
-			logger.info("Start At Port {} "  ,port);
-			//startMBean();
-			ChannelFuture channelFuture = bootstrap.bind(port);
-			channelFuture.addListener(future -> {
-				if(future.isSuccess()){
-					scheduledExecutorService.scheduleAtFixedRate(()->{
-						if(trafficHandler!=null){
-							TrafficCounter counter = trafficHandler.trafficCounter();
-							BigDecimal s = new BigDecimal(1024*interval/1000);
-							BigDecimal read = BigDecimal.valueOf(counter.lastReadThroughput()).divide(s,2, RoundingMode.HALF_UP);
-							BigDecimal write = BigDecimal.valueOf(counter.lastWriteThroughput()).divide(s,2, RoundingMode.HALF_UP);
-							//logger.info("[Speed] Read:{}KB/s  Write:{}KB/s", read,write);
-						}
-					}, 0,3, TimeUnit.SECONDS);
-				}
-			});
-			channelFuture.sync().channel().closeFuture().sync();
-		} catch (Exception e) {
-			logger.error("start error", e);
-		} finally {
-			stop();
+					.childHandler(new SocksServerInitializer(manager));
+			ChannelFuture channelFuture = bootstrap.bind(port).syncUninterruptibly();
+            log.info("Local server start At port {} , mode {}."  ,port, configuration.isForceProxy()?"ForceProxy":"PacMode");
+			return channelFuture;
+		} catch (Throwable e) {
+			throw new BaseSystemException("Failed to start local server.", e);
 		}
 	}
 
+    /**
+     * destroy this server.
+     */
 	public void stop() {
 		ServerUtils.closeEventLoopGroup(bossGroup);
 		ServerUtils.closeEventLoopGroup(workerGroup);
-		logger.info("Stop Server!");
-		if(scheduledExecutorService!=null){
-			scheduledExecutorService.shutdownNow();
-		}
+		log.info("Stop Server!");
 	}
 
-	/**
-	 * java MBean 进行流量统计
-	 */
-	private void startMBean() {
-		MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-		IoAcceptorStat mbean = new IoAcceptorStat();
 
-		try {
-			ObjectName acceptorName = new ObjectName(mbean.getClass().getPackage().getName() + ":type=IoAcceptorStat");
-			mBeanServer.registerMBean(mbean, acceptorName);
-		} catch (Exception e) {
-			logger.error("java MBean error", e);
-		}
-	}
-
-	public TrafficCounter getTrafficCounter() {
-		return trafficHandler.trafficCounter();
-	}
 
 }

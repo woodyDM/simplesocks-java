@@ -1,4 +1,4 @@
-基于netty4.0实现的shadowsocks客户端
+A proxy client for Socks5 and SimpleSocksProtocol
 ====
 
 使用

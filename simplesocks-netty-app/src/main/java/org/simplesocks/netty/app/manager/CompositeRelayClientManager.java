@@ -29,10 +29,10 @@ public class CompositeRelayClientManager implements RelayClientManager {
     private Set<String> forceProxyDomains = new HashSet<>();
 
 
-    public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,EncrypterFactory encrypterFactory) {
+    public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,String encType, EncrypterFactory encrypterFactory) {
 
         this.directManager = new DirectRelayClientManager(loopGroup);
-        this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup,encrypterFactory);
+        this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup, encType, encrypterFactory);
         Set<String> strings = PacXmlLoader.loadPacSites();
         forceProxyDomains.addAll(strings);
 

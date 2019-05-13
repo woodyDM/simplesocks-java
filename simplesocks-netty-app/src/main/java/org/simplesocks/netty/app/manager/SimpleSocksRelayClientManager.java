@@ -21,15 +21,16 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
     private int port;
     private String auth;
     private EventLoopGroup loopGroup;
-    private String encType = EncType.AES_CBC.getEncName();
+    private String encType;
     private EncrypterFactory encrypterFactory;
 
-    public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,EncrypterFactory encrypterFactory ) {
+    public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,String encType, EncrypterFactory encrypterFactory) {
         this.host = host;
         this.port = port;
         this.auth = auth;
         this.loopGroup = loopGroup;
         this.encrypterFactory = encrypterFactory;
+        this.encType = encType;
     }
 
     @Override

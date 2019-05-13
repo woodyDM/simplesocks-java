@@ -11,6 +11,7 @@ public class CompositeEncrypterFactory implements EncrypterFactory {
     
     private List<EncrypterFactory> factories = new ArrayList<>();
 
+
     public CompositeEncrypterFactory() {
         factories.add(new AesFactory());
         factories.add(new CaesarFactory());
