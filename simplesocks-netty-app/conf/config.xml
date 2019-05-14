@@ -2,7 +2,7 @@
 <Configuration>
 
 	<!-- local socks5 port -->
-	<localPort>10800</localPort>
+	<localPort>10700</localPort>
 
 	<!-- password to connect to remote server -->
 	<auth>1234567</auth>
@@ -17,6 +17,6 @@
 	<encryptType>aes-cfb</encryptType>
 
 	<!-- enable global proxy [true ,false]-->
-	<globalProxy>true</globalProxy>
+	<globalProxy>false</globalProxy>
 
 </Configuration>

@@ -38,7 +38,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 			break;
 		case CMD:
 			SocksCmdRequest req = (SocksCmdRequest) socksRequest;
-			log.info("Proxy request {}:{}", req.host(),req.port());
+			log.debug("Proxy request {}:{}", req.host(),req.port());
 			if (req.cmdType() == SocksCmdType.CONNECT) {
 				tryToOpenProxyChannel(ctx, req);
 			} else {

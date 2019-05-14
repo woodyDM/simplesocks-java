@@ -1,11 +1,11 @@
-A proxy client for Socks5 and SimpleSocksProtocol
+A proxy client based on Socks5 and SimpleSocksProtocol
 ====
 
 使用
 ---
-1.maven打包，生成shadowsocks-netty-0.1.0-alpha-bin.zip包<br>
-2.解压zip包，conf/serverConfiguration.xml中配置shadowsocks服务器地址<br>
-3.执行shell文件夹中的bat/sh文件启动代理服务器<br>
+1.mvn package  
+2.unzip target/simplesocks-netty-app-0.0.1.jar. Edit conf/config.xml,add your own host information.  
+3.Run `start.sh` if on Linux or `start.bat` on Windows  
 
 chrome代理设置
 ---
