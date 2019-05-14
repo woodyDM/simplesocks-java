@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <serverConfiguration>
-	<auth>123456qwr</auth>	<!-- the auth for client -->
-	<port>11900</port>		<!-- the server listen port -->
+	<auth>1234567</auth>	<!-- the auth for client -->
+	<port>12020</port>		<!-- the server listen port -->
 	<channelTimeoutSeconds>600</channelTimeoutSeconds>	<!-- time out for connected client -->
 	<enableEpoll>false</enableEpoll>	<!-- use epoll on Linux  -->
 	<initBuffer>10240</initBuffer>

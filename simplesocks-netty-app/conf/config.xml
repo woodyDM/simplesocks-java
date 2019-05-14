@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<serverConfiguration>
-	<local_port>10800</local_port>
+<Configuration>
 
-</serverConfiguration>
+	<!-- local socks5 port -->
+	<localPort>10800</localPort>
+
+	<!-- password to connect to remote server -->
+	<auth>1234567</auth>
+
+	<!-- remote simplesocks server host -->
+	<remoteHost>localhost</remoteHost>
+
+	<!-- remote simplesocks server port -->
+	<remotePort>12020</remotePort>
+
+	<!-- encrypt type with remote server  choose one of : [caesar, aes-cfb, aes-cbc] -->
+	<encryptType>aes-cfb</encryptType>
+
+	<!-- enable global proxy [true ,false]-->
+	<globalProxy>true</globalProxy>
+
+</Configuration>

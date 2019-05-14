@@ -1,80 +1,92 @@
-//package org.simplesocks.netty.app.config;
-//
-//import lombok.extern.slf4j.Slf4j;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.w3c.dom.Document;
-//import org.w3c.dom.Node;
-//import org.w3c.dom.NodeList;
-//
-//import javax.xml.parsers.DocumentBuilder;
-//import javax.xml.parsers.DocumentBuilderFactory;
-//import java.io.IOException;
-//import java.io.InputStream;
-//
-///**
-// * 加载Config配置xml
-// *
-// * @author zhaohui
-// *
-// */
-//@Slf4j
-//public class ConfigXmlLoader {
-//
-//
-//
-//	public static AppConfiguration load(String file) throws Exception {
-//		InputStream in = null;
-//		try {
-//			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//			in = ConfigXmlLoader.class.getClassLoader().getResourceAsStream(file);
-//			Document doc = builder.parse(in);
-//			NodeList list = doc.getElementsByTagName("conf");
-//
-//			AppConfiguration config = new AppConfiguration();
-//			if (list.getLength() > 0) {
-//				Node node = list.item(0);
-//				NodeList childs = node.getChildNodes();
-//
-//				for (int j = 0; j < childs.getLength(); j++) {
-//					if ("local_port".equals(childs.item(j).getNodeName())) {
-//						config.setLocalPort(Integer.parseInt(childs.item(j).getTextContent()));
-//					}
-//				}
-//
-//				NodeList remoteList = doc.getElementsByTagName("remote");
-//				if (remoteList.getLength() > 0) {
-//					for (int j = 0; j < remoteList.getLength(); j++) {
-//						Node remote = remoteList.item(j);
-//						NodeList remoteChilds = remote.getChildNodes();
-//						RemoteServer remoteConfig = new RemoteServer();
-//						for (int k = 0; k < remoteChilds.getLength(); k++) {
-//							if ("ip_addr".equals(remoteChilds.item(k).getNodeName())) {
-//								remoteConfig.set_ipAddr(remoteChilds.item(k).getTextContent());
-//							} else if ("port".equals(remoteChilds.item(k).getNodeName())) {
-//								remoteConfig.set_port(Integer.parseInt(remoteChilds.item(k).getTextContent()));
-//							} else if ("method".equals(remoteChilds.item(k).getNodeName())) {
-//								remoteConfig.set_method(remoteChilds.item(k).getTextContent());
-//							} else if ("password".equals(remoteChilds.item(k).getNodeName())) {
-//								remoteConfig.set_password(remoteChilds.item(k).getTextContent());
-//							}
-//						}
-//
-//						config.addRemoteConfig(remoteConfig);
-//					}
-//				}
-//			}
-//			log.info("load config !");
-//			return config;
-//		} catch (Exception e) {
-//			throw e;
-//		} finally {
-//			if (in != null) {
-//				try {
-//					in.close();
-//				} catch (IOException e) {
-//				}
-//			}
-//		}
-//	}
-//}
+package org.simplesocks.netty.app.config;
+
+import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.encrypt.EncType;
+import org.simplesocks.netty.common.exception.BaseSystemException;
+import org.simplesocks.netty.common.util.ConfigPathUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ *
+ *
+ *
+ *
+ */
+@Slf4j
+public class ConfigXmlLoader {
+
+	public static AppConfiguration load()   {
+		InputStream in = null;
+		try {
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			String fullPath = ConfigPathUtil.getUserDirFullName(Constants.PATH);
+			log.info("Loading config from {}", fullPath);
+			in = new FileInputStream(fullPath);
+			Document doc = builder.parse(in);
+            AppConfiguration config = new AppConfiguration();
+
+            NodeList list = doc.getElementsByTagName(Constants.XML_ROOT);
+
+			if (list.getLength() > 0) {
+				Node node = list.item(0);
+				NodeList nodes = node.getChildNodes();
+
+				for (int i = 0; i < nodes.getLength(); i++) {
+                    String nodeName = nodes.item(i).getNodeName();
+                    String value = nodes.item(i).getTextContent();
+                    if (Constants.XML_LOCAL_PORT.equalsIgnoreCase(nodeName)) {
+                        config.configureLocalPort(Integer.parseInt(value));
+                    } else if (Constants.XML_AUTH.equalsIgnoreCase(nodeName)) {
+                        config.configureAuth(value);
+                    } else if (Constants.XML_REMOTE_PORT.equalsIgnoreCase(nodeName)) {
+                        config.configureRemotePort(Integer.parseInt(value));
+                    } else if (Constants.XML_REMOTE_HOST.equalsIgnoreCase(nodeName)) {
+                        config.configureRemoteHost(value);
+                    } else if (Constants.XML_GLOBAL_TYPE.equalsIgnoreCase(nodeName)) {
+                        config.configureGlobalProxy(value);
+                    } else if (Constants.XML_ENCRYPT_TYPE.equalsIgnoreCase(nodeName)) {
+                        boolean typeSupports = Arrays.stream(EncType.values())
+                                .anyMatch(t -> t.getEncName().equalsIgnoreCase(value));
+                        if(typeSupports)
+                            config.configureEncryptType(value);
+                        else{
+                            String supportsTypes = Arrays.stream(EncType.values())
+                                    .map(t -> "[" + t.getEncName() + "]")
+                                    .collect(Collectors.joining(","));
+                            throw new IllegalArgumentException("encryptType only supports "+supportsTypes);
+                        }
+                    }
+                }
+                log.info("load config complete {}!", config);
+            }else{
+			    log.warn("Invalid config.xml, check your configuration.");
+            }
+            if(config.getAuth()==null){
+                throw new IllegalArgumentException("Invalid config.xml, must provide [auth] to server.");
+            }
+            return config;
+		} catch (Exception e) {
+			throw new BaseSystemException("Failed to load config file. check your conf/config.xml.",e);
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {//ignore
+				}
+			}
+		}
+	}
+}

@@ -7,6 +7,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
+import org.simplesocks.netty.app.config.ConfigXmlLoader;
 import org.simplesocks.netty.app.manager.CompositeRelayClientManager;
 import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
 import org.simplesocks.netty.app.proxy.SocksServerInitializer;
@@ -24,8 +25,6 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class LocalSocksServer  {
 
-	private static final String CONFIG = "conf/config.xml";
-	private static final String PAC = "conf/pac.xml";
 
 	private EventLoopGroup bossGroup = null;
 	private EventLoopGroup workerGroup = null;
@@ -36,12 +35,7 @@ public class LocalSocksServer  {
 	}
 
 	public static void main(String[] args) {
-		AppConfiguration configuration = new AppConfiguration();
-        configuration.setLocalPort(10800);
-        configuration.setEncryptType(EncType.AES_CBC.getEncName());
-        configuration.setRemoteHost("35.229.240.146");
-        configuration.setRemotePort(12000);
-        configuration.setAuth("1234567");
+		AppConfiguration configuration = ConfigXmlLoader.load();
 		LocalSocksServer server = new LocalSocksServer(configuration);
         ChannelFuture future = server.start();
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
@@ -65,7 +59,7 @@ public class LocalSocksServer  {
 			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
 			factory.registerKey(configuration.getAuth().getBytes(StandardCharsets.UTF_8));
             RelayClientManager manager;
-			if(configuration.isForceProxy()){
+			if(configuration.isGlobalProxy()){
                 manager = new SimpleSocksRelayClientManager(configuration.getRemoteHost(),configuration.getRemotePort(),configuration.getAuth(), workerGroup, configuration.getEncryptType(), factory);
             }else{
                 manager = new CompositeRelayClientManager(configuration.getRemoteHost(),configuration.getRemotePort(),configuration.getAuth(), workerGroup, configuration.getEncryptType(), factory);
@@ -75,7 +69,7 @@ public class LocalSocksServer  {
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(manager));
 			ChannelFuture channelFuture = bootstrap.bind(port).syncUninterruptibly();
-            log.info("Local server start At port {} , mode {}."  ,port, configuration.isForceProxy()?"ForceProxy":"PacMode");
+            log.info("Local server start At port {} , mode {}."  ,port, configuration.isGlobalProxy()?"GlobalProxyMode":"PacMode");
 			return channelFuture;
 		} catch (Throwable e) {
 			throw new BaseSystemException("Failed to start local server.", e);

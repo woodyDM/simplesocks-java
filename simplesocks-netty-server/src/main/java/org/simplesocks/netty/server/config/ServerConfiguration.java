@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ServerConfiguration {
 
 	private String auth;
-	private int port = 11900;
+	private int port = 12020;
 	private int channelTimeoutSeconds = 600;
 	private boolean enableEpoll = false;
 	private boolean propertyExist = false;
