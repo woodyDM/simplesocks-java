@@ -50,16 +50,18 @@ public class LocalSocksServer  {
         future.channel().closeFuture().syncUninterruptibly();
 	}
 
-	/**
-	 * 入口
-	 */
 
+	/**
+	 * entry
+	 */
 	public ChannelFuture start() {
 		try {
 			int port = configuration.getLocalPort();
 			bossGroup = new NioEventLoopGroup(1);
 			workerGroup = new NioEventLoopGroup();
-            //encType and factory not graceful. Refactor later. CompositeEncrypterFactory is desiged to support random authType.
+            /**
+             * encType and factory are not so graceful. Refactor later. CompositeEncrypterFactory is desiged to support random authType.
+             */
 			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
 			factory.registerKey(configuration.getAuth().getBytes(StandardCharsets.UTF_8));
             RelayClientManager manager;

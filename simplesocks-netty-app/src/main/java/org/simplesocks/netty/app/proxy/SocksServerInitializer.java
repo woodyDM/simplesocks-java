@@ -19,9 +19,9 @@ public final class SocksServerInitializer extends ChannelInitializer<SocketChann
 	private RelayClientManager relayClientManager;
 
 	public SocksServerInitializer( RelayClientManager manager) {
-
 		this.relayClientManager = manager;
 	}
+
 
 	@Override
 	public void initChannel(SocketChannel socketChannel) throws Exception {

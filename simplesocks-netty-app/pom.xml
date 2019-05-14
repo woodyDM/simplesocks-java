@@ -9,7 +9,7 @@
 	</parent>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
-	<artifactId>simplesocks-netty</artifactId>
+	<artifactId>simplesocks-netty-app</artifactId>
 
 	<url>http://maven.apache.org</url>
 

@@ -15,8 +15,6 @@
 		<module>simplesocks-netty-app</module>
 		<module>simplesocks-netty-client</module>
 		<module>simplesocks-netty-server</module>
-
-
 	</modules>
 
 	<properties>

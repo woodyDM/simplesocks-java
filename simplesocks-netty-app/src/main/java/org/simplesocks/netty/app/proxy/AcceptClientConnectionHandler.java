@@ -3,10 +3,8 @@ package org.simplesocks.netty.app.proxy;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.socks.*;
-import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.netty.RelayClientManager;
@@ -14,7 +12,7 @@ import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 
 /**
- * SOCK5处理连接请求
+ * SOCK5 hanlder
  */
 @Slf4j
 public final class AcceptClientConnectionHandler extends SimpleChannelInboundHandler<SocksRequest> {
@@ -42,7 +40,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 			SocksCmdRequest req = (SocksCmdRequest) socksRequest;
 			log.info("Receive proxy request {}:{} from {}", req.host(),req.port(), ctx.channel().remoteAddress());
 			if (req.cmdType() == SocksCmdType.CONNECT) {
-				tryToProxy(ctx, req);
+				tryToOpenProxyChannel(ctx, req);
 			} else {
 				log.error("This server does't not support cmd except CONNECTION, closing ctx: {}",ctx.channel().remoteAddress());
 				ctx.close();
@@ -56,7 +54,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 	}
 
 
-	private void tryToProxy(ChannelHandlerContext ctx, SocksCmdRequest socksCmdRequest){
+	private void tryToOpenProxyChannel(ChannelHandlerContext ctx, SocksCmdRequest socksCmdRequest){
 		Channel toLocalChannel = ctx.channel();
 		relayClientManager.borrow(ctx.executor(), socksCmdRequest).addListener(future -> {
 			if (future.isSuccess()) {

@@ -37,7 +37,14 @@ public class DirectRelayClient implements RelayClient {
         return remoteChannel!=null&&remoteChannel.isActive();
     }
 
-
+    /**
+     * try to connect to target
+     * @param host
+     * @param port
+     * @param proxyType
+     * @param eventExecutor
+     * @return target hots channel if success
+     */
     @Override
     public Promise<Channel> sendProxyRequest(String host, int port, ConnectionMessage.Type proxyType, EventExecutor eventExecutor) {
         this.host = host;
@@ -60,8 +67,10 @@ public class DirectRelayClient implements RelayClient {
     }
 
 
-
-
+    /**
+     * send data to target channel.
+     * @param data
+     */
     @Override
     public void sendProxyData(byte[] data) {
         if(remoteChannel==null){
@@ -79,12 +88,20 @@ public class DirectRelayClient implements RelayClient {
         });
     }
 
+    /**
+     *
+     * @param action
+     */
     @Override
     public void onReceiveProxyData(Consumer<byte[]> action) {
         Objects.requireNonNull(action);
         this.onDataAction = action;
     }
 
+    /**
+     * when receive data from remote channel.
+     * @param bytes
+     */
     public void onReceiveProxyData(byte[] bytes){
         this.onDataAction.accept(bytes);
     }
@@ -117,7 +134,6 @@ public class DirectRelayClient implements RelayClient {
 
     @Override
     public String toString() {
-        boolean alive = remoteChannel!=null && remoteChannel.isActive();
 
         return "DirectRelayClient{"+
                 "host='" + host + '\'' +

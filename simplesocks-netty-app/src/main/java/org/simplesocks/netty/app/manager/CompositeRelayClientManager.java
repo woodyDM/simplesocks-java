@@ -30,27 +30,25 @@ public class CompositeRelayClientManager implements RelayClientManager {
 
 
     public CompositeRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,String encType, EncrypterFactory encrypterFactory) {
-
         this.directManager = new DirectRelayClientManager(loopGroup);
         this.simpleSocksManager = new SimpleSocksRelayClientManager(host, port, auth, loopGroup, encType, encrypterFactory);
         Set<String> strings = PacXmlLoader.loadPacSites();
         forceProxyDomains.addAll(strings);
-
-        forceProxyDomains.add("github.com");
     }
 
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
 
         String key = getKey(socksCmdRequest);
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expireTime = unableMap.get(key);
         String host = socksCmdRequest.host();
-        boolean needProxy = forceProxyDomains.stream().anyMatch(it -> host.contains(it));
+        boolean needProxy = forceProxyDomains.stream().anyMatch(host::contains);
         if(needProxy){
             log.debug("Force proxy!Get SS Proxy client for {}", key);
             return simpleSocksManager.borrow(eventExecutor, socksCmdRequest);
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expireTime = unableMap.get(key);
         if(expireTime==null||expireTime.isBefore(now)){ //try direct
             Promise<RelayClient> result = eventExecutor.newPromise();
             directManager.borrow(eventExecutor, socksCmdRequest).addListener(future -> {
@@ -72,7 +70,7 @@ public class CompositeRelayClientManager implements RelayClientManager {
             });
             return result;
         }else{
-            log.debug("Get SS Proxy client for {}",key);
+            log.debug("Get SS Proxy client for {}", key);
             return simpleSocksManager.borrow(eventExecutor, socksCmdRequest);
         }
     }

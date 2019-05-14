@@ -42,7 +42,7 @@ public class SimpleSocksRelayClientManager implements RelayClientManager {
             if(future.isSuccess()){
                 promise.setSuccess(adapter);
             }else{
-                promise.setFailure(new BaseSystemException("Failed connect to sserver."));
+                promise.setFailure(new BaseSystemException("Failed connect to server "+host+"with auth "+auth));
             }
         }) ;
         return promise;

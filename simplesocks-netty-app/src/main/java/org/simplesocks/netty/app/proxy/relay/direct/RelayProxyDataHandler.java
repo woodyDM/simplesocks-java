@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.util.ServerUtils;
 
 import java.io.IOException;
 
@@ -39,10 +40,9 @@ public class RelayProxyDataHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if(!(cause instanceof IOException)){
-            log.error("exception in direct handler:",cause);
-        }
+        ServerUtils.logException(log, cause);
         ctx.channel().close();
         client.close();
     }
+
 }
