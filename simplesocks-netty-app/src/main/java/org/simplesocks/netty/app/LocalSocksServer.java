@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
- * SOCKS5 本地代理
+ * SOCKS5 local server and SimpleSocks client
  */
 @Slf4j
 public class LocalSocksServer  {
