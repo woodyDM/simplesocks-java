@@ -11,16 +11,14 @@ Thanks to :
 4. [Special list](https://github.com/gfwlist/gfwlist)  
   
  
-
-
-## Features  
-+ [x]Local socks5 proxy server;  
-+ [x]Self-defined SimpleSocksProtocol;     
-+ [x]Data encryption between LocalServer and RemoteServer;     
-+ [x]special pac list;  
-+ []Setting pages on browsers;
-+ []Traffic monitor;  
-+ ~~SimpleSocksProtocol connection pool in client.(pool authenticated channel);~~
+## Features   
++ [x] Local socks5 proxy server;   
++ [x] Self-defined SimpleSocksProtocol;      
++ [x] Data encryption between LocalServer and RemoteServer;       
++ [x] special pac list;    
++ [ ] Setting pages on browsers;   
++ [ ] Traffic monitor;   
++ [ ] ~~SimpleSocksProtocol connection pool in client.(pool authenticated channel),~~
 (It seems hard to create a pool with non-blocking synchronizations)   
 
 ## DataFlow
