@@ -14,14 +14,14 @@ Thanks to :
 
 
 ## Features  
-1.  [x]Local socks5 proxy server;  
-2.  [x]Self-defined SimpleSocksProtocol;   
-3.  ~~SimpleSocksProtocol connection pool in client.(pool authenticated channel);~~
-(It seems hard to create a pool with non-blocking synchronizations)     
-4.  [x]Data encryption between LocalServer and RemoteServer;     
-5.  [x]special pac list;  
-6.  []Setting pages on browsers;
-7.  []Traffic monitor;  
++ [x]Local socks5 proxy server;  
++ [x]Self-defined SimpleSocksProtocol;     
++ [x]Data encryption between LocalServer and RemoteServer;     
++ [x]special pac list;  
++ []Setting pages on browsers;
++ []Traffic monitor;  
++ ~~SimpleSocksProtocol connection pool in client.(pool authenticated channel);~~
+(It seems hard to create a pool with non-blocking synchronizations)   
 
 ## DataFlow
 
