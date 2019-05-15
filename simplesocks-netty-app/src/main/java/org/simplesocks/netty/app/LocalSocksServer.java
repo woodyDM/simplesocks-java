@@ -17,7 +17,9 @@ import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.util.ServerUtils;
 
+import java.net.BindException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  * SOCKS5 本地代理
@@ -35,20 +37,25 @@ public class LocalSocksServer  {
 	}
 
 	public static void main(String[] args) {
+		ServerUtils.drawClientStartup(log);
 		AppConfiguration configuration = ConfigXmlLoader.load();
 		LocalSocksServer server = new LocalSocksServer(configuration);
-        ChannelFuture future = server.start();
+        Optional<ChannelFuture> future = server.start();
+        if(!future.isPresent()){
+            server.stop();
+            return;
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
             server.stop();
         }));
-        future.channel().closeFuture().syncUninterruptibly();
+        future.get().channel().closeFuture().syncUninterruptibly();
 	}
 
 
 	/**
 	 * entry
 	 */
-	public ChannelFuture start() {
+	public Optional<ChannelFuture> start() {
 		try {
 			int port = configuration.getLocalPort();
 			bossGroup = new NioEventLoopGroup(1);
@@ -70,9 +77,14 @@ public class LocalSocksServer  {
 					.childHandler(new SocksServerInitializer(manager));
 			ChannelFuture channelFuture = bootstrap.bind(port).syncUninterruptibly();
             log.info("Local server start At port {} , mode {}."  ,port, configuration.isGlobalProxy()?"GlobalProxyMode":"PacMode");
-			return channelFuture;
+			return Optional.of(channelFuture);
 		} catch (Throwable e) {
-			throw new BaseSystemException("Failed to start local server.", e);
+		    if(e instanceof BindException){
+		        log.error("Failed to start local server, local port[{}] is used by other program.",configuration.getLocalPort(),e);
+            }else{
+                log.error("Failed to start local server.",e);
+            }
+		    return Optional.empty();
 		}
 	}
 

@@ -98,7 +98,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 							}
 						});
 			}else{
-				log.warn("Failed to get relay client for {}:{}, close channel!",socksCmdRequest.host(),socksCmdRequest.port());
+				log.warn("Failed to get client, check your network or is your remote server running ? Target: {}:{}, close channel!",socksCmdRequest.host(),socksCmdRequest.port());
 				ctx.channel().close();
 			}
 		});
