@@ -82,9 +82,7 @@ public class SimpleSocksServer {
 				bootstrap.channel(NioServerSocketChannel.class);
 			}
 			bootstrap.group(bossGroup, workerGroup);
-			if(config.isEnableEpoll()){
-			    bootstrap.childOption(EpollChannelOption.TCP_FASTOPEN_CONNECT, true);
-            }
+
 			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childOption(ChannelOption.TCP_NODELAY, true)
 					.childOption(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(64,config.getInitBuffer(), 65536))
