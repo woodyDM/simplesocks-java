@@ -11,29 +11,28 @@ Thanks to :
 4. [Special list](https://github.com/gfwlist/gfwlist)  
   
  
+## Features   
++ [x] Local socks5 proxy server;   
++ [x] Self-defined SimpleSocksProtocol;      
++ [x] Data encryption between LocalServer and RemoteServer;       
++ [x] special pac list;    
++ [ ] Setting pages on browsers;   
++ [ ] Traffic monitor;   
++ [ ] ~~SimpleSocksProtocol connection pool in client.(pool authenticated channel),~~
+(It seems hard to create a pool with non-blocking synchronizations)   
 
-
-## Now Under construction  
-1. LocalServer and RemoteServer protocol:Simple Socks Protocol;  
-2. the protocol netty codec. 
-3. ~~client to server connection pool(pool authenticated channel);~~
-(It is hard to create a pool with non-blocking synchronizations)
-4. data encryption between LocalServer and RemoteServer;   
-5. special pac list.
-## Map
+## DataFlow
 
 
 
               Socks5                SimpleSocksProtocol                 (Http)
     LocalAPP  ----->  LocalServer  ---------------------> RemoteServer -------> TargetServer
-                                          
+                                          encryt   
 
-## Simple Socks Protocol   
+## SimpleSocksProtocol   
 
- 
-client to server:  
+Simply:client to server  
 
- 
 1.connect request
 
 |len| byte|description|
@@ -43,7 +42,7 @@ client to server:
 |  1| 0x01|  connect cmd |
 |1| ? | auth password length|
 |1| ? | encrypt type string length|
-|?|  |auth password content (UTF8 bytes)|
+|?|  |auth password content (UTF8 bytes),auth is used for encryption secret key|
 |?|  | encrypt type (UTF8 bytes) (supports:aes-cfb ,aes-cbc, caesar)|
 |1|0x01 IPV4 <br> 0x03 domain <br> 0x04 IPV6|host type|
 |  2|     |request port |

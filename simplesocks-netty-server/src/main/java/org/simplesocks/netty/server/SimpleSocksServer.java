@@ -2,6 +2,7 @@ package org.simplesocks.netty.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -43,6 +44,8 @@ public class SimpleSocksServer {
 	}
 
 	public static void main(String[] args) {
+		ServerUtils.drawServerStartup(log);
+
 		Optional<ServerConfiguration> config = ConfigurationXmlLoader.load(CONFIG_PATH);
 		if(!config.isPresent()){
 			log.error("Failed to load configuration, check your conf/config.xml!");
@@ -69,7 +72,7 @@ public class SimpleSocksServer {
 
 			ServerBootstrap bootstrap = new ServerBootstrap();
 			if(config.isEnableEpoll()){
-				log.info("Use epoll on linux, kernel should higher than 2.6.");
+				log.info("Using epoll eventloop on linux.");
 				bossGroup = new EpollEventLoopGroup(1);
 				workerGroup = new EpollEventLoopGroup();
 				bootstrap.channel(EpollServerSocketChannel.class);
@@ -79,6 +82,7 @@ public class SimpleSocksServer {
 				bootstrap.channel(NioServerSocketChannel.class);
 			}
 			bootstrap.group(bossGroup, workerGroup);
+
 			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childOption(ChannelOption.TCP_NODELAY, true)
 					.childOption(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(64,config.getInitBuffer(), 65536))
