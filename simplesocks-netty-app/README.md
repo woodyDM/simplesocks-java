@@ -1,18 +1,18 @@
 A proxy client based on Socks5 and SimpleSocksProtocol
 ====
 
-使用
+How to use
 ---
 1.mvn package  
 2.unzip target/simplesocks-netty-app-0.0.1.jar. Edit conf/config.xml,add your own host information.  
 3.Run `start.sh` if on Linux or `start.bat` on Windows  
 
-chrome setting
+Chrome setting
 ---
-Install Proxy SwitchySharp plugin. Setting socks5 proxy point to local port.
+Install Proxy SwitchySharp plugin. Add new socks5 proxy setting point to local server and port.
 
-firefox setting
+Firefox setting
 ---
-firefox support socks5 proxy directly.
+Firefox supports socks5 proxy directly.
 
  

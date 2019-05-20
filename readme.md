@@ -29,6 +29,10 @@ Thanks to :
     LocalAPP  ----->  LocalServer  ---------------------> RemoteServer -------> TargetServer
                                           encryt   
 
+## Require  
+1. JDK 8 or higher   
+2. Maven 3.5+
+
 ## SimpleSocksProtocol   
 
 Simply:client to server  
