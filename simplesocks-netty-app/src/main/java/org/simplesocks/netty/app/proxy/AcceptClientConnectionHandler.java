@@ -11,6 +11,8 @@ import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * SOCK5 hanlder
  */
@@ -80,16 +82,7 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 						ctx.executor())
 						.addListener(f2 -> {
 							if(f2.isSuccess()){ //ready for proxy
-								toLocalChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksCmdRequest.addressType()))
-										.addListener(f3->{ //when send proxy response ok
-											if(f3.isSuccess()){
-												ctx.pipeline().remove(AcceptClientConnectionHandler.this);
-												ctx.pipeline().addLast(new LocalDataRelayHandler(client));
-											}else{
-												log.warn("failed to send connect success back, close channel.{}",ctx.channel().remoteAddress());
-												clear(ctx,client);
-											}
-										});
+								sendSuccessCmd(ctx, toLocalChannel, socksCmdRequest, client);
 							}else{
 								ctx.channel().writeAndFlush(new SocksCmdResponse(SocksCmdStatus.FAILURE, socksCmdRequest.addressType()))
 										.addListener(f4->clear(ctx,client));
@@ -102,6 +95,40 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 				ctx.channel().close();
 			}
 		});
+	}
+
+	/**
+	 * it is strange sometimes success response send would fail.
+	 * so try later instead of closing channel.
+	 * @param ctx
+	 * @param toLocalChannel
+	 * @param socksCmdRequest
+	 * @param client
+	 */
+	private void sendSuccessCmd(ChannelHandlerContext ctx, Channel toLocalChannel, SocksCmdRequest socksCmdRequest, RelayClient client ){
+		toLocalChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksCmdRequest.addressType()))
+				.addListener(f3->{ //when send proxy response ok
+					if(f3.isSuccess()){
+						ctx.pipeline().remove(AcceptClientConnectionHandler.this);
+						ctx.pipeline().addLast(new LocalDataRelayHandler(client));
+					}else{
+						log.warn("Failed to send connect success back for {}, try later.", socksCmdRequest.host());
+						toLocalChannel.eventLoop().schedule(()->{
+							if(toLocalChannel!=null && toLocalChannel.isActive()){
+								toLocalChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksCmdRequest.addressType()))
+										.addListener(f4->{
+											if(!f4.isSuccess()){
+												log.error("Failed to send connect success back for {}, close channel", socksCmdRequest.host());
+												clear(ctx, client);
+											}else{
+												ctx.pipeline().remove(AcceptClientConnectionHandler.this);
+												ctx.pipeline().addLast(new LocalDataRelayHandler(client));
+											}
+										});
+							}
+						}, 1, TimeUnit.SECONDS);
+					}
+				});
 	}
 
 	@Override
