@@ -112,21 +112,10 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 						ctx.pipeline().remove(AcceptClientConnectionHandler.this);
 						ctx.pipeline().addLast(new LocalDataRelayHandler(client));
 					}else{
-						log.warn("Failed to send connect success back for {}, try later.", socksCmdRequest.host());
-						toLocalChannel.eventLoop().schedule(()->{
-							if(toLocalChannel!=null && toLocalChannel.isActive()){
-								toLocalChannel.writeAndFlush(new SocksCmdResponse(SocksCmdStatus.SUCCESS, socksCmdRequest.addressType()))
-										.addListener(f4->{
-											if(!f4.isSuccess()){
-												log.error("Failed to send connect success back for {}, close channel", socksCmdRequest.host());
-												clear(ctx, client);
-											}else{
-												ctx.pipeline().remove(AcceptClientConnectionHandler.this);
-												ctx.pipeline().addLast(new LocalDataRelayHandler(client));
-											}
-										});
-							}
-						}, 1, TimeUnit.SECONDS);
+					    String msg = f3.cause().getMessage();
+						log.warn("Failed to send connect success back [{}][{}-{}]"
+								, socksCmdRequest.host(), f3.cause().getClass().getSimpleName(), msg);
+						clear(ctx, client);
 					}
 				});
 	}
