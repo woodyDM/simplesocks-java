@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.config.ConfigXmlLoader;
+import org.simplesocks.netty.app.http.ConfigurationServer;
 import org.simplesocks.netty.app.manager.CompositeRelayClientManager;
 import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
 import org.simplesocks.netty.app.proxy.SocksServerInitializer;
@@ -40,11 +41,15 @@ public class LocalSocksServer  {
 		ServerUtils.drawClientStartup(log);
 		AppConfiguration configuration = ConfigXmlLoader.load();
 		LocalSocksServer server = new LocalSocksServer(configuration);
+
         Optional<ChannelFuture> future = server.start();
         if(!future.isPresent()){
             server.stop();
             return;
         }
+		EventLoopGroup workerGroup = server.workerGroup;
+		ConfigurationServer configurationServer = new ConfigurationServer(10010, workerGroup, configuration);
+		configurationServer.start();
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
             server.stop();
         }));
@@ -76,7 +81,7 @@ public class LocalSocksServer  {
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(manager));
 			ChannelFuture channelFuture = bootstrap.bind(port).syncUninterruptibly();
-            log.info("Local server start At port {} , mode {}."  ,port, configuration.isGlobalProxy()?"GlobalProxyMode":"PacMode");
+            log.info("Local proxy server start at port [{}] , mode [{}]."  ,port, configuration.isGlobalProxy()?"GlobalProxyMode":"PacMode");
 			return Optional.of(channelFuture);
 		} catch (Throwable e) {
 		    if(e instanceof BindException){

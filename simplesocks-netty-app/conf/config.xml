@@ -2,7 +2,7 @@
 <Configuration>
 
 	<!-- local socks5 port -->
-	<localPort>10700</localPort>
+	<localPort>10400</localPort>
 
 	<!-- password to connect to remote server -->
 	<auth>1234567</auth>

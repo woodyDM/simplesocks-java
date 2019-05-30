@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.app.http.JsonUtils;
 
 
 /**
@@ -61,8 +62,6 @@ public class AppConfiguration {
         }
     }
 
-
-
     private void checkPort(String field, int port){
         if(port<=0 || port>(1<<16)){
             throw new IllegalArgumentException("invalid port value : "+port+" for ["+field+"]");
@@ -74,7 +73,6 @@ public class AppConfiguration {
             throw new IllegalArgumentException(field+" should not be empty.");
         }
     }
-
 
 
 
