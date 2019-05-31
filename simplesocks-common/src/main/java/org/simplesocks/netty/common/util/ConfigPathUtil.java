@@ -1,7 +1,13 @@
 package org.simplesocks.netty.common.util;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ConfigPathUtil {
 
@@ -14,8 +20,22 @@ public class ConfigPathUtil {
         Objects.requireNonNull(filePath);
         filePath = filePath.replace("/", File.separator);
         filePath = filePath.replace("\\",File.separator);
-        String base = System.getProperty("user.dir");
+        String base = getRootFolder();
         return base+File.separator+filePath;
     }
+
+
+
+    public static String getRootFolder(){
+        File file = new File("");
+        String path = file.getAbsolutePath();
+        try {
+            return URLDecoder.decode(path, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("unable to get RootFolder.");
+        }
+    }
+
+
 
 }

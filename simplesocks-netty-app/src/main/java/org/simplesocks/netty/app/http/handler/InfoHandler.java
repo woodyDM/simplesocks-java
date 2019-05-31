@@ -22,10 +22,9 @@ public class InfoHandler extends ContentValueHandler {
     }
 
     @Override
-    public HttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration) {
+    public void handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration) {
         AjaxResponse<AppConfiguration> ok = AjaxResponse.ok(configuration);
         String json = JsonUtils.toJson(ok);
-        DefaultFullHttpResponse response = generateHttpResponse(json, msg);
-        return response;
+        returnOkContent(json, ctx, msg);
     }
 }

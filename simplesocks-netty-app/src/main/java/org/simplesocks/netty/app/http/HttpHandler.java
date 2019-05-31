@@ -9,11 +9,16 @@ import org.simplesocks.netty.app.config.AppConfiguration;
 
 public interface HttpHandler {
 
-
+    /**
+     * exact path:   /info (JSON)
+     * or start with /static/  -> look for /static at classpath.
+     * @return
+     */
     String pathSupport();
 
     HttpMethod methodSupport();
 
-    HttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration);
+    void handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration);
+
 
 }

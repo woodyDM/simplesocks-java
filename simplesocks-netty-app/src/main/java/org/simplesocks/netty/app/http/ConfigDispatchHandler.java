@@ -5,7 +5,9 @@ import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.http.handler.ContentValueHandler;
+import org.simplesocks.netty.app.http.handler.FileHandler;
 import org.simplesocks.netty.app.http.handler.InfoHandler;
+import org.simplesocks.netty.app.http.handler.PageNotFoundHandler;
 
 @ChannelHandler.Sharable
 @Slf4j
@@ -14,7 +16,7 @@ public class ConfigDispatchHandler extends SimpleChannelInboundHandler<FullHttpR
 
     private AppConfiguration configuration;
     private final Dispatcher dispatcher ;
-    private static final HttpHandler NOT_FOUND_HANDLER = new NotFoundHandler();
+
 
     public ConfigDispatchHandler(AppConfiguration configuration) {
         this.configuration = configuration;
@@ -28,40 +30,8 @@ public class ConfigDispatchHandler extends SimpleChannelInboundHandler<FullHttpR
         String uri = msg.uri();
         String method = msg.method().name();
         HttpHandler httpHandler = dispatcher.get(uri, method);
-        boolean keepAlive = HttpUtil.isKeepAlive(msg);
-        if(httpHandler==null){
-            httpHandler = NOT_FOUND_HANDLER;
-        }
-        HttpResponse response = httpHandler.handle(ctx, msg, configuration);
-        returnHttpResponse(ctx, response, keepAlive);
-    }
 
-
-    void returnHttpResponse(ChannelHandlerContext ctx, HttpResponse response,boolean keepAlive){
-        ctx.write(response);
-        ChannelFuture channelFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-        if(!keepAlive){
-            channelFuture.addListener(ChannelFutureListener.CLOSE);
-        }
-    }
-
-
-
-
-    private static class NotFoundHandler extends ContentValueHandler{
-        @Override
-        public String pathSupport() {
-            return null;
-        }
-
-        @Override
-        public HttpMethod methodSupport() {
-            return null;
-        }
-
-        @Override
-        public HttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration) {
-            return generateHttpResponse("[\"404 not found\"]", HttpResponseStatus.NOT_FOUND, msg);
-        }
+        httpHandler = PageNotFoundHandler.INSTANCE;
+        httpHandler.handle(ctx, msg, configuration);
     }
 }
