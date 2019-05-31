@@ -1,4 +1,4 @@
-package org.simplesocks.netty.app.http.handler;
+package org.simplesocks.netty.app.http.handler.base;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -38,7 +38,7 @@ public abstract class FileHandler implements HttpHandler {
     }
 
 
-    public void handle(ChannelHandlerContext ctx, FullHttpRequest msg, String filePath) throws IOException, URISyntaxException {
+    public void handle(ChannelHandlerContext ctx, FullHttpRequest msg, String filePath) throws IOException {
 
         String path = ROOT + filePath;
         File file = new File(path);
