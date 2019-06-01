@@ -3,6 +3,7 @@ package org.simplesocks.netty.app.http;
 
 
 import io.netty.handler.codec.http.HttpMethod;
+import org.simplesocks.netty.app.http.handler.PageNotFoundHandler;
 import org.simplesocks.netty.app.http.handler.StaticResourceHandler;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 
@@ -14,8 +15,6 @@ public class Dispatcher {
     private Map<String, Map<String, HttpHandler>> data = new HashMap<>();
     private static final String index = "/";
     private static final String INDEX_PAGE = "/static/index.html";
-
-
 
 
     public void register(Class<? extends HttpHandler> clazz){
@@ -44,9 +43,14 @@ public class Dispatcher {
         }
         Map<String, HttpHandler> m = data.get(path);
         if(m==null){
-            return StaticResourceHandler.INSTANCE;
+            return PageNotFoundHandler.INSTANCE;
         }else{
-            return m.get(method);
+            HttpHandler httpHandler = m.get(method);
+            if(httpHandler==null){
+                return PageNotFoundHandler.INSTANCE;    //in fact should return 400
+            }else{
+                return httpHandler;
+            }
         }
     }
 

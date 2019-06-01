@@ -3,14 +3,10 @@ package org.simplesocks.netty.app.http.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponse;
 import org.simplesocks.netty.app.config.AppConfiguration;
-import org.simplesocks.netty.app.http.HttpHandler;
 import org.simplesocks.netty.app.http.handler.base.FileHandler;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class StaticResourceHandler extends FileHandler {
 
@@ -40,7 +36,6 @@ public class StaticResourceHandler extends FileHandler {
         if(!path.startsWith(PATH)){
             throw new IllegalArgumentException("this handler only handle "+PATH +" uri, the real path is "+path);
         }
-        path = path.substring(PATH.length()-1);
         try {
             handle(ctx, msg, path);
         } catch (IOException e) {

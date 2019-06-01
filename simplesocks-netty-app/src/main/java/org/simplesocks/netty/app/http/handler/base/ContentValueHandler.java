@@ -17,19 +17,25 @@ public abstract class ContentValueHandler implements HttpHandler {
         returnContent(contentType, content, ctx, HttpResponseStatus.OK, msg);
     }
 
-    protected void returnContent(String contentType, String content, ChannelHandlerContext ctx, HttpResponseStatus status, FullHttpRequest msg){
-        DefaultFullHttpResponse response = generateHttpResponse0(contentType, content, status, msg);
+    protected void returnContent(String contentType, byte[] bytes, ChannelHandlerContext ctx, HttpResponseStatus status, FullHttpRequest msg){
+        DefaultFullHttpResponse response = generateHttpResponse0(contentType, bytes, status, msg);
         ctx.write(response);
         returnResponse(ctx, HttpUtil.isKeepAlive(msg));
     }
 
-    private DefaultFullHttpResponse generateHttpResponse0(String contentType, String content, HttpResponseStatus status, FullHttpRequest msg){
+    protected void returnContent(String contentType, String content, ChannelHandlerContext ctx, HttpResponseStatus status, FullHttpRequest msg){
+        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
+        returnContent(contentType, bytes, ctx, status, msg);
+    }
+
+
+
+    private DefaultFullHttpResponse generateHttpResponse0(String contentType, byte[] bytes, HttpResponseStatus status, FullHttpRequest msg){
         boolean keepAlive = HttpUtil.isKeepAlive(msg);
         DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
         if(keepAlive)
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
-        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, bytes.length);
         response.content().writeBytes(bytes, 0 , bytes.length);
         return response;

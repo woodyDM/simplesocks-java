@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * simple Json tool for this project
+ * Json tool just simple enough for this project
  */
 public class JsonUtils {
 
