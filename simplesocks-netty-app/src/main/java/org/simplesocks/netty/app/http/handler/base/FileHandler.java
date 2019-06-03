@@ -36,6 +36,11 @@ public abstract class FileHandler implements HttpHandler {
         }
     }
 
+    /**
+     * this server only support types below.
+     * @param path
+     * @return
+     */
     protected String parseContentType(String path){
         int i = path.lastIndexOf(".");
         if(i!=-1){

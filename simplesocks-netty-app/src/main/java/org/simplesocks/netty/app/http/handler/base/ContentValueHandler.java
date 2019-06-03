@@ -41,7 +41,7 @@ public abstract class ContentValueHandler implements HttpHandler {
         return response;
     }
 
-    protected void returnResponse(ChannelHandlerContext ctx, boolean keepAlive){
+    private void returnResponse(ChannelHandlerContext ctx, boolean keepAlive){
         ChannelFuture channelFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
         if(!keepAlive){
             channelFuture.addListener(ChannelFutureListener.CLOSE);

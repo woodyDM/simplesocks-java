@@ -9,6 +9,7 @@ class Constants {
 
     static final String XML_ROOT = "Configuration";
     static final String XML_LOCAL_PORT = "localPort";
+    static final String XML_LOCAL_SERVER_PORT = "configServerPort";
     static final String XML_AUTH = "auth";
     static final String XML_REMOTE_HOST = "remoteHost";
     static final String XML_REMOTE_PORT = "remotePort";

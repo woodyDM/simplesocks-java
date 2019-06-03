@@ -39,6 +39,11 @@
 			<artifactId>simplesocks-netty-client</artifactId>
 			<groupId>org.simplesocks-netty</groupId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-net</groupId>
@@ -74,7 +79,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.simplesocks.netty.app.LocalSocksServer</mainClass>
+							<mainClass>org.simplesocks.netty.app.proxy.LocalSocksServer</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -89,7 +94,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>org.simplesocks.netty.app.LocalSocksServer</mainClass>
+							<mainClass>org.simplesocks.netty.app.proxy.LocalSocksServer</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

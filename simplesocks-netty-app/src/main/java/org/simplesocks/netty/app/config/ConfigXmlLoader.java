@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ConfigXmlLoader {
 
-	public static AppConfiguration load()   {
+	public static AppConfiguration load(String path)   {
 		InputStream in = null;
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			String fullPath = ConfigPathUtil.getUserDirFullName(Constants.PATH);
+			String fullPath = ConfigPathUtil.getUserDirFullName(path);
 			log.info("Loading config from {}", fullPath);
 			in = new FileInputStream(fullPath);
 			Document doc = builder.parse(in);
@@ -49,6 +49,8 @@ public class ConfigXmlLoader {
                     String value = nodes.item(i).getTextContent();
                     if (Constants.XML_LOCAL_PORT.equalsIgnoreCase(nodeName)) {
                         config.configureLocalPort(Integer.parseInt(value));
+                    } else if (Constants.XML_LOCAL_SERVER_PORT.equalsIgnoreCase(nodeName)) {
+                        config.configureLocalConfigServerPort(Integer.parseInt(value));
                     } else if (Constants.XML_AUTH.equalsIgnoreCase(nodeName)) {
                         config.configureAuth(value);
                     } else if (Constants.XML_REMOTE_PORT.equalsIgnoreCase(nodeName)) {

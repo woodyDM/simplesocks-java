@@ -16,8 +16,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
+ * in order to use Zero-copy and non-blocking file transport, write static file to working root.
  * zip resource for config server
- * classpath  /static
+ * classpath:static/*
  */
 @Slf4j
 public class StaticResourceUnzip {

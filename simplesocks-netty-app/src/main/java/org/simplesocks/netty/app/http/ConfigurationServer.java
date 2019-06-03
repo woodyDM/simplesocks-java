@@ -8,17 +8,17 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.utils.StaticResourceUnzip;
-import org.simplesocks.netty.common.util.ConfigPathUtil;
 
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.Optional;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
+
+/**
+ * simple http server for configuration
+ * url patterns:
+ * 1. /static/*     : look for classpath:static/*  with simple eTag cache control;
+ * 2. /             : index page : redirect to /static/index.html;
+ * 3. others        : REST endpoint for edit configuraiton. content-type is application/json with UTF8 charset.
+ */
 @Slf4j
 public class ConfigurationServer {
 

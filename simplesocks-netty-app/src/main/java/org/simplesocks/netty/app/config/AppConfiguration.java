@@ -4,31 +4,71 @@ import lombok.Getter;
 
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.app.http.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
- *
- *
  *
  */
 @Getter
 @Slf4j
 @ToString
 public class AppConfiguration {
-
+    /**
+     * local proxy port
+     */
 	private int localPort = 10800;
-    private String encryptType="aes-cbc";
+    /**
+     * local configuration server port
+     */
+	private int configServerPort = 10589;
 
+    /**
+     * remote proxy enc type.
+     */
+    private String encryptType="aes-cbc";
+    /**
+     * remote proxy password
+     */
     private String auth;
+    /**
+     * remote proxy host name , support IP or Domain;
+     */
     private String remoteHost;
+    /**
+     * remote proxy server port
+     */
 	private int remotePort = 12000;
+    /**
+     * is proxy all request
+     * if false
+     */
 	private boolean globalProxy = false;
+
+    /**
+     * The target host in this list will never be proxied even if it is in pac list or globalProxy is true.
+     */
+	private List<String> whiteList = new ArrayList<>();
+
+    /**
+     * the target host in this list will always be proxied , no matter what globalProxy is .
+     */
+    private List<String> proxyList = new ArrayList<>();
+
+
+
 
 
     public void configureLocalPort(int localPort) {
         checkPort("localPort", localPort);
         this.localPort = localPort;
+    }
+
+    public void configureLocalConfigServerPort(int localConfigServerPort) {
+        checkPort("localConfigServerPort", localConfigServerPort);
+        this.configServerPort = localConfigServerPort;
     }
 
     public void configureEncryptType(String encryptType) {
@@ -74,6 +114,17 @@ public class AppConfiguration {
         }
     }
 
+    /**
+     * save to local PATH
+     * @return
+     */
+    public boolean dump(){
+        return false;
+    }
+
+    public static AppConfiguration load(){
+        return ConfigXmlLoader.load(Constants.PATH);
+    }
 
 
 }

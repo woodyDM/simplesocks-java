@@ -12,7 +12,10 @@ import java.util.Map;
 
 /**
  * Json tool just simple enough for this project
+ *
+ * json value should consider escape string.
  */
+@Deprecated
 public class JsonUtils {
 
 
@@ -37,6 +40,7 @@ public class JsonUtils {
         appendValue(sb, value);
     }
 
+    @SuppressWarnings("deprecated")
     private static void  appendValue(StringBuilder sb, Object value){
         if(value instanceof String){
             sb.append("\"").append(value).append("\",");

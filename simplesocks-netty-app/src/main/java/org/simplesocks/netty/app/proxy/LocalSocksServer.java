@@ -1,18 +1,18 @@
-package org.simplesocks.netty.app;
+package org.simplesocks.netty.app.proxy;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
-import org.simplesocks.netty.app.config.ConfigXmlLoader;
 import org.simplesocks.netty.app.http.ConfigurationServer;
 import org.simplesocks.netty.app.manager.CompositeRelayClientManager;
 import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
-import org.simplesocks.netty.app.proxy.SocksServerInitializer;
-import org.simplesocks.netty.common.encrypt.EncType;
 import org.simplesocks.netty.common.encrypt.factory.CompositeEncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClientManager;
@@ -29,42 +29,24 @@ import java.util.Optional;
 public class LocalSocksServer  {
 
 
-	private EventLoopGroup bossGroup = null;
-	private EventLoopGroup workerGroup = null;
+	private EventLoopGroup bossGroup;
+	private EventLoopGroup workerGroup;
  	private AppConfiguration configuration;
+	private Channel serverChannel;
 
-	public LocalSocksServer(AppConfiguration configuration) {
+	public LocalSocksServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, AppConfiguration configuration) {
+		this.bossGroup = bossGroup;
+		this.workerGroup = workerGroup;
 		this.configuration = configuration;
 	}
-
-	public static void main(String[] args) {
-		ServerUtils.drawClientStartup(log);
-		AppConfiguration configuration = ConfigXmlLoader.load();
-		LocalSocksServer server = new LocalSocksServer(configuration);
-
-        Optional<ChannelFuture> future = server.start();
-        if(!future.isPresent()){
-            server.stop();
-            return;
-        }
-		EventLoopGroup workerGroup = server.workerGroup;
-		ConfigurationServer configurationServer = new ConfigurationServer(10010, workerGroup, configuration);
-		configurationServer.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(()->{
-            server.stop();
-        }));
-        future.get().channel().closeFuture().syncUninterruptibly();
-	}
-
 
 	/**
 	 * entry
 	 */
-	public Optional<ChannelFuture> start() {
+	public ChannelFuture start() {
 		try {
 			int port = configuration.getLocalPort();
-			bossGroup = new NioEventLoopGroup(1);
-			workerGroup = new NioEventLoopGroup();
+
             /**
              * encType and factory are not so graceful. Refactor later. CompositeEncrypterFactory is desiged to support random authType.
              */
@@ -81,27 +63,35 @@ public class LocalSocksServer  {
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(manager));
 			ChannelFuture channelFuture = bootstrap.bind(port).syncUninterruptibly();
+			if(!channelFuture.isSuccess()){
+				System.exit(1);
+			}
+			this.serverChannel = channelFuture.channel();
             log.info("Local proxy server start at port [{}] , mode [{}]."  ,port, configuration.isGlobalProxy()?"GlobalProxyMode":"PacMode");
-			return Optional.of(channelFuture);
+			return channelFuture;
 		} catch (Throwable e) {
 		    if(e instanceof BindException){
 		        log.error("Failed to start local server, local port[{}] is used by other program.",configuration.getLocalPort(),e);
             }else{
                 log.error("Failed to start local server.",e);
             }
-		    return Optional.empty();
+		    System.exit(1);
+		    return null;
 		}
 	}
 
-    /**
-     * destroy this server.
-     */
-	public void stop() {
-		ServerUtils.closeEventLoopGroup(bossGroup);
-		ServerUtils.closeEventLoopGroup(workerGroup);
-		log.info("Stop Server!");
-	}
 
+	public void stop(GenericFutureListener<? extends Future<? super Void>> listener){
+		if(this.serverChannel!=null){
+			serverChannel.close().addListener(listener);
+		}else{
+			try {
+				listener.operationComplete(null);
+			} catch (Exception e) {
+				throw new IllegalStateException("exception when closing local proxy server.", e);
+			}
+		}
+	}
 
 
 }

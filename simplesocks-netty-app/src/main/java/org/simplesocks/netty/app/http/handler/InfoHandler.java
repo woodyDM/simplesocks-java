@@ -1,16 +1,16 @@
 package org.simplesocks.netty.app.http.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.http.AjaxResponse;
-import org.simplesocks.netty.app.http.JsonUtils;
-import org.simplesocks.netty.app.http.handler.base.ContentValueHandler;
+import org.simplesocks.netty.app.http.handler.base.JsonValueHandler;
 
 
 @Slf4j
-public class InfoHandler extends ContentValueHandler {
+public class InfoHandler extends JsonValueHandler {
 
     @Override
     public String pathSupport() {
@@ -22,10 +22,10 @@ public class InfoHandler extends ContentValueHandler {
         return HttpMethod.GET;
     }
 
+
     @Override
     public void handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration) {
         AjaxResponse<AppConfiguration> ok = AjaxResponse.ok(configuration);
-        String json = JsonUtils.toJson(ok);
-        returnOkContent(Constants.APPLICATION_JSON, json, ctx, msg);
+        returnOkJsonContent(ok, ctx, msg);
     }
 }

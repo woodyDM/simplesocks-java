@@ -2,10 +2,14 @@
 <Configuration>
 
 	<!-- local socks5 port -->
-	<localPort>10400</localPort>
+	<localPort>10700</localPort>
+
+	<!-- local socks5 port -->
+	<configServerPort>10580</configServerPort>
+
 
 	<!-- password to connect to remote server -->
-	<auth>1234567</auth>
+	<auth>1234567}{:/""</auth>
 
 	<!-- remote simplesocks server host -->
 	<remoteHost>localhost</remoteHost>
