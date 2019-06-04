@@ -11,8 +11,6 @@ import org.simplesocks.netty.common.netty.RelayClientManager;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * SOCK5 hanlder
  */
@@ -91,7 +89,6 @@ public final class AcceptClientConnectionHandler extends SimpleChannelInboundHan
 							}
 						});
 			}else{
-				log.warn("Failed to get client, check your network or is your remote server running ? Target: {}:{}, close channel!",socksCmdRequest.host(),socksCmdRequest.port());
 				ctx.channel().close();
 			}
 		});

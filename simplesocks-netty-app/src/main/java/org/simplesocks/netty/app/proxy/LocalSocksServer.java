@@ -4,23 +4,14 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
-import org.simplesocks.netty.app.http.ConfigurationServer;
-import org.simplesocks.netty.app.manager.CompositeRelayClientManager;
-import org.simplesocks.netty.app.manager.SimpleSocksRelayClientManager;
-import org.simplesocks.netty.common.encrypt.factory.CompositeEncrypterFactory;
-import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClientManager;
-import org.simplesocks.netty.common.util.ServerUtils;
 
 import java.net.BindException;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 /**
  * SOCKS5 local server and SimpleSocks client
@@ -33,11 +24,15 @@ public class LocalSocksServer  {
 	private EventLoopGroup workerGroup;
  	private AppConfiguration configuration;
 	private Channel serverChannel;
+	private RelayClientManager manager;
 
-	public LocalSocksServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, AppConfiguration configuration) {
+
+	public LocalSocksServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, AppConfiguration configuration, RelayClientManager manager ) {
 		this.bossGroup = bossGroup;
 		this.workerGroup = workerGroup;
 		this.configuration = configuration;
+		this.manager = manager;
+
 	}
 
 	/**
@@ -50,20 +45,16 @@ public class LocalSocksServer  {
             /**
              * encType and factory are not so graceful. Refactor later. CompositeEncrypterFactory is desiged to support random authType.
              */
-			CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
-			factory.registerKey(configuration.getAuth().getBytes(StandardCharsets.UTF_8));
-            RelayClientManager manager;
-			if(configuration.isGlobalProxy()){
-                manager = new SimpleSocksRelayClientManager(configuration.getRemoteHost(),configuration.getRemotePort(),configuration.getAuth(), workerGroup, configuration.getEncryptType(), factory);
-            }else{
-                manager = new CompositeRelayClientManager(configuration.getRemoteHost(),configuration.getRemotePort(),configuration.getAuth(), workerGroup, configuration.getEncryptType(), factory);
-            }
+
+
+
             ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new SocksServerInitializer(manager));
 			ChannelFuture channelFuture = bootstrap.bind(port).syncUninterruptibly();
 			if(!channelFuture.isSuccess()){
+				log.error("Exit! Proxy server bind failed, reason is {}", channelFuture.cause().getMessage());
 				System.exit(1);
 			}
 			this.serverChannel = channelFuture.channel();

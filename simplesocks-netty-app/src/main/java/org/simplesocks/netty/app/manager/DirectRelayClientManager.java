@@ -34,7 +34,7 @@ public class DirectRelayClientManager implements RelayClientManager {
                     if(future.isSuccess()){
                         promise.setSuccess(directRelayClient);
                     }else{
-                        promise.setFailure(new BaseSystemException("Failed to connect to "+socksCmdRequest.host()+":" + socksCmdRequest.port()));
+                        promise.setFailure(future.cause());
                     }
                 });
         return promise;

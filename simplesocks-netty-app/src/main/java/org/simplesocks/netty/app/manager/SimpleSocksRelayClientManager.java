@@ -5,9 +5,9 @@ import io.netty.handler.codec.socks.SocksCmdRequest;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.proxy.relay.ssocks.SimpleSocksRelayClientAdapter;
 import org.simplesocks.netty.client.SimpleSocksProtocolClient;
-import org.simplesocks.netty.common.encrypt.EncType;
 import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.netty.RelayClient;
@@ -17,32 +17,27 @@ import org.simplesocks.netty.common.netty.RelayClientManager;
 @Slf4j
 public class SimpleSocksRelayClientManager implements RelayClientManager {
 
-    private String host;
-    private int port;
-    private String auth;
+    private AppConfiguration configuration;
     private EventLoopGroup loopGroup;
-    private String encType;
     private EncrypterFactory encrypterFactory;
 
-    public SimpleSocksRelayClientManager(String host, int port, String auth, EventLoopGroup loopGroup,String encType, EncrypterFactory encrypterFactory) {
-        this.host = host;
-        this.port = port;
-        this.auth = auth;
+
+    public SimpleSocksRelayClientManager(AppConfiguration configuration, EventLoopGroup loopGroup, EncrypterFactory encrypterFactory) {
+        this.configuration = configuration;
         this.loopGroup = loopGroup;
         this.encrypterFactory = encrypterFactory;
-        this.encType = encType;
     }
 
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
-        SimpleSocksProtocolClient client = new SimpleSocksProtocolClient(auth, encType, host, port, loopGroup, encrypterFactory);
+        SimpleSocksProtocolClient client = new SimpleSocksProtocolClient(configuration.getAuth(), configuration.getEncryptType(), configuration.getRemoteHost(), configuration.getRemotePort(), loopGroup, encrypterFactory);
         SimpleSocksRelayClientAdapter adapter = new SimpleSocksRelayClientAdapter(client);
         Promise<RelayClient> promise = eventExecutor.newPromise();
         client.init().addListener(future -> {
             if(future.isSuccess()){
                 promise.setSuccess(adapter);
             }else{
-                promise.setFailure(new BaseSystemException("Failed connect to server "+host+"with auth "+auth));
+                promise.setFailure(new BaseSystemException("Failed connect to server "+configuration.getRemoteHost()+"with auth "+configuration.getAuth()));
             }
         }) ;
         return promise;

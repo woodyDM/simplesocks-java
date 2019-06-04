@@ -1,18 +1,19 @@
 package org.simplesocks.netty.app;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.http.ConfigurationServer;
+import org.simplesocks.netty.app.manager.RouterRelayClientManager;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
+import org.simplesocks.netty.app.utils.ProxyCounter;
+import org.simplesocks.netty.common.encrypt.factory.CompositeEncrypterFactory;
 import org.simplesocks.netty.common.util.ServerUtils;
 
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * this APP entry
@@ -32,7 +33,13 @@ public class MainApp {
         Runtime.getRuntime().addShutdownHook(new Thread(()-> stop()));
 
         AppConfiguration configuration = AppConfiguration.load();
-        LocalSocksServer proxyServer = new LocalSocksServer(bossGroup, workerGroup, configuration);
+        ProxyCounter counter = new ProxyCounter();
+        CompositeEncrypterFactory factory = new CompositeEncrypterFactory();
+        factory.registerKey(configuration.getAuth().getBytes(StandardCharsets.UTF_8));
+        RouterRelayClientManager manager = new RouterRelayClientManager(configuration, counter, workerGroup, factory);
+        LocalSocksServer proxyServer = new LocalSocksServer(bossGroup, workerGroup, configuration, manager);
+        AppManager.init(configuration, proxyServer, counter, workerGroup);
+
         proxyServer.start();
         ConfigurationServer configurationServer = new ConfigurationServer(configuration.getConfigServerPort(), workerGroup, configuration);
         configurationServer.start();

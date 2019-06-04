@@ -13,6 +13,7 @@ import org.simplesocks.netty.common.netty.RelayClient;
 import org.simplesocks.netty.common.protocol.ConnectionMessage;
 import org.simplesocks.netty.common.util.ServerUtils;
 
+import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -56,8 +57,10 @@ public class DirectRelayClient implements RelayClient {
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (!future.isSuccess()) {
                             String msg = future.cause().getMessage();
-                            log.warn("Failed to connect [{}:{}][{}-{}].", host, port,future.cause().getClass().getSimpleName(), msg);
-                            promise.setFailure(new ProxyConnectException("failed to get proxy client"));
+                            if(!(future.cause() instanceof UnknownHostException)){
+                                log.warn("Failed to connect [{}:{}][{}-{}].", host, port,future.cause().getClass().getSimpleName(), msg);
+                            }
+                            promise.setFailure(future.cause());
                         }else{
                             remoteChannel = future.channel();
                             promise.setSuccess(remoteChannel);

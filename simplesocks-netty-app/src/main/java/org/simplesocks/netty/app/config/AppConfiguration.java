@@ -19,7 +19,7 @@ public class AppConfiguration {
     /**
      * local proxy port
      */
-	private int localPort = 10800;
+	private int localPort = 10800;      //only localPortChange should recreate localServer
     /**
      * local configuration server port
      */

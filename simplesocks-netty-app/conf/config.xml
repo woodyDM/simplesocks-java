@@ -9,10 +9,10 @@
 
 
 	<!-- password to connect to remote server -->
-	<auth>1234567}{:/""</auth>
+	<auth>1234567密码{}:</auth>
 
 	<!-- remote simplesocks server host -->
-	<remoteHost>localhost</remoteHost>
+	<remoteHost>34.80.168.173</remoteHost>
 
 	<!-- remote simplesocks server port -->
 	<remotePort>12020</remotePort>
@@ -22,5 +22,6 @@
 
 	<!-- enable global proxy [true ,false]-->
 	<globalProxy>false</globalProxy>
+
 
 </Configuration>
