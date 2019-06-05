@@ -3,7 +3,6 @@ package org.simplesocks.netty.app.http;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
-import org.simplesocks.netty.app.config.AppConfiguration;
 
 public interface HttpHandler {
 
@@ -16,7 +15,7 @@ public interface HttpHandler {
 
     HttpMethod methodSupport();
 
-    void handle(ChannelHandlerContext ctx, FullHttpRequest msg, AppConfiguration configuration);
+    void handle(ChannelHandlerContext ctx, FullHttpRequest msg);
 
 
 }

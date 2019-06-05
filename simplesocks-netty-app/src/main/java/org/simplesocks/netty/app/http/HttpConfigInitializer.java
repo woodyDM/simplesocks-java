@@ -20,6 +20,6 @@ public class HttpConfigInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline().addLast("codec",new HttpServerCodec())
                 .addLast("aggregator", new HttpObjectAggregator(MAX_SIZE))
-                .addLast("configHandler",new ConfigDispatchHandler(configuration));
+                .addLast("configHandler",new ConfigDispatchHandler());
     }
 }

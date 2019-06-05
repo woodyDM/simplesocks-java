@@ -4,8 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.EncType;
 import org.simplesocks.netty.common.exception.BaseSystemException;
 import org.simplesocks.netty.common.util.ConfigPathUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.simplesocks.netty.common.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -13,10 +12,10 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ConfigXmlLoader {
 
-	public static AppConfiguration load(String path)   {
+	public static AppConfiguration load(String path) throws FileNotFoundException  {
 		InputStream in = null;
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -46,12 +45,12 @@ public class ConfigXmlLoader {
 
 				for (int i = 0; i < nodes.getLength(); i++) {
                     String nodeName = nodes.item(i).getNodeName();
-                    String value = nodes.item(i).getTextContent();
+                    String value = StringUtils.trim(nodes.item(i).getTextContent());
                     if (Constants.XML_LOCAL_PORT.equalsIgnoreCase(nodeName)) {
                         config.configureLocalPort(Integer.parseInt(value));
                     } else if (Constants.XML_LOCAL_SERVER_PORT.equalsIgnoreCase(nodeName)) {
                         config.configureLocalConfigServerPort(Integer.parseInt(value));
-                    } else if (Constants.XML_AUTH.equalsIgnoreCase(nodeName)) {
+                    } else if (Constants.XML_AUTH.equalsIgnoreCase(nodeName)){
                         config.configureAuth(value);
                     } else if (Constants.XML_REMOTE_PORT.equalsIgnoreCase(nodeName)) {
                         config.configureRemotePort(Integer.parseInt(value));
@@ -70,6 +69,12 @@ public class ConfigXmlLoader {
                                     .collect(Collectors.joining(","));
                             throw new IllegalArgumentException("encryptType only supports "+supportsTypes);
                         }
+                    }else if(Constants.XML_WHITE_LIST.equalsIgnoreCase(nodeName)){
+                        NodeList childNodes = nodes.item(i).getChildNodes();
+                        parseSites(config, childNodes, true);
+                    }else if(Constants.XML_PROXY_LIST.equalsIgnoreCase(nodeName)){
+                        NodeList childNodes = nodes.item(i).getChildNodes();
+                        parseSites(config, childNodes, false);
                     }
                 }
                 log.info("load config complete {}!", config);
@@ -80,9 +85,11 @@ public class ConfigXmlLoader {
                 throw new IllegalArgumentException("Invalid config.xml, must provide [auth] to server.");
             }
             return config;
-		} catch (Exception e) {
-			throw new BaseSystemException("Failed to load config file. check your conf/config.xml.",e);
-		} finally {
+		} catch (FileNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseSystemException("Failed to load config file. check your conf/config.xml.",e);
+        } finally {
 			if (in != null) {
 				try {
 					in.close();
@@ -91,4 +98,19 @@ public class ConfigXmlLoader {
 			}
 		}
 	}
+
+
+	private static void parseSites(AppConfiguration configuration, NodeList childNodes, boolean isWhiteList){
+        int len = childNodes.getLength();
+        for (int i = 0; i < len; i++) {
+            Node item = childNodes.item(i);
+            if(Constants.XML_SITE.equalsIgnoreCase(item.getNodeName())){
+                String nodeValue = StringUtils.trim(item.getTextContent());
+                if(isWhiteList)
+                    configuration.addWhiteSite(nodeValue);
+                else
+                    configuration.addProxySite(nodeValue);
+            }
+        }
+    }
 }

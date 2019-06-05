@@ -1,10 +1,13 @@
 package org.simplesocks.netty.app.config;
 
 import lombok.Getter;
-
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.common.util.ConfigPathUtil;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,7 @@ import java.util.List;
 @Getter
 @Slf4j
 @ToString
+@Setter
 public class AppConfiguration {
     /**
      * local proxy port
@@ -23,7 +27,7 @@ public class AppConfiguration {
     /**
      * local configuration server port
      */
-	private int configServerPort = 10589;
+	private int configServerPort = 10590;
 
     /**
      * remote proxy enc type.
@@ -32,11 +36,11 @@ public class AppConfiguration {
     /**
      * remote proxy password
      */
-    private String auth;
+    private String auth = "yourPassword";
     /**
      * remote proxy host name , support IP or Domain;
      */
-    private String remoteHost;
+    private String remoteHost = "localhost";
     /**
      * remote proxy server port
      */
@@ -58,6 +62,37 @@ public class AppConfiguration {
     private List<String> proxyList = new ArrayList<>();
 
 
+
+    public boolean isSame(AppConfiguration other){
+        if(localPort!=other.localPort)
+            return false;
+        if(configServerPort!=other.configServerPort)
+            return false;
+        if(!encryptType.equals(other.encryptType))
+            return false;
+        if(!auth.equals(other.auth))
+            return false;
+        if(!remoteHost.equals(other.remoteHost))
+            return false;
+        if(remotePort!=other.remotePort)
+            return false;
+        if(globalProxy!=other.globalProxy)
+            return false;
+        if(!isSame(whiteList, other.whiteList))
+            return false;
+        return isSame(proxyList, other.proxyList);
+
+    }
+
+    private static boolean isSame(List<String> l1, List<String> l2){
+        if(l1.size()!=l2.size())
+            return false;
+        boolean b1 = l1.stream().anyMatch(it -> !l2.contains(it));
+        if(b1)
+            return false;
+        boolean b2 = l2.stream().anyMatch(it-> !l1.contains(it));
+        return !b2;
+    }
 
 
 
@@ -81,6 +116,16 @@ public class AppConfiguration {
         this.auth = auth;
     }
 
+    public void addWhiteSite(String s){
+        if(s!=null && s.length()>0)
+            whiteList.add(s);
+    }
+
+    public void addProxySite(String s){
+        if(s!=null && s.length()>0)
+            proxyList.add(s);
+    }
+
     public void configureRemoteHost(String remoteHost) {
         checkString("remoteHost",remoteHost);
         this.remoteHost = remoteHost;
@@ -102,6 +147,14 @@ public class AppConfiguration {
         }
     }
 
+    public void setWhiteList(List<String> whiteList) {
+        this.whiteList = whiteList;
+    }
+
+    public void setProxyList(List<String> proxyList) {
+        this.proxyList = proxyList;
+    }
+
     private void checkPort(String field, int port){
         if(port<=0 || port>(1<<16)){
             throw new IllegalArgumentException("invalid port value : "+port+" for ["+field+"]");
@@ -114,17 +167,45 @@ public class AppConfiguration {
         }
     }
 
-    /**
-     * save to local PATH
-     * @return
-     */
     public boolean dump(){
-        return false;
+        boolean ok = ConfigXmlWriter.dump(this, Constants.PATH_TEMP);
+        if(ok){
+            String realConfigFile = ConfigPathUtil.getUserDirFullName(Constants.PATH);
+            String dumpConfigFile = ConfigPathUtil.getUserDirFullName(Constants.PATH_TEMP);
+            File real = new File(realConfigFile);
+            File dump = new File(dumpConfigFile);
+            if(!real.exists() || real.delete())
+                return dump.renameTo(real);
+            else
+                return false;
+        }else{
+            return false;
+        }
     }
 
-    public static AppConfiguration load(){
-        return ConfigXmlLoader.load(Constants.PATH);
+
+
+    public static AppConfiguration loadOrInit(){
+        try {
+            return ConfigXmlLoader.load(Constants.PATH);
+        } catch (FileNotFoundException e) {
+            AppConfiguration configuration = new AppConfiguration();
+            configuration.dump();
+            return configuration;
+        }
     }
 
+    public void mergeFrom(AppConfiguration other){
+        AppConfiguration configuration = this;
+        configuration.setWhiteList(other.getWhiteList());
+        configuration.setProxyList(other.getProxyList());
+        configuration.configureGlobalProxy(other.isGlobalProxy()+"");
+        configuration.configureEncryptType(other.getEncryptType());
+        configuration.configureRemoteHost(other.getRemoteHost());
+        configuration.configureRemotePort(other.getRemotePort());
+        configuration.configureLocalConfigServerPort(other.getConfigServerPort());
+        configuration.configureAuth(other.getAuth());
+        configuration.configureLocalPort(other.getLocalPort());
+    }
 
 }

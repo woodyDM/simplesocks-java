@@ -11,6 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,10 +25,6 @@ import java.util.Set;
 public class PacXmlLoader {
 
 
-	public static void main(String[] args) {
-		Set<String> strings = loadPacSites();
-		System.out.println(".");
-	}
 
 	public static Set<String> loadPacSites( )  {
 		Set<String> result = new HashSet<>(4500);
@@ -53,7 +50,8 @@ public class PacXmlLoader {
 			return result;
 
 		} catch (Exception e) {
-			throw new BaseSystemException("Failed to load pac list.",e);
+			log.error("Failed to load pac list, {}",e.getMessage());
+			return Collections.emptySet();
 		} finally {
 			if (in != null) {
 				try {

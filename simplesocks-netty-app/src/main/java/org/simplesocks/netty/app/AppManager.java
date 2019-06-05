@@ -3,11 +3,13 @@ package org.simplesocks.netty.app;
 
 import io.netty.channel.EventLoopGroup;
 import lombok.Getter;
+import lombok.Setter;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
 import org.simplesocks.netty.app.utils.ProxyCounter;
 
 @Getter
+@Setter
 public class AppManager {
 
 
@@ -18,7 +20,7 @@ public class AppManager {
 
     public static final AppManager INSTANCE = new AppManager();
 
-    public static final void init(AppConfiguration configuration, LocalSocksServer localSocksServer, ProxyCounter counter, EventLoopGroup eventLoopGroup){
+    public static void init(AppConfiguration configuration, LocalSocksServer localSocksServer, ProxyCounter counter, EventLoopGroup eventLoopGroup){
         INSTANCE.configuration = configuration;
         INSTANCE.localSocksServer = localSocksServer;
         INSTANCE.counter = counter;
