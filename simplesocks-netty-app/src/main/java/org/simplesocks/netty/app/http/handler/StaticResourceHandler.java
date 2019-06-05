@@ -10,6 +10,9 @@ import java.io.IOException;
 
 import static org.simplesocks.netty.app.http.Dispatcher.ICON;
 
+/**
+ * handler for static resource and index | icon
+ */
 public class StaticResourceHandler extends FileHandler {
 
     public static final String PATH = "/static/";
