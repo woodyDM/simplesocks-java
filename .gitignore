@@ -1,6 +1,5 @@
 target
 /.idea
-.gitignore
 *.gz
 *.log
 *.iml
