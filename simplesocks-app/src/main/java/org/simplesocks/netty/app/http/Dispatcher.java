@@ -43,8 +43,8 @@ public class Dispatcher {
         method = method.toLowerCase();
         /**
          *  I know this looks bad ,same code can found in StaticResourceHandler.INSTANCE,
-         *  should use handler.support to decide,
-         *  but it works for this <strong>simple</strong> server.
+         *  Using handler.support() to decide handler is better.
+         *  But it works for this <strong>simple</strong> server.
          */
         if(path.equals(INDEX)||path.equals(ICON)||path.startsWith(StaticResourceHandler.PATH)){
             return StaticResourceHandler.INSTANCE;
