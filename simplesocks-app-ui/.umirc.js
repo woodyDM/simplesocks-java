@@ -8,7 +8,7 @@ export default {
       antd: true,
       dva: false,
       dynamicImport: false,
-      title: 'simplesocks-app-ui',
+      title: 'simplesocks-configuration',
       dll: false,
       
       routes: {
@@ -18,4 +18,12 @@ export default {
       },
     }],
   ],
+  hash:true,
+  proxy:{
+    "/api":{
+      "target":"http://localhost:10590/api/",
+      "changeOrigin":true,
+      "pathRewrite":{"^/api":""},
+    }
+  }
 }

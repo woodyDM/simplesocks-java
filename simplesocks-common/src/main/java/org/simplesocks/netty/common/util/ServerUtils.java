@@ -42,23 +42,23 @@ public final class ServerUtils {
 
 
 	public static void drawServerStartup(Logger log){
-		log.info("********************************************************");
-		log.info("*                                                      *");
-		log.info("*                SimpleSocksServer v0.0.1              *");
-		log.info("*                                                      *");
-		log.info("*      https://github.com/woodyDM/simplesocks-java     *");
-		log.info("*                                                      *");
-		log.info("********************************************************");
+		log.info("_______________________________________________________");
+		log.info("|                                                      |");
+		log.info("|                SimpleSocksServer v0.0.2              |");
+		log.info("|                                                      |");
+		log.info("|      https://github.com/woodyDM/simplesocks-java     |");
+		log.info("|                                                      |");
+		log.info("-------------------------------------------------------");
 	}
 
 	public static void drawClientStartup(Logger log){
-		log.info("********************************************************");
-		log.info("*                                                      *");
-		log.info("*                SimpleSocksClient v0.0.1              *");
-		log.info("*                                                      *");
-		log.info("*      https://github.com/woodyDM/simplesocks-java     *");
-		log.info("*                                                      *");
-		log.info("********************************************************");
+		log.info("_______________________________________________________");
+		log.info("|                                                      |");
+		log.info("|                SimpleSocksClient v0.0.2              |");
+		log.info("|                                                      |");
+		log.info("|      https://github.com/woodyDM/simplesocks-java     |");
+		log.info("|                                                      |");
+		log.info("-------------------------------------------------------");
 	}
 
 	private ServerUtils() {
