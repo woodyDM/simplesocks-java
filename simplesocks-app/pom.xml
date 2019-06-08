@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>org.simplesocks-netty</groupId>
 		<artifactId>simplesocks-parent</artifactId>
-		<version>0.0.1</version>
+		<version>0.0.2</version>
 	</parent>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
-	<artifactId>simplesocks-netty-app</artifactId>
+	<artifactId>simplesocks-app</artifactId>
 
 	<url>http://maven.apache.org</url>
 
@@ -36,7 +36,7 @@
 			<groupId>org.simplesocks-netty</groupId>
 		</dependency>
 		<dependency>
-			<artifactId>simplesocks-netty-client</artifactId>
+			<artifactId>simplesocks-client</artifactId>
 			<groupId>org.simplesocks-netty</groupId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
@@ -79,7 +79,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.simplesocks.netty.app.proxy.LocalSocksServer</mainClass>
+							<mainClass>org.simplesocks.netty.app.MainApp</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

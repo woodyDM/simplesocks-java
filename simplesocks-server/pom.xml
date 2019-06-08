@@ -3,18 +3,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 
-	<artifactId>simplesocks-netty-server</artifactId>
-	<version>0.0.1</version>
+	<artifactId>simplesocks-server</artifactId>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>org.simplesocks-netty</groupId>
 		<artifactId>simplesocks-parent</artifactId>
-		<version>0.0.1</version>
+		<version>0.0.2</version>
 	</parent>
 
 
 
-	<name>simplesocks-netty-server</name>
+	<name>simplesocks-server</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
