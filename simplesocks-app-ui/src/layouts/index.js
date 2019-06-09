@@ -1,82 +1,82 @@
-import styles from './index.css';
+import styles from './index.less';
 import {Layout, Menu, Icon} from 'antd';
-const {SubMenu} = Menu;
+import router from 'umi/router';
 const {Header, Content,Footer,Sider} = Layout;
+
+
+function handleClick (item,key,keypath){
+  const path = item.key;
+  router.push(path);
+}
+
 
 function BasicLayout(props) {
   return (
     <Layout>
-    <Header className="header">
-      <div className="logo" />
+    <Header>
+       
       <Menu
-        theme="dark"
-        mode="horizontal"
-        defaultSelectedKeys={['2']}
-        style={{ lineHeight: '64px' }}
-      >
-        <Menu.Item key="1">nav 1</Menu.Item>
-        <Menu.Item key="2">nav 2</Menu.Item>
-        <Menu.Item key="3">nav 3</Menu.Item>
-      </Menu>
+      theme="dark"
+      mode="horizontal"
+      defaultSelectedKeys={['2']}
+      style={{ lineHeight: '64px' }}>
+      
+        <Menu.Item className={styles.headerRight} key="1">Github</Menu.Item>
+        <Menu.Item className={styles.headerRight}key="2">Github2</Menu.Item>
+        <Menu.Item className={styles.headerRight}key="3">Github3</Menu.Item>
+        
+      
+    </Menu>
+      
+      
     </Header>
-    <Content style={{ padding: '0 50px' }}>
+    <Content style={{ padding: '0 0px' }}>
      
       <Layout style={{ padding: '24px 0', background: '#fff' }}>
-        <Sider width={200} style={{ background: '#fff' }}>
+        <Sider width={300} style={{ background: '#fff' }}>
           <Menu
-            mode="inline"
+            mode="vertical"
             defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            style={{ height: '100%' }}
+            defaultOpenKeys={['1']}
+            style={{ height: '100%'  }}
+            onClick = {handleClick.bind(this)}
           >
-            <SubMenu
-              key="sub1"
-              title={
+            <Menu.Item key='/'> 
+                <Icon className={styles.menuIcon} type="desktop" />
                 <span>
-                  <Icon type="user" />
-                  subnav 1
+                  概况
                 </span>
-              }
-            >
-              <Menu.Item key="1">option1</Menu.Item>
-              <Menu.Item key="2">option2</Menu.Item>
-              <Menu.Item key="3">option3</Menu.Item>
-              <Menu.Item key="4">option4</Menu.Item>
-            </SubMenu>
-            <SubMenu
-              key="sub2"
-              title={
+            </Menu.Item>
+            <Menu.Item key='/setting'> 
+                <Icon className={styles.icon} type="edit" />
                 <span>
-                  <Icon type="laptop" />
-                  subnav 2
+                  一般配置
                 </span>
-              }
-            >
-              <Menu.Item key="5">option5</Menu.Item>
-              <Menu.Item key="6">option6</Menu.Item>
-              <Menu.Item key="7">option7</Menu.Item>
-              <Menu.Item key="8">option8</Menu.Item>
-            </SubMenu>
-            <SubMenu
-              key="sub3"
-              title={
+            </Menu.Item>
+            <Menu.Item key='/domain'> 
+                <Icon className={styles.icon} type="global" />
                 <span>
-                  <Icon type="notification" />
-                  subnav 3
+                域名配置
                 </span>
-              }
-            >
-              <Menu.Item key="9">option9</Menu.Item>
-              <Menu.Item key="10">option10</Menu.Item>
-              <Menu.Item key="11">option11</Menu.Item>
-              <Menu.Item key="12">option12</Menu.Item>
-            </SubMenu>
+            </Menu.Item>
+            <Menu.Item key='/statistic'> 
+                <Icon className={styles.icon} type="pie-chart" />
+                <span>
+                数据统计
+                </span>
+            </Menu.Item>
+            <Menu.Item key='/git'> 
+                <Icon className={styles.icon} type="gitlab" />
+                <span>
+                Git代理
+                </span>
+            </Menu.Item>
           </Menu>
         </Sider>
-        <Content style={{ padding: '0 24px', minHeight: 280 }}>Content</Content>
+        <Content style={{ padding: '0 24px', minHeight: 580 }}>{props.children}</Content>
       </Layout>
     </Content>
-    <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+    <Footer style={{ textAlign: 'center'  }}><a href='https://github.com/woodyDM/simplesocks-java'>SimpleSocks</a> ©2019 </Footer>
   </Layout>
   );
 }

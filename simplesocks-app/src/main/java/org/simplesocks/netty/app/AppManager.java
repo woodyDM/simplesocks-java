@@ -8,6 +8,9 @@ import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
 import org.simplesocks.netty.app.utils.ProxyCounter;
 
+/**
+ * This app SINGLETON instance container.
+ */
 @Getter
 @Setter
 public class AppManager {
