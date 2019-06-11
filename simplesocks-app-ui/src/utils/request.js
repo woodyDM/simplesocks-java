@@ -31,16 +31,15 @@ axios.interceptors.response.use(config => {
   return config;
 }, (error) => {
   if (error && error.response) {
-    switch (error.response.status) {
-      case 500:
-      case 401:{
-        message.error(codeMessage[error.response.status]);
-        break;
-      }
-      default:
-        message.error('发生未知错误！！！');
-        break;
+    const code = error.response.status;
+    console.log(code);
+    const msg = codeMessage[code];
+    if(msg){
+      message.error(msg);
+    }else{
+      message.error("发生未知错误!");
     }
+
   } else if (JSON.stringify(error).indexOf('timeout') !== -1) {
     message.error('连接超时,请刷新试试');
   }

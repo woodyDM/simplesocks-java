@@ -151,9 +151,9 @@ class SettingPage extends React.Component{
           {getFieldDecorator('globalProxy', { rules: [
               {required:true,message:"代理模式不能为空"},
             ],})(
-            <Select   style={{width:'150px'}}    >
-                <Option value={true}>是</Option>
-                <Option value={false}>否</Option>
+            <Select style={{width:'150px'}}    >
+                <Option value='true'>是</Option>
+                <Option value='false'>否</Option>
             </Select>
           )}
         </Form.Item>
