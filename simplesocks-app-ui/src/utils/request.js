@@ -83,4 +83,4 @@ const putEx = (url, params) => {
 
 
 
-export default { get, post, put, del, api, getEx , postEx ,putEx};
+export default {   api, getEx , postEx ,putEx};

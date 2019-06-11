@@ -12,6 +12,10 @@ import org.simplesocks.netty.app.http.handler.base.RequestBodyHandler;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
 import org.simplesocks.netty.app.utils.IOExecutor;
 import org.simplesocks.netty.app.utils.ProxyCounter;
+
+/**
+ * DO setting
+ */
 @Slf4j
 public class SettingHandler extends RequestBodyHandler<AppConfiguration> {
 
@@ -42,7 +46,7 @@ public class SettingHandler extends RequestBodyHandler<AppConfiguration> {
      */
     @Override
     protected void handle0(AppConfiguration body, ChannelHandlerContext ctx, FullHttpRequest msg) {
-        if(configuration.isSame(body)){
+        if(configuration.isGeneralSame(body)){
             returnOkJsonContent(AjaxResponse.ok(), ctx, msg);
             return;
         }
@@ -50,7 +54,7 @@ public class SettingHandler extends RequestBodyHandler<AppConfiguration> {
             boolean needRestart = (!configuration.getAuth().equals(body.getAuth())) ||
                     configuration.getLocalPort()!=body.getLocalPort();
 
-            configuration.mergeFrom(body);
+            configuration.mergeExceptDomainList(body);
             IOExecutor.INSTANCE.submit(()->{
                 configuration.dump();
             });

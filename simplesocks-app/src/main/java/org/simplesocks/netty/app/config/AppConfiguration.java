@@ -63,7 +63,7 @@ public class AppConfiguration {
 
 
 
-    public boolean isSame(AppConfiguration other){
+    public boolean isGeneralSame(AppConfiguration other){
         if(localPort!=other.localPort)
             return false;
         if(configServerPort!=other.configServerPort)
@@ -78,9 +78,7 @@ public class AppConfiguration {
             return false;
         if(globalProxy!=other.globalProxy)
             return false;
-        if(!isSame(whiteList, other.whiteList))
-            return false;
-        return isSame(proxyList, other.proxyList);
+        return true;
 
     }
 
@@ -195,10 +193,9 @@ public class AppConfiguration {
         }
     }
 
-    public void mergeFrom(AppConfiguration other){
+    public void mergeExceptDomainList(AppConfiguration other){
         AppConfiguration configuration = this;
-        configuration.setWhiteList(other.getWhiteList());
-        configuration.setProxyList(other.getProxyList());
+
         configuration.configureGlobalProxy(other.isGlobalProxy()+"");
         configuration.configureEncryptType(other.getEncryptType());
         configuration.configureRemoteHost(other.getRemoteHost());

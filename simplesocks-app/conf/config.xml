@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration>
-	<localPort>10800</localPort>
-	<configServerPort>10590</configServerPort>
-	<auth>yourPassword</auth>
-	<remoteHost>localhost</remoteHost>
-	<remotePort>12000</remotePort>
+	<localPort>10670</localPort>
+	<configServerPort>10580</configServerPort>
+	<auth>1234567密码{}we:</auth>
+	<remoteHost>34.80.168.173</remoteHost>
+	<remotePort>12020</remotePort>
 	<encryptType>aes-cbc</encryptType>
 	<globalProxy>false</globalProxy>
 	<whiteSites>
+		<site>baidu.com</site>
 	</whiteSites>
 	<proxySites>
 	</proxySites>
