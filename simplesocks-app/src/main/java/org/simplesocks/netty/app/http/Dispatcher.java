@@ -46,7 +46,7 @@ public class Dispatcher {
          *  Using handler.support() to decide handler is better.
          *  But it works for this <strong>simple</strong> server.
          */
-        if(path.equals(INDEX)||path.equals(ICON)||path.startsWith(StaticResourceHandler.PATH)){
+        if(isSpecialStatic(path)){
             return StaticResourceHandler.INSTANCE;
         }
         Map<String, HttpHandler> m = data.get(path);
@@ -60,6 +60,10 @@ public class Dispatcher {
                 return httpHandler;
             }
         }
+    }
+
+    public static boolean isSpecialStatic(String path){
+        return path.equals(INDEX)||path.equals(ICON)||path.startsWith(StaticResourceHandler.PATH)||path.startsWith("/umi");
     }
 
 }

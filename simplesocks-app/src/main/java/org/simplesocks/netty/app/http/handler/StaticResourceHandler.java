@@ -36,11 +36,7 @@ public class StaticResourceHandler extends FileHandler {
     @Override
     public void handle(ChannelHandlerContext ctx, FullHttpRequest msg) {
         String path = msg.uri();
-        if(path.equals(Dispatcher.INDEX))
-            path = toStatic("/index.html");
-        else if(path.equalsIgnoreCase(ICON)){
-            path = toStatic(ICON);
-        }
+        path = toStatic(path);
         if(!path.startsWith(PATH)){
             throw new IllegalArgumentException("this handler only handle "+PATH +" uri, the real path is "+path);
         }
@@ -52,7 +48,19 @@ public class StaticResourceHandler extends FileHandler {
 
     }
 
+
+
     private String toStatic(String path){
-        return "/static" + path;
+        final String prefix = "/static";
+        if(path.equals(Dispatcher.INDEX))
+            return prefix+"/index.html";
+        if(path.equalsIgnoreCase(ICON)){
+            return prefix + path;
+        }
+        if(path.startsWith("/umi")){
+            return prefix+path;
+        }else{
+            return path;
+        }
     }
 }

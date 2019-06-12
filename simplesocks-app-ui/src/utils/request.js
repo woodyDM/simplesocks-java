@@ -27,7 +27,6 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 // 返回拦截器
 axios.interceptors.response.use(config => {
- 
   return config;
 }, (error) => {
   if (error && error.response) {
@@ -55,7 +54,7 @@ axios.interceptors.response.use(config => {
  */
 const doActionEx = (url, params, methodFunction)=>{
   return new Promise((resolve, reject) => {
-    methodFunction(url, params)
+    methodFunction(url, params,{timeout: 1000 * 10  })
       .then(res => {
         if (res && res.data.success) {
           resolve(res.data);

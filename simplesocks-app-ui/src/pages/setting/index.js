@@ -77,6 +77,7 @@ class SettingPage extends React.Component{
         for(let i in this.fields){
           d[this.fields[i]] = data[this.fields[i]];
         }
+        d.globalProxy = (d.globalProxy+"");
         form.setFieldsValue(d);
       })
     }
@@ -140,7 +141,7 @@ class SettingPage extends React.Component{
           {getFieldDecorator('encryptType', { rules: [
               {required:true,message:"加密方式不能为空"},
             ],})(
-            <Select  style={{width:'150px'}}>
+            <Select style={{width:'150px'}}>
                 <Option value="aes-cbc">aes-cbc</Option>
                 <Option value="aes-cfb">aes-cfb</Option>
                 <Option value="caesar">caesar</Option>
@@ -151,10 +152,10 @@ class SettingPage extends React.Component{
           {getFieldDecorator('globalProxy', { rules: [
               {required:true,message:"代理模式不能为空"},
             ],})(
-            <Select style={{width:'150px'}}    >
-                <Option value='true'>是</Option>
-                <Option value='false'>否</Option>
-            </Select>
+              <Select style={{width:'150px'}}>
+                <Option value="true">是</Option>
+                <Option value="false">否</Option>
+              </Select>
           )}
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
