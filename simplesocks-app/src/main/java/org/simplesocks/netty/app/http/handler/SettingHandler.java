@@ -13,6 +13,7 @@ import org.simplesocks.netty.app.http.handler.base.RequestBodyHandler;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
 import org.simplesocks.netty.app.utils.IOExecutor;
 import org.simplesocks.netty.app.utils.ProxyCounter;
+import org.simplesocks.netty.common.util.StringUtils;
 
 /**
  * DO setting
@@ -47,6 +48,9 @@ public class SettingHandler extends RequestBodyHandler<AppConfiguration> {
      */
     @Override
     protected void handle0(AppConfiguration body, ChannelHandlerContext ctx, FullHttpRequest msg) {
+        if(body.getRemoteHost()!=null){
+            body.setRemoteHost(StringUtils.trim(body.getRemoteHost()));
+        }
         if(configuration.isGeneralSame(body)){
             returnOkJsonContent(AjaxResponse.ok(), ctx, msg);
             return;

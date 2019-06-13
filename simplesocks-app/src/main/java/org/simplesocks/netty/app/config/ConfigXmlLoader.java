@@ -77,7 +77,7 @@ public class ConfigXmlLoader {
                         parseSites(config, childNodes, false);
                     }
                 }
-                log.info("load config complete {}!", config);
+                log.info("Load config complete {}!", config);
             }else{
 			    log.warn("Invalid config.xml, check your configuration.");
             }

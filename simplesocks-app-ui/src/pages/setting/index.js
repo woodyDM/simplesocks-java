@@ -64,9 +64,13 @@ class SettingPage extends React.Component{
       if(hasErr) return;
       const values = form.getFieldsValue(this.fields);
       ajax.postEx(ajax.api.doSetting, values).then(res=>{
-        notification['success']({title:'success', description:"设置成功"})
+        notification['success']({message:'success', description:"设置成功"})
         router.push({pathname:"/"});
       })
+    }
+
+    onClickCancel = ()=>{
+      router.push({pathname:"/"})
     }
 
     componentDidMount(){
@@ -159,9 +163,17 @@ class SettingPage extends React.Component{
           )}
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
-          <Button type="primary" htmlType="submit" onClick={this.onSubmit}>
+          <Col span={6} >
+            <Button type="primary" htmlType="submit" onClick={this.onSubmit}>
             确定
+            </Button>
+          </Col>
+          <Col span={4}>
+          <Button type="primary" htmlType="button" onClick={this.onClickCancel}>
+            取消
           </Button>
+          </Col>
+          
         </Form.Item>
       </Form>
         );

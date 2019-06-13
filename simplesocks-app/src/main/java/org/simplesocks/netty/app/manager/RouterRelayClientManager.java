@@ -41,6 +41,9 @@ public class RouterRelayClientManager implements RelayClientManager {
 
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
+        if(configuration.isGlobalProxy()){
+            return borrowFromProxy(eventExecutor, socksCmdRequest);
+        }
         String host = socksCmdRequest.host();
         boolean inWhiteList = isInCollection(configuration.getWhiteList(), host);
         if(inWhiteList){

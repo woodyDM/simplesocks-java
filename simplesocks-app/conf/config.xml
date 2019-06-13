@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration>
-	<localPort>10671</localPort>
+	<localPort>10750</localPort>
 	<configServerPort>10590</configServerPort>
-	<auth>1234567密码</auth>
-	<remoteHost>34.80.168.173</remoteHost>
-	<remotePort>12023</remotePort>
+	<auth>1234 </auth>
+	<remoteHost>34.8</remoteHost>
+	<remotePort>12020</remotePort>
 	<encryptType>aes-cbc</encryptType>
 	<globalProxy>false</globalProxy>
 	<whiteSites>

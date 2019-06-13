@@ -94,7 +94,6 @@ public class AppConfiguration {
     }
 
 
-
     public void configureLocalPort(int localPort) {
         checkPort("localPort", localPort);
         this.localPort = localPort;

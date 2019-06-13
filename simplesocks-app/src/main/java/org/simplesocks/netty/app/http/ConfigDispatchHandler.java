@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.http.handler.SettingHandler;
 import org.simplesocks.netty.app.http.handler.SettingInfoHandler;
 import org.simplesocks.netty.app.http.handler.StaticResourceHandler;
+import org.simplesocks.netty.app.http.handler.StatisticHandler;
 
 @ChannelHandler.Sharable
 @Slf4j
@@ -20,7 +21,7 @@ public class ConfigDispatchHandler extends SimpleChannelInboundHandler<FullHttpR
         dispatcher = new Dispatcher();
         dispatcher.register("/api/setting", "GET", new SettingInfoHandler());
         dispatcher.register("/api/setting", "POST", new SettingHandler());
-        dispatcher.register("/api/statistic", "GET", new SettingInfoHandler());
+        dispatcher.register("/api/statistic", "GET", new StatisticHandler());
         dispatcher.register("/api/statistic/reset", "POST", new SettingInfoHandler());
         dispatcher.register("/api/domain", "GET", new SettingInfoHandler());
         dispatcher.register("/api/domain/pac", "GET", new SettingInfoHandler());
