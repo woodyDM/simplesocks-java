@@ -46,7 +46,6 @@ export default class StatisticPage extends React.Component{
     render(){
         const ac = this.state.tabKey;
         const nowActive = (ac ? ac:'tab1');
-        
         let startTime = "";
         if(this.state.sData){
             startTime = this.state.sData.startTime.replace("T"," ").substring(0,"2019-06-13 16:27:35".length)
