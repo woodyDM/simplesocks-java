@@ -33,14 +33,19 @@ public abstract class RequestBodyHandler<T> extends JsonValueHandler {
 
     @SuppressWarnings("unchecked")
     protected Class<T> parseClazz(){
-        Type sup = this.getClass().getGenericSuperclass();
-        if(sup instanceof ParameterizedType){
-            ParameterizedType t = (ParameterizedType) sup;
-            Type actualTypeArgument = t.getActualTypeArguments()[0];
-            return (Class<T>)actualTypeArgument;
-        }else{
-            throw new IllegalStateException("class "+this.getClass()+" is not generic.");
-        }
+        Class<?> clazz = this.getClass();
+        do{
+            Type sup = clazz.getGenericSuperclass();
+            if(sup instanceof ParameterizedType){
+                ParameterizedType t = (ParameterizedType) sup;
+                Type actualTypeArgument = t.getActualTypeArguments()[0];
+                return (Class<T>)actualTypeArgument;
+            }else{
+                clazz = clazz.getSuperclass();
+            }
+        }while (clazz!=null);
+        throw new IllegalStateException("class "+this.getClass()+" is not generic.");
+
     }
 
 

@@ -40,6 +40,7 @@ public class Dispatcher {
     }
 
     public HttpHandler get(String path,String method){
+
         method = method.toLowerCase();
         /**
          *  I know this looks bad ,same code can found in StaticResourceHandler.INSTANCE,

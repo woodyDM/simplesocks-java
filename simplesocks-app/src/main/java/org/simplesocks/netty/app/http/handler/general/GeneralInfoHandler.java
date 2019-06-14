@@ -1,17 +1,13 @@
-package org.simplesocks.netty.app.http.handler;
+package org.simplesocks.netty.app.http.handler.general;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
-import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.app.AppManager;
 import org.simplesocks.netty.app.http.AjaxResponse;
 import org.simplesocks.netty.app.http.handler.base.JsonValueHandler;
-import org.simplesocks.netty.app.http.vo.CounterSnapshot;
-import org.simplesocks.netty.app.utils.ProxyCounter;
+import org.simplesocks.netty.app.http.handler.general.GeneralInfo;
 
-@Slf4j
-public class StatisticHandler extends JsonValueHandler {
+public class GeneralInfoHandler extends JsonValueHandler {
 
     /**
      * exact path:   /info (JSON)
@@ -21,7 +17,7 @@ public class StatisticHandler extends JsonValueHandler {
      */
     @Override
     public String pathSupport() {
-        return "/api/statistic";
+        return "/api/info";
     }
 
     @Override
@@ -31,8 +27,7 @@ public class StatisticHandler extends JsonValueHandler {
 
     @Override
     public void handle(ChannelHandlerContext ctx, FullHttpRequest msg) {
-        ProxyCounter counter = AppManager.INSTANCE.getCounter();
-        CounterSnapshot snapshot = CounterSnapshot.valueOf(counter);
-        returnOkJsonContent(AjaxResponse.ok(snapshot), ctx, msg);
+        GeneralInfo info = GeneralInfo.snapshot();
+        returnOkJsonContent(AjaxResponse.ok(info), ctx, msg);
     }
 }

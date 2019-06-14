@@ -18,13 +18,13 @@ function BasicLayout(props) {
       <Menu
       theme="dark"
       mode="horizontal"
-      defaultSelectedKeys={['2']}
+      defaultSelectedKeys={['4']}
       style={{ lineHeight: '64px' }}>
       
-        <Menu.Item className={styles.headerRight} key="1">Github</Menu.Item>
-        <Menu.Item className={styles.headerRight}key="2">Github2</Menu.Item>
-        <Menu.Item className={styles.headerRight}key="3">Github3</Menu.Item>
-        
+        <Menu.Item className={styles.headerRight} key="1"><a href='https://ant.design' target='_blank'>Ant Design</a></Menu.Item>
+        <Menu.Item className={styles.headerRight}key="2"><a href='https://umijs.org/' target='_blank'>UmiJS</a></Menu.Item>
+        <Menu.Item className={styles.headerRight}key="3"><a href='https://netty.io/' target='_blank'>Netty</a></Menu.Item>
+        <Menu.Item className={styles.headerRight}key="4"><a href='https://github.com/woodyDM/simplesocks-java' target='_blank'>Github</a></Menu.Item>
       
     </Menu>
       

@@ -1,14 +1,13 @@
-package org.simplesocks.netty.app.http.handler;
+package org.simplesocks.netty.app.http.handler.statistic;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
+import org.simplesocks.netty.app.AppManager;
 import org.simplesocks.netty.app.http.AjaxResponse;
 import org.simplesocks.netty.app.http.handler.base.JsonValueHandler;
-import org.simplesocks.netty.app.http.vo.GeneralInfo;
 
-public class GeneralInfoHandler extends JsonValueHandler {
-
+public class StatisticResetHandler extends JsonValueHandler {
     /**
      * exact path:   /info (JSON)
      * or start with /static/  -> look for /static at classpath.
@@ -17,17 +16,17 @@ public class GeneralInfoHandler extends JsonValueHandler {
      */
     @Override
     public String pathSupport() {
-        return "/api/info";
+        return "/api/statistic/reset";
     }
 
     @Override
     public HttpMethod methodSupport() {
-        return HttpMethod.GET;
+        return HttpMethod.POST;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, FullHttpRequest msg) {
-        GeneralInfo info = GeneralInfo.snapshot();
-        returnOkJsonContent(AjaxResponse.ok(info), ctx, msg);
+        AppManager.INSTANCE.getCounter().reset();
+        returnOkJsonContent(AjaxResponse.ok("重置成功"),ctx,msg);
     }
 }

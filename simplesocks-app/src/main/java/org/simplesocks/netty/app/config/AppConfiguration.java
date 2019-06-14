@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.simplesocks.netty.app.utils.IOExecutor;
 import org.simplesocks.netty.common.util.ConfigPathUtil;
 
 import java.io.File;
@@ -164,6 +165,13 @@ public class AppConfiguration {
             throw new IllegalArgumentException(field+" should not be empty.");
         }
     }
+
+    public void dumpAsync(){
+        IOExecutor.INSTANCE.submit(()->{
+            dump();
+        });
+    }
+
 
     public boolean dump(){
         boolean ok = ConfigXmlWriter.dump(this, Constants.PATH_TEMP);

@@ -1,4 +1,4 @@
-package org.simplesocks.netty.app.http.vo;
+package org.simplesocks.netty.app.http.handler.statistic;
 
 
 import lombok.Data;

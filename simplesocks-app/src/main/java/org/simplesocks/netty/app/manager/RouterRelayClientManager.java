@@ -28,7 +28,11 @@ public class RouterRelayClientManager implements RelayClientManager {
     private RelayClientManager directManager;
     private RelayClientManager simpleSocksManager;
     private Set<String> defaultProxyDomains = new HashSet<>();
-
+    private static final Set<String> LOCALHOST = new HashSet<>(4);
+    static {
+        LOCALHOST.add("localhost");
+        LOCALHOST.add("127.0.0.1");
+    }
 
     public RouterRelayClientManager(AppConfiguration configuration, ProxyCounter counter, EventLoopGroup loopGroup, EncrypterFactory encrypterFactory) {
         this.counter = counter;
@@ -41,10 +45,14 @@ public class RouterRelayClientManager implements RelayClientManager {
 
     @Override
     public Promise<RelayClient> borrow(EventExecutor eventExecutor, SocksCmdRequest socksCmdRequest) {
+        String host = socksCmdRequest.host();
+        boolean isLocalHost = isInCollection(LOCALHOST, host);
+        if(isLocalHost){
+            return borrowFromDirect(eventExecutor, socksCmdRequest);
+        }
         if(configuration.isGlobalProxy()){
             return borrowFromProxy(eventExecutor, socksCmdRequest);
         }
-        String host = socksCmdRequest.host();
         boolean inWhiteList = isInCollection(configuration.getWhiteList(), host);
         if(inWhiteList){
             return borrowFromDirect(eventExecutor, socksCmdRequest);

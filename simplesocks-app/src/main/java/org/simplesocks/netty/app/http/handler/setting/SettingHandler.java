@@ -1,4 +1,4 @@
-package org.simplesocks.netty.app.http.handler;
+package org.simplesocks.netty.app.http.handler.setting;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.app.AppManager;
 import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.http.AjaxResponse;
+import org.simplesocks.netty.app.http.handler.InvalidRequestHandler;
 import org.simplesocks.netty.app.http.handler.base.RequestBodyHandler;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
 import org.simplesocks.netty.app.utils.IOExecutor;
@@ -60,9 +61,7 @@ public class SettingHandler extends RequestBodyHandler<AppConfiguration> {
                     configuration.getLocalPort()!=body.getLocalPort();
 
             configuration.mergeExceptDomainList(body);
-            IOExecutor.INSTANCE.submit(()->{
-                configuration.dump();
-            });
+            configuration.dumpAsync();
             if(needRestart){
                 ProxyCounter counter = AppManager.INSTANCE.getCounter();
                 LocalSocksServer oldServer = AppManager.INSTANCE.getLocalSocksServer();
