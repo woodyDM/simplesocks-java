@@ -3,7 +3,7 @@
 import React from 'react';
 import Pie from '../../components/Pie';
 import ajax from '../../utils/request';
-import {Card} from 'antd';
+import {Card,Button} from 'antd';
 import doge from '../../assets/doge.jpg';
 
 export default class StatisticPage extends React.Component{
@@ -16,6 +16,11 @@ export default class StatisticPage extends React.Component{
         this.refreshData();
     }
 
+    reset=()=>{
+        ajax.postEx(ajax.api.reset).then(res=>{
+            this.refreshData();
+        });
+    }
 
     refreshData=()=>{
         ajax.getEx(ajax.api.statistic).then(res=>{
@@ -52,7 +57,8 @@ export default class StatisticPage extends React.Component{
         }
         const tabs = {
             'tab1':(<div>
-                        <span>统计开始时间：{startTime}</span>
+                        <span style={{margin:'10px 20px'}}>统计开始时间：{startTime}</span>
+                        <Button type='primary' onClick={this.reset}>重置数据</Button>
                         <Pie id = 'pie' width={400} height={500} dataSet={this.state.sData} />
                     </div>),
             'tab2':(<div>

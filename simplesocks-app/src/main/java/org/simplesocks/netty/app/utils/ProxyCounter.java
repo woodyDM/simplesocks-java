@@ -15,4 +15,12 @@ public class ProxyCounter {
     private AtomicLong proxyCounter = new AtomicLong(0);
     private AtomicLong failedCounter = new AtomicLong(0);
 
+
+    public void reset(){
+        startTime = LocalDateTime.now();
+        directCounter.set(0);
+        proxyCounter.set(0);
+        failedCounter.set(0);
+    }
+
 }

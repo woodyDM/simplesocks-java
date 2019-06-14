@@ -5,10 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.simplesocks.netty.app.http.handler.SettingHandler;
-import org.simplesocks.netty.app.http.handler.SettingInfoHandler;
-import org.simplesocks.netty.app.http.handler.StaticResourceHandler;
-import org.simplesocks.netty.app.http.handler.StatisticHandler;
+import org.simplesocks.netty.app.http.handler.*;
 
 @ChannelHandler.Sharable
 @Slf4j
@@ -18,15 +15,17 @@ public class ConfigDispatchHandler extends SimpleChannelInboundHandler<FullHttpR
 
     private final static Dispatcher dispatcher ;
     static {
+
         dispatcher = new Dispatcher();
         dispatcher.register("/api/setting", "GET", new SettingInfoHandler());
         dispatcher.register("/api/setting", "POST", new SettingHandler());
         dispatcher.register("/api/statistic", "GET", new StatisticHandler());
-        dispatcher.register("/api/statistic/reset", "POST", new SettingInfoHandler());
-        dispatcher.register("/api/domain", "GET", new SettingInfoHandler());
-        dispatcher.register("/api/domain/pac", "GET", new SettingInfoHandler());
-        dispatcher.register("/api/domain", "POST", new SettingInfoHandler());
-        dispatcher.register("/api/about", "GET", new SettingInfoHandler());
+        dispatcher.register("/api/statistic/reset", "POST", new StatisticResetHandler());
+
+        dispatcher.register("/api/domain", "GET", new SettingInfoHandler());    //TODO
+        dispatcher.register("/api/domain/pac", "GET", new SettingInfoHandler());    //TODO
+        dispatcher.register("/api/domain", "POST", new SettingInfoHandler());       //TODO
+        dispatcher.register("/api/info", "GET", new GeneralInfoHandler());
         dispatcher.register("/static/*","GET", new StaticResourceHandler());
     }
 

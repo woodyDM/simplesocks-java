@@ -42,8 +42,11 @@ export default class Pie extends React.Component{
         }
         if (canvas && canvas.getContext && data) {
             var ctx = canvas.getContext("2d");
+            ctx.fillStyle='white';
+            ctx.clearRect(0,0,width,height);
+            ctx.fillStyle='black';
             if(hasData){
-                ctx.clearRect(0,0,width,height);
+                
                 const offsetY = 50;
                 const x0 = width/2;
                 const y0 = (height - offsetY)/2 + offsetY;
@@ -52,6 +55,7 @@ export default class Pie extends React.Component{
                 this.drawCircle(ctx, x0 , y0, r, data.directNumber, data.proxyNumber,data.failedNumber);
                 this.drawTitle(ctx, width, offsetY, data.directNumber, data.proxyNumber,data.failedNumber);
             }else{
+                ctx.fillStyle='black';
                 ctx.font="20px Arial";
                 ctx.fillText("暂时没有统计数据呢",10,50);
             }

@@ -8,6 +8,8 @@ import org.simplesocks.netty.app.config.AppConfiguration;
 import org.simplesocks.netty.app.proxy.LocalSocksServer;
 import org.simplesocks.netty.app.utils.ProxyCounter;
 
+import java.time.LocalDateTime;
+
 /**
  * This app SINGLETON instance container.
  */
@@ -20,6 +22,9 @@ public class AppManager {
     private LocalSocksServer localSocksServer;
     private ProxyCounter counter;
     private EventLoopGroup eventLoopGroup;
+    public static final String VERSION = "v0.0.2";
+    public static final LocalDateTime START_TIME = LocalDateTime.now();
+
 
     public static final AppManager INSTANCE = new AppManager();
 

@@ -1,11 +1,11 @@
 package org.simplesocks.netty.app.http.vo;
 
-import com.sun.org.glassfish.external.statistics.CountStatistic;
+
 import lombok.Data;
 import org.simplesocks.netty.app.utils.ProxyCounter;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicLong;
+
 
 @Data
 public class CounterSnapshot {
