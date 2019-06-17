@@ -10,6 +10,8 @@ import org.simplesocks.netty.app.http.handler.domain.AddDomainHanldler;
 import org.simplesocks.netty.app.http.handler.domain.DeleteDomainHanldler;
 import org.simplesocks.netty.app.http.handler.domain.DomainListHanldler;
 import org.simplesocks.netty.app.http.handler.general.GeneralInfoHandler;
+import org.simplesocks.netty.app.http.handler.git.GitInfoHandler;
+import org.simplesocks.netty.app.http.handler.git.GitSettingHandler;
 import org.simplesocks.netty.app.http.handler.setting.SettingHandler;
 import org.simplesocks.netty.app.http.handler.setting.SettingInfoHandler;
 import org.simplesocks.netty.app.http.handler.statistic.StatisticHandler;
@@ -32,7 +34,10 @@ public class ConfigDispatchHandler extends SimpleChannelInboundHandler<FullHttpR
         dispatcher.register("/api/domain", "GET", new DomainListHanldler());
         dispatcher.register("/api/domain", "POST", new AddDomainHanldler());
         dispatcher.register("/api/domain/delete", "POST", new DeleteDomainHanldler());
+        dispatcher.register("/api/git/info", "GET", new GitInfoHandler());
+        dispatcher.register("/api/git/do", "POST", new GitSettingHandler());
         dispatcher.register("/api/info", "GET", new GeneralInfoHandler());
+
         dispatcher.register("/static/*","GET", new StaticResourceHandler());
     }
 
