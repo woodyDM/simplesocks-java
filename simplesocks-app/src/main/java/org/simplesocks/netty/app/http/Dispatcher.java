@@ -52,7 +52,8 @@ public class Dispatcher {
         }
         Map<String, HttpHandler> m = data.get(path);
         if(m==null){
-            return PageNotFoundHandler.INSTANCE;
+            //ui urls
+            return IndexHandler.INSTANCE;
         }else{
             HttpHandler httpHandler = m.get(method);
             if(httpHandler==null){
