@@ -8,13 +8,13 @@
 	<encryptType>aes-cbc</encryptType>
 	<globalProxy>false</globalProxy>
 	<whiteSites>
-		<site>baidu.com</site>
 		<site>youku.com</site>
+		<site>baidu.com</site>
 	</whiteSites>
 	<proxySites>
-		<site>google.com</site>
 		<site>youtube.com</site>
 		<site>golang.org</site>
-		<site>golang2.org</site>
+		<site>google.com</site>
+		<site>facebook.com</site>
 	</proxySites>
 </Configuration>

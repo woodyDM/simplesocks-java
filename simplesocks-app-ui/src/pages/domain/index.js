@@ -2,7 +2,8 @@
 import React from 'react';
 import { Tabs, Icon } from 'antd';
 import DomainList from '../../components/DomainList.js';
-import styles from './index.less';
+import DomainTip from '../../components/DomainTip';
+ 
 
 const { TabPane } = Tabs;
 
@@ -20,8 +21,8 @@ export default class DomainPage extends React.Component{
                 }
                 key="1"
                 >
-                <span className={styles.title} >该列表的网站<strong>永远不会</strong>被代理</span>
-                <DomainList ></DomainList>
+                <DomainTip type='white'></DomainTip>
+                <DomainList type='white'></DomainList>
                 </TabPane>
                 <TabPane
                 tab={
@@ -32,8 +33,8 @@ export default class DomainPage extends React.Component{
                 }
                 key="2"
                 >
-                <span className={styles.title}>该列表的网站<strong>总会</strong>被代理</span>
-                <DomainList ></DomainList>
+                <DomainTip type='proxy'></DomainTip>
+                <DomainList type='proxy'></DomainList>
                 </TabPane>
             </Tabs>
         );

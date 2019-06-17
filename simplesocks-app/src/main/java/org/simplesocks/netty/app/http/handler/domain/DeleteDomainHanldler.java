@@ -13,6 +13,16 @@ import java.util.List;
 
 public class DeleteDomainHanldler extends DomainActionHandler {
 
+    /**
+     * exact path:   /info (JSON)
+     * or start with /static/  -> look for /static at classpath.
+     *
+     * @return
+     */
+    @Override
+    public String pathSupport() {
+        return "/api/domain/delete";
+    }
 
     @Override
     public HttpMethod methodSupport() {

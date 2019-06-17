@@ -8,6 +8,8 @@ export default {
      statistic:"/api/statistic",
      reset:"/api/statistic/reset",
      info:"/api/info",
+     domain:"/api/domain",
+     domainDelete:"/api/domain/delete"
      
  
 

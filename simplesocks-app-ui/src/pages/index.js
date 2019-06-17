@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ajax from '../utils/request';
-import { Descriptions, Badge } from 'antd';
+import { Descriptions } from 'antd';
 export default class GeneralPage extends React.Component{
 
 

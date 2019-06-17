@@ -75,10 +75,11 @@ const getEx = (url, params) => {
 const postEx = (url, params) => {
   return doActionEx(url, params, axios.post);
 };
-const putEx = (url, params) => {
-  return doActionEx(url, params, axios.put);
+const deleteEx = (url, params) => {
+  return doActionEx(url, params, axios.delete);
 };
 
 
 
-export default {   api, getEx , postEx ,putEx};
+
+export default {api, getEx , postEx ,deleteEx};
