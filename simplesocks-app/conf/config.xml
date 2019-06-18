@@ -12,7 +12,6 @@
 		<site>baidu.com</site>
 	</whiteSites>
 	<proxySites>
-		<site>youtube.com</site>
 		<site>golang.org</site>
 		<site>google.com</site>
 		<site>facebook.com</site>

@@ -1,6 +1,8 @@
 import styles from './index.less';
 import {Layout, Menu, Icon} from 'antd';
 import router from 'umi/router';
+import logo from '../assets/logo.png';
+
 const {Header, Content,Footer,Sider} = Layout;
 
 
@@ -31,9 +33,11 @@ function BasicLayout(props) {
       
     </Header>
     <Content style={{ padding: '0 0px' }}>
-     
+      
       <Layout style={{ padding: '24px 0', background: '#fff' }}>
+        
         <Sider width={300} style={{ background: '#fff' }}>
+          <img className={styles.logo} src={logo}/>
           <Menu
             mode="vertical"
             defaultSelectedKeys={['1']}
@@ -66,7 +70,7 @@ function BasicLayout(props) {
                 </span>
             </Menu.Item>
             <Menu.Item key='/git'> 
-                <Icon className={styles.icon} type="gitlab" />
+                <Icon className={styles.icon} type="github" />
                 <span>
                 Git代理
                 </span>

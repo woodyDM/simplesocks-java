@@ -45,7 +45,7 @@ public class ConfigurationServer {
             ChannelFuture bind = bootstrap.bind(port).syncUninterruptibly();
             bind.addListener(f->{
                 if(f.isSuccess())
-                    log.info("Local config server started. Visit http://localhost:{} to customize.",port,port);
+                    log.info("Local config server started. Visit http://localhost:{} for configuration.",port,port);
             });
             return Optional.of(bind);
         }catch (Exception e){

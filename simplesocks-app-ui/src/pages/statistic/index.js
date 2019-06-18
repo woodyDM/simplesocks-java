@@ -40,7 +40,7 @@ export default class StatisticPage extends React.Component{
     ];
 
     onTabChange = (key)=>{
-        console.log(key)
+
         this.setState({tabKey:key},()=>{
             if(key=='tab1'){
                 this.refreshData();

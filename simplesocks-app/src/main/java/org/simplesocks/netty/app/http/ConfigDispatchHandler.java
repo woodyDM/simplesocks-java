@@ -36,8 +36,8 @@ public class ConfigDispatchHandler extends SimpleChannelInboundHandler<FullHttpR
         dispatcher.register("/api/domain/delete", "POST", new DeleteDomainHanldler());
         dispatcher.register("/api/git/info", "GET", new GitInfoHandler());
         dispatcher.register("/api/git/do", "POST", new GitSettingHandler());
-        dispatcher.register("/api/info", "GET", new GeneralInfoHandler());
 
+        dispatcher.register("/api/info", "GET", new GeneralInfoHandler());
         dispatcher.register("/static/*","GET", new StaticResourceHandler());
     }
 

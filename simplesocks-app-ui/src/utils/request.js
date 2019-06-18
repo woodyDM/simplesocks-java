@@ -21,6 +21,7 @@ const codeMessage = {
 };
 
 // 全局默认配置
+
 axios.defaults.timeout = 200000;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8;Accept-Language:zh-CN,zh;q=0.8';
  
@@ -31,7 +32,6 @@ axios.interceptors.response.use(config => {
 }, (error) => {
   if (error && error.response) {
     const code = error.response.status;
-    console.log(code);
     const msg = codeMessage[code];
     if(msg){
       message.error(msg);

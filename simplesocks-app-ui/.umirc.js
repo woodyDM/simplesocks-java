@@ -21,9 +21,10 @@ export default {
   hash:true,
   proxy:{
     "/api":{
-      "target":"http://localhost:10590/api/",
+      "target":"http://127.0.0.1:10590/api/",
       "changeOrigin":true,
       "pathRewrite":{"^/api":""},
+      
     }
   }
 }

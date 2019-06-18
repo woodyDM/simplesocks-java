@@ -9,4 +9,5 @@ public class GitInfo {
     private Boolean isGlobalMode;
     private String httpProxy;
     private String httpsProxy;
+    private Integer localPort;
 }
