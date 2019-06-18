@@ -10,6 +10,8 @@ import {
     InputNumber,
     Select,
     Col,
+    Icon,
+    Tooltip,
     Button,
   } from 'antd';
  
@@ -113,7 +115,14 @@ class SettingPage extends React.Component{
             rules:[{required:true,message:"端口不能为空"},{validator:this.validateLocalPort}]
           } )(<InputNumber min={1} max={65535} />)}
         </Form.Item>
-        <Form.Item label="本地配置端口"   required={false}>
+        <Form.Item label={
+            <span>
+              本地配置端口&nbsp;
+              <Tooltip title="本配置页面端口，修改后下次启动生效">
+                <Icon type="question-circle-o" />
+              </Tooltip>
+            </span>
+          }   required={false}>
           {getFieldDecorator('configServerPort',   {
             rules:[{required:true,message:"端口不能为空"},{validator:this.validateConfigPort}]
           } )(<InputNumber min={1} max={65535} />)}
@@ -146,7 +155,14 @@ class SettingPage extends React.Component{
             </Select>
           )}
         </Form.Item>
-        <Form.Item label="全局代理"  required={false}>
+        <Form.Item label={
+            <span>
+              全局代理&nbsp;
+              <Tooltip title="是：所有请求都被代理；否：按照域名配置和内置PAC列表规则进行代理，PAC列表收录了大部分需要代理的域名">
+                <Icon type="question-circle-o" />
+              </Tooltip>
+            </span>
+          }  required={false}>
           {getFieldDecorator('globalProxy', { rules: [
               {required:true,message:"代理模式不能为空"},
             ],})(
