@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration>
-	<localPort>10750</localPort>
+	<localPort>10800</localPort>
 	<configServerPort>10590</configServerPort>
-	<auth>1234</auth>
-	<remoteHost>34.82234</remoteHost>
+	<auth>123456</auth>
+	<remoteHost>localhost</remoteHost>
 	<remotePort>12020</remotePort>
 	<encryptType>aes-cbc</encryptType>
 	<globalProxy>false</globalProxy>
 	<whiteSites>
-		<site>youku.com</site>
-		<site>baidu.com</site>
+
 	</whiteSites>
 	<proxySites>
-		<site>golang.org</site>
+
 		<site>google.com</site>
-		<site>facebook.com</site>
+
 	</proxySites>
 </Configuration>

@@ -29,13 +29,14 @@ public class LocalSocksServer  {
  	private AppConfiguration configuration;
 	private Channel serverChannel;
 	private RelayClientManager manager;
+	private Status status;
 
-
-	public LocalSocksServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, AppConfiguration configuration, RelayClientManager manager ) {
+	private LocalSocksServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, AppConfiguration configuration, RelayClientManager manager ) {
 		this.bossGroup = bossGroup;
 		this.workerGroup = workerGroup;
 		this.configuration = configuration;
 		this.manager = manager;
+		this.status = Status.INIT;
 	}
 
 
@@ -46,6 +47,10 @@ public class LocalSocksServer  {
         LocalSocksServer proxyServer = new LocalSocksServer(group, group, configuration, manager);
         return proxyServer;
     }
+
+	public Status getStatus() {
+		return status;
+	}
 
 	/**
 	 * entry
@@ -61,9 +66,12 @@ public class LocalSocksServer  {
 			ChannelFuture channelFuture = bootstrap.bind(port);
 			channelFuture.addListener(f->{
 			    if(f.isSuccess()){
+			    	this.status = Status.RUNNING;
                     this.serverChannel = channelFuture.channel();
                     log.info("Local proxy server start at port [{}] , mode [{}]."  ,port, configuration.isGlobalProxy()?"GlobalProxyMode":"PacMode");
-                }
+                }else{
+			    	this.status = Status.SHUTDOWN;
+				}
             });
 			return channelFuture;
 		} catch (Throwable e) {
@@ -79,6 +87,7 @@ public class LocalSocksServer  {
 
 
 	public void stop(GenericFutureListener<? extends Future<? super Void>> listener){
+		this.status = Status.SHUTDOWN;
 		if(this.serverChannel!=null){
 			serverChannel.close().addListener(listener);
 		}else{
@@ -88,6 +97,12 @@ public class LocalSocksServer  {
 				throw new IllegalStateException("exception when closing local proxy server.", e);
 			}
 		}
+	}
+
+	public enum Status{
+		INIT,
+		RUNNING,
+		SHUTDOWN
 	}
 
 

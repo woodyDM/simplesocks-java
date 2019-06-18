@@ -21,6 +21,7 @@ public class GeneralInfo {
     private int totalActiveThread;  //用户线程
     private String version;
     private String startTime;
+    private String status;
 
     static final BigDecimal MB = BigDecimal.valueOf(1024*1024);
     static final int MB_I =  1024*1024;
@@ -39,6 +40,7 @@ public class GeneralInfo {
         i.vmUsed = toMB(used);
         i.totalActiveThread = getTotalActiveThreadNumber();
         i.version = AppManager.VERSION;
+        i.status = AppManager.INSTANCE.getLocalSocksServer().getStatus().name();
         i.startTime = AppManager.START_TIME.toString().replace("T"," ").substring(0,"2019-00-00 11:11:11".length());
         return i;
     }
