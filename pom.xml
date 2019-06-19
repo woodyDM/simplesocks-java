@@ -22,6 +22,10 @@
 		<java.version>1.8</java.version>
 		<lombok.versin>1.18.6</lombok.versin>
 		<simplesocks.version>0.0.2</simplesocks.version>
+		<netty.version>4.1.35.Final</netty.version>
+		<bcprov.version>1.59</bcprov.version>
+		<fastjson.version>1.2.58</fastjson.version>
+		<logback.version>1.2.3</logback.version>
 	</properties>
 
 
@@ -40,36 +44,20 @@
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-all</artifactId>
-				<version>4.1.35.Final</version>
+				<version>${netty.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.bouncycastle</groupId>
 				<artifactId>bcprov-jdk15on</artifactId>
-				<version>1.59</version>
+				<version>${bcprov.version}</version>
 			</dependency>
 			<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
 			<dependency>
 				<groupId>com.alibaba</groupId>
 				<artifactId>fastjson</artifactId>
-				<version>1.2.58</version>
+				<version>${fastjson.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.lmax</groupId>
-				<artifactId>disruptor</artifactId>
-				<version>3.4.2</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-net</groupId>
-				<artifactId>commons-net</artifactId>
-				<version>3.6</version>
-			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-pool2 -->
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-pool2</artifactId>
-				<version>2.6.2</version>
-			</dependency>
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
@@ -80,9 +68,8 @@
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
-				<version>1.2.3</version>
+				<version>${logback.version}</version>
 			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
 

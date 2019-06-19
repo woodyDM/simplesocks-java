@@ -16,7 +16,7 @@ Thanks to :
 + [x] Self-defined SimpleSocksProtocol;      
 + [x] Data encryption between LocalServer and RemoteServer;       
 + [x] special pac list;    
-+ [ ] Setting pages on browsers;   
++ [x] Setting pages on browsers(Default: http://localhost:10590);   
 + [ ] Traffic monitor;   
 + [ ] ~~SimpleSocksProtocol connection pool in client.(pool authenticated channel),~~
 (It seems hard to create a pool with non-blocking synchronizations)   
@@ -31,7 +31,20 @@ Thanks to :
 
 ## Require  
 1. JDK 8 or higher   
-2. Maven 3.5+
+2. Maven 3.5+  
+3. Git (recommend)
+
+
+## How to use
+0. To setup this service, you need server side and client side;  
+1. Clone this git repository:`git clone https://github.com/woodyDM/simplesocks-java.git`;
+2. Run package command:`mvn package`;
+3. Server : "simplesocks-server/target/simplesocks-server-0.0.2-bin.zip", unzip and edit 
+your configuration in conf/config.xml and start.
+4. Client : "simplesocks-app/target/simplesocks-app-0.0.2-bin.zip", unzip and start.
+Try http://localhost:10590 for configuration; Use socks5 protocol tool for connecting to local 
+simplesocks server.
+
 
 ## SimpleSocksProtocol   
 
