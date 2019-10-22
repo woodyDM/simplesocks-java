@@ -5,6 +5,7 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESLightEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.modes.CFBBlockCipher;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
@@ -32,8 +33,7 @@ public class AesEncrypter implements Encrypter {
     @Override
     public byte[] encrypt(byte[] plain) {
         PaddedBufferedBlockCipher aes = new PaddedBufferedBlockCipher(type.cipher(new AESLightEngine() ));
-        CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(appKey),
-                iv);
+        CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(appKey),  iv);
         aes.init(true, ivAndKey);
         return cipherData(aes, plain);
     }
@@ -86,7 +86,7 @@ public class AesEncrypter implements Encrypter {
                 case CBC:
                     return new CBCBlockCipher(engine );
                 case CFB:
-                    return new CBCBlockCipher(engine );
+                    return new CFBBlockCipher(engine, VECTOR_SIZE);
                     default:
                         throw new IllegalStateException("Type no cipher");
             }

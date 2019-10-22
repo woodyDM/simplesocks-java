@@ -2,7 +2,7 @@ package org.simplesocks.netty.common.encrypt;
 
 
 
-public interface EncrypterFactory<T extends Encrypter> {
+public interface EncrypterFactory {
 
     /**
      * set appKey for factory
@@ -23,7 +23,7 @@ public interface EncrypterFactory<T extends Encrypter> {
      * @param iv
      * @return
      */
-    T newInstant(String encType, byte[] iv);
+    Encrypter newInstant(String encType, byte[] iv);
 
     /**
      * generate random iv for the encType

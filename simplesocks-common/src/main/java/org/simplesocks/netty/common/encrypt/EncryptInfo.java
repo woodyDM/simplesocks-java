@@ -3,6 +3,9 @@ package org.simplesocks.netty.common.encrypt;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ *
+ */
 @Getter
 @Setter
 public class EncryptInfo {

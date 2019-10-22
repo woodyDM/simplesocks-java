@@ -12,6 +12,10 @@ public class CaesarEncrypter implements Encrypter {
         this.offset = offset;
     }
 
+    public byte getOffset() {
+        return offset;
+    }
+
     @Override
     public byte[] encrypt(byte[] plain) {
         byte[] result = new byte[plain.length];

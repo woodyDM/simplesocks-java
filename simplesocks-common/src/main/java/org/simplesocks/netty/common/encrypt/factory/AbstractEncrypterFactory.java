@@ -13,7 +13,7 @@ import java.util.Set;
 
  *
  */
-public abstract class AbstractEncrypterFactory<T extends Encrypter> implements EncrypterFactory<T> {
+public abstract class AbstractEncrypterFactory implements EncrypterFactory  {
 
     protected byte[] appKey ;
     private final Set<String> supportsEncMethod= new HashSet<>();
@@ -38,10 +38,16 @@ public abstract class AbstractEncrypterFactory<T extends Encrypter> implements E
         }
     }
 
+    /**
+     * padding appkey to targetLength, use 0 ~ target - originalLength for padding.
+     * @param raw
+     * @param target
+     * @return
+     */
     private byte[] getPaddingKey(byte[] raw, int target){
         byte[] bytes = new byte[target];
         int len = raw.length;
-        int targetLen = len<target ? len : target;
+        int targetLen = Math.min(len, target);
         System.arraycopy(raw,0,bytes,0, targetLen);
         for (int i = 0; i < target - len; i++) {
             bytes[len+i] = (byte)i;

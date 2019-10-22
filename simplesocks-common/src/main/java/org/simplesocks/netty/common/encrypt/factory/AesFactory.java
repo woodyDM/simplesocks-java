@@ -3,6 +3,7 @@ package org.simplesocks.netty.common.encrypt.factory;
 
 
 import org.simplesocks.netty.common.encrypt.EncType;
+import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.encrypter.AesEncrypter;
 
 /**
@@ -12,7 +13,7 @@ import org.simplesocks.netty.common.encrypt.encrypter.AesEncrypter;
  * where length might be 128 192 256 depend on appkey
  *
  */
-public class AesFactory extends AbstractEncrypterFactory<AesEncrypter> {
+public class AesFactory extends AbstractEncrypterFactory {
 
 
     public static final String TYPE_CBC = EncType.AES_CBC.getEncName();
@@ -25,7 +26,7 @@ public class AesFactory extends AbstractEncrypterFactory<AesEncrypter> {
     }
 
     @Override
-    public AesEncrypter newInstant(String encType, byte[] iv) {
+    public Encrypter newInstant(String encType, byte[] iv) {
         return new AesEncrypter(encType, appKey, iv );
     }
 

@@ -2,6 +2,9 @@ package org.simplesocks.netty.common.encrypt;
 
 import lombok.Getter;
 
+/**
+ * all type this program supports
+ */
 @Getter
 public enum EncType {
 

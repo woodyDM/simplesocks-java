@@ -2,13 +2,14 @@ package org.simplesocks.netty.common.encrypt.factory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.simplesocks.netty.common.encrypt.EncType;
+import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 import org.simplesocks.netty.common.encrypt.encrypter.CaesarEncrypter;
 
 import java.util.Random;
 
 @Slf4j
-public class CaesarFactory implements EncrypterFactory<CaesarEncrypter> {
+public class CaesarFactory implements EncrypterFactory {
 
     public static final String TYPE = EncType.CAESAR.getEncName();
 
@@ -23,7 +24,7 @@ public class CaesarFactory implements EncrypterFactory<CaesarEncrypter> {
     }
 
     @Override
-    public CaesarEncrypter newInstant(String encType, byte[] iv) {
+    public Encrypter newInstant(String encType, byte[] iv) {
         if(iv==null||iv.length==0){
             throw new IllegalArgumentException("invalid iv!");
         }
