@@ -103,14 +103,13 @@ public class ConnectionMessage extends ByteBasedMessage {
 
     }
 
-
     public static void main(String[] args) {
         ConnectionMessage request = new ConnectionMessage("1234😊笑", "shadow大大大efw", "www.google.com9080哈哈", 16385, Type.DOMAIN);
         byte[][] body = request.body();
         byte[] header = new byte[1];
         header[0] = (byte)0x01;
         ByteBuf byteBuf = Unpooled.wrappedBuffer(header, body[0],body[1],body[2],body[3],body[4] );
-        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.newInstance(byteBuf);
+        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.parseMessage(byteBuf);
         System.out.println(".");
     }
 }

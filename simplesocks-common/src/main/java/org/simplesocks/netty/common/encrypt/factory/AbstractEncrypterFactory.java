@@ -39,9 +39,9 @@ public abstract class AbstractEncrypterFactory implements EncrypterFactory  {
     }
 
     /**
-     * padding appkey to targetLength, use 0 ~ target - originalLength for padding.
+     * padding appkey to targetLength, using 0
      * @param raw
-     * @param target
+     * @param target    16 / 24 / 32
      * @return
      */
     private byte[] getPaddingKey(byte[] raw, int target){
@@ -49,9 +49,6 @@ public abstract class AbstractEncrypterFactory implements EncrypterFactory  {
         int len = raw.length;
         int targetLen = Math.min(len, target);
         System.arraycopy(raw,0,bytes,0, targetLen);
-        for (int i = 0; i < target - len; i++) {
-            bytes[len+i] = (byte)i;
-        }
         return bytes;
     }
 

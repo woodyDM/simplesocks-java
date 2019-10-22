@@ -13,7 +13,7 @@ public class SimpleSocksProtocolDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        SimpleSocksMessage request = SimpleSocksMessageFactory.newInstance(byteBuf);
+        SimpleSocksMessage request = SimpleSocksMessageFactory.parseMessage(byteBuf);
         list.add(request);
     }
 }

@@ -48,7 +48,7 @@ public class ProxyDataMessage extends ByteBasedMessage {
         byte[] header = new byte[1];
         header[0] = (byte)0x02;
         ByteBuf byteBuf = Unpooled.wrappedBuffer(header, body[0],body[1],body[2]  );
-        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.newInstance(byteBuf);
+        SimpleSocksMessage simpleSocksMessage = SimpleSocksMessageFactory.parseMessage(byteBuf);
         ProxyDataMessage proxyDataMessage2 = (ProxyDataMessage)simpleSocksMessage;
         String s1 = new String(proxyDataMessage2.data, StandardCharsets.UTF_8);
         System.out.println(".");

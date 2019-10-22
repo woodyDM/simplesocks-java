@@ -1,4 +1,4 @@
-package org.simplesocks.netty.common.encrypter
+package org.simplesocks.netty.common.encrypt.encrypter
 
 
 import org.simplesocks.netty.common.encrypt.encrypter.CaesarEncrypter
