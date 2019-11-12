@@ -55,7 +55,7 @@ class AesFactorySpec extends Specification{
         factory.appKey.length == 16
         factory.appKey[1] == (byte)2
         factory.appKey[4] == (byte)5
-        factory.appKey[15] == (byte)0
+        factory.appKey[15] == (byte)11
     }
 
     def "should padding < 24 length"(){
@@ -68,7 +68,7 @@ class AesFactorySpec extends Specification{
         factory.appKey[1] == (byte)2
         factory.appKey[4] == (byte)5
         factory.appKey[15] == (byte)16
-        factory.appKey[20] ==(byte)0
+        factory.appKey[20] ==(byte)6
     }
 
     def "should padding < 32 length"(){
@@ -82,6 +82,6 @@ class AesFactorySpec extends Specification{
         factory.appKey[4] == (byte)5
         factory.appKey[15] == (byte)16
         factory.appKey[20] ==(byte)21
-        factory.appKey[31] == (byte)0
+        factory.appKey[31] == (byte)5
     }
 }

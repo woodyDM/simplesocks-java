@@ -1,6 +1,7 @@
 package org.simplesocks.netty.common.encrypt.factory;
 
 
+import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.simplesocks.netty.common.encrypt.Encrypter;
 import org.simplesocks.netty.common.encrypt.EncrypterFactory;
 
@@ -44,13 +45,19 @@ public abstract class AbstractEncrypterFactory implements EncrypterFactory  {
      * @param target    16 / 24 / 32
      * @return
      */
-    private byte[] getPaddingKey(byte[] raw, int target){
+    public byte[] getPaddingKey(byte[] raw, int target){
         byte[] bytes = new byte[target];
         int len = raw.length;
-        int targetLen = Math.min(len, target);
-        System.arraycopy(raw,0,bytes,0, targetLen);
+        System.arraycopy(raw,0,bytes,0, len);
+        PKCS7Padding pkcs7Padding = new PKCS7Padding();
+        int eff = pkcs7Padding.addPadding(bytes, len);
+        if (eff != target - len) {
+            throw new IllegalStateException("Should eq");
+        }
         return bytes;
     }
+
+
 
     @Override
     public boolean support(String encType) {

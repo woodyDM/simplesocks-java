@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration>
-	<localPort>10800</localPort>
-	<configServerPort>10590</configServerPort>
+	<localPort>10801</localPort>
+	<configServerPort>10591</configServerPort>
 	<auth>123456</auth>
 	<remoteHost>localhost</remoteHost>
-	<remotePort>12020</remotePort>
+	<remotePort>12021</remotePort>
 	<encryptType>aes-cbc</encryptType>
-	<globalProxy>false</globalProxy>
+	<globalProxy>true</globalProxy>
 	<whiteSites>
-
 	</whiteSites>
 	<proxySites>
-
 		<site>google.com</site>
-
 	</proxySites>
 </Configuration>
