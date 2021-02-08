@@ -41,10 +41,10 @@ public abstract class AbstractEncrypterFactory<T extends Encrypter> implements E
     private byte[] getPaddingKey(byte[] raw, int target){
         byte[] bytes = new byte[target];
         int len = raw.length;
-        int targetLen = len<target ? len : target;
-        System.arraycopy(raw,0,bytes,0, targetLen);
+        int left = target - len;
+        System.arraycopy(raw, 0, bytes, 0, len);
         for (int i = 0; i < target - len; i++) {
-            bytes[len+i] = (byte)i;
+            bytes[len + i] = (byte) left;
         }
         return bytes;
     }
